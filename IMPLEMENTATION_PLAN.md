@@ -111,7 +111,14 @@ Missing photos disable the hint (no penalty).
 - `VITE_BASE_PATH=/<repo-name>/` for project pages.
 - GitHub Pages source: **GitHub Actions**.
 
+## Demo mode fallback
+When Google Places returns `REQUEST_DENIED` (e.g., Maps Demo Key or a key without Places
+enabled), the game automatically switches to 15 bundled Singapore hawker centres with
+hand-crafted reviews and SVG photos. The map still uses the real Google Maps JavaScript
+API so the pin-dropping UX works. A "Demo mode" notice tells the player what happened.
+
 ## Risks / notes
 - Live Places calls cost money; selection usually resolves in one or two detail calls.
 - Review coverage varies; the UI shows placeholders for missing star ratings.
 - The key is visible in the built bundle, so referrer restrictions are essential.
+- Maps Demo Key works for the map but not Places; demo mode covers that gap.
