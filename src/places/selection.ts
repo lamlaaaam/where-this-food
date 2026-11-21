@@ -3,12 +3,12 @@ import { isInSingapore } from '../data/geo'
 import type { PlaceData } from '../types'
 import { isFoodPlace, PlacesApi } from './service'
 
-const SEARCH_CENTERS = [
-  CONFIG.singaporeCenter,
-  { lat: 1.32, lng: 103.85 },
-  { lat: 1.38, lng: 103.75 },
-  { lat: 1.35, lng: 103.95 },
-]
+const SEARCH_CENTERS = [CONFIG.singaporeCenter, { lat: 1.32, lng: 103.85 }]
+
+function isQuotaError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error)
+  return /quota|exceeded|RESOURCE_EXHAUSTED|OVER_QUERY_LIMIT/i.test(message)
+}
 
 export async function selectAnswerPlace(
   api: PlacesApi,
@@ -29,6 +29,7 @@ export async function selectAnswerPlace(
       results = await api.nearbyRestaurants(center, CONFIG.answerSearchRadiusMeters)
     } catch (error) {
       lastError = error
+      if (isQuotaError(error)) throw error
       continue
     }
 
@@ -71,6 +72,7 @@ export async function selectAnswerPlace(
         }
       } catch (error) {
         lastError = error
+        if (isQuotaError(error)) throw error
         // Try the next candidate.
       }
     }

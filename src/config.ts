@@ -10,7 +10,7 @@ export const CONFIG = {
   singaporeZoom: 11.2,
   answerSearchRadiusMeters: 25_000,
   guessSnapRadiusMeters: 120,
-  maxCandidatesToInspect: 12,
+  maxCandidatesToInspect: 3,
 } as const
 
 export const HINT_LABELS = {

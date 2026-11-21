@@ -14,19 +14,13 @@ const DETAIL_FIELDS = [
   'photos',
   'reviews',
   'types',
-  'primaryType',
   'rating',
   'userRatingCount',
 ]
 
-const SEARCH_FIELDS = [
-  'id',
-  'displayName',
-  'location',
-  'types',
-  'rating',
-  'userRatingCount',
-]
+// Keep searches on the cheaper Pro SKU; rating/ratings are fetched for the
+// chosen place only. Results stay in prominence order.
+const SEARCH_FIELDS = ['id', 'displayName', 'location', 'types']
 
 /**
  * Types allowed in an `includedTypes` request parameter (Table A of the
@@ -213,7 +207,8 @@ function toPlaceData(place: google.maps.places.Place): PlaceData {
       ?.map((photo) => {
         try {
           return photo.getURI({ maxWidth: 1000 })
-        } catch {
+        } catch (error) {
+          console.warn('[Places] Could not get photo URI:', error)
           return null
         }
       })
