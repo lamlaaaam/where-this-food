@@ -5,7 +5,7 @@ import { DEMO_PLACES, pickDemoPlace } from '../data/demoPlaces'
 import { describeCuisine, loadGoogleMaps, PlacesApi, PlacesError } from '../places/service'
 import { createMap } from '../map/init'
 import { MapInteraction } from '../map/pois'
-import { reviewsByStar } from '../places/reviews'
+import { reviewsByStar, usableReviews } from '../places/reviews'
 import { selectAnswerPlace } from '../places/selection'
 import type { Guess, Hint, PlaceData, RoundScore } from '../types'
 import { escapeHtml, formatClock, toast } from '../ui/utils'
@@ -87,7 +87,7 @@ export class Game {
             <div class="hud-item"><span class="hud-label">Round</span><span class="hud-value" id="hud-round">—</span></div>
             <div class="hud-item"><span class="hud-label">Total</span><span class="hud-value" id="hud-total">0</span></div>
             <div class="hud-item"><span class="hud-label">Time</span><span class="hud-value" id="hud-time">0:00</span></div>
-            <div class="hud-item accent"><span class="hud-label">This round</span><span class="hud-value" id="hud-potential">—</span></div>
+            <div class="hud-item accent"><span class="hud-label">Points for this round</span><span class="hud-value" id="hud-potential">—</span></div>
           </div>
         </header>
         <main id="screen" class="screen"></main>
@@ -97,6 +97,7 @@ export class Game {
 
   private renderMenu(): void {
     this.stopTimer()
+    this.setPlayingLayout(false)
     const screen = this.screen()
     screen.innerHTML = `
       <section class="menu">
@@ -173,6 +174,7 @@ export class Game {
     this.api = null
     this.interaction = null
 
+    this.setPlayingLayout(true)
     const screen = this.screen()
     screen.innerHTML = `
       <section class="play">
@@ -336,8 +338,9 @@ export class Game {
     const container = document.getElementById('reviews')
     if (!place || !container) return
 
-    const starReviews = reviewsByStar(place.reviews)
-    const count = place.reviews.length
+    const eligibleReviews = usableReviews(place.reviews, place.name)
+    const starReviews = reviewsByStar(place.reviews, place.name)
+    const count = eligibleReviews.length
     this.setText('review-count', `${count} review${count === 1 ? '' : 's'}`)
 
     // Show cuisine type
@@ -560,6 +563,7 @@ export class Game {
 
   private renderSummary(): void {
     this.stopTimer()
+    this.setPlayingLayout(false)
     const screen = this.screen()
     const maxTotal = CONFIG.totalRounds * CONFIG.maxRoundScore
     const message =
@@ -676,6 +680,10 @@ export class Game {
     const screen = document.getElementById('screen')
     if (!screen) throw new Error('Screen element is missing')
     return screen
+  }
+
+  private setPlayingLayout(playing: boolean): void {
+    document.querySelector('.app')?.classList.toggle('is-playing', playing)
   }
 
   private setText(id: string, value: string): void {

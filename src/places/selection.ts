@@ -1,6 +1,7 @@
 import { CONFIG } from '../config'
 import { isInSingapore } from '../data/geo'
 import type { PlaceData } from '../types'
+import { reviewsByStar, usableReviews } from './reviews'
 import { isFoodPlace, PlacesApi } from './service'
 
 const SEARCH_CENTERS = [CONFIG.singaporeCenter, { lat: 1.32, lng: 103.85 }]
@@ -15,7 +16,6 @@ export async function selectAnswerPlace(
   usedPlaceIds: Set<string>,
 ): Promise<PlaceData> {
   const centers = shuffle([...SEARCH_CENTERS])
-  let fallback: PlaceData | null = null
   let lastError: unknown = null
   let totalResults = 0
   let totalCandidates = 0
@@ -57,22 +57,19 @@ export async function selectAnswerPlace(
           console.warn('[Places] Skipping non-food detail result:', place.name, place.types)
           continue
         }
-        maxReviews = Math.max(maxReviews, place.reviews.length)
+        const eligible = usableReviews(place.reviews, place.name)
+        maxReviews = Math.max(maxReviews, eligible.length)
         if (!sample) {
           sample =
             ` sample: "${place.name}" id=${place.placeId} ` +
             `rating=${place.rating} ratings=${place.userRatingsTotal} ` +
-            `photos=${place.photos.length} reviews=${place.reviews.length}`
+            `photos=${place.photos.length} reviews=${eligible.length}`
         }
-        const distinctRatings = new Set(
-          place.reviews.map((review) => Math.round(review.rating)),
-        )
 
-        if (place.reviews.length >= 5 && distinctRatings.size >= 3) {
+        // Every star (1★–5★) must be covered by a review that does not give
+        // away the answer by naming the place.
+        if (reviewsByStar(place.reviews, place.name).every((slot) => slot.review)) {
           return place
-        }
-        if (!fallback && place.reviews.length >= 3) {
-          fallback = place
         }
       } catch (error) {
         lastError = error
@@ -80,15 +77,11 @@ export async function selectAnswerPlace(
         // Try the next candidate.
       }
     }
-
-    if (fallback) return fallback
   }
-
-  if (fallback) return fallback
 
   const detail = lastError instanceof Error ? `: ${lastError.message}` : ''
   throw new Error(
-    `Google Places returned no usable Singapore food place with reviews ` +
+    `Google Places returned no Singapore food place with one non-spoiling review for every star ` +
       `(results: ${totalResults}, candidates: ${totalCandidates}, ` +
       `inspected: ${inspected}, max reviews: ${maxReviews})${sample}${detail}.`,
   )

@@ -17,7 +17,8 @@ export function createMap(element: HTMLElement): google.maps.Map {
     backgroundColor: '#10161d',
     restriction: {
       latLngBounds: SINGAPORE_BOUNDS_LITERAL,
-      strictBounds: false,
+      // Keep Malaysia and other neighbouring areas completely hidden.
+      strictBounds: true,
     },
   })
 }
