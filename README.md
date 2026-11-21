@@ -44,11 +44,12 @@ of the clues panel when demo mode is active.
    - `https://<your-github-username>.github.io/*`
 4. Optionally restrict the key to those two APIs.
 
-If you see **“Google Places quota exceeded for this key”**, open the Google Cloud console for
-the project, check **APIs & Services → Quotas** for `Places API (New)` / Maps JavaScript
-Places requests, and confirm billing is active. The quota can be daily or per-minute. The
-game automatically switches to bundled demo places until the quota resets, so gameplay
-continues without interruptions.
+If you see **“Google Places quota exceeded for this key”**, the exhausted metric is
+`GetPlaceRequest` (the Place Details call used for reviews/photos). In the Google Cloud
+console for the project shown in the error, go to **APIs & Services → Quotas**, search for
+`GetPlaceRequest`, and request an increase for the **per day** limit. Also confirm billing
+is active and that you are using the intended project/key. The game automatically switches
+to bundled demo places until the quota resets, so gameplay continues without interruptions.
 
 ## Build
 

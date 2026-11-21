@@ -86,7 +86,7 @@ function errorDetail(error: unknown): string {
       : error instanceof Error
         ? error.message
         : ''
-  return message.replace(/\s+/g, ' ').slice(0, 200)
+  return message.replace(/\s+/g, ' ').slice(0, 500)
 }
 
 function placesFailure(error: unknown): PlacesError {
