@@ -3,9 +3,9 @@ import { SINGAPORE_BOUNDS_LITERAL } from '../data/geo'
 import { DARK_MAP_STYLE } from './style'
 
 export function createMap(element: HTMLElement): google.maps.Map {
-  return new google.maps.Map(element, {
+  const map = new google.maps.Map(element, {
     center: CONFIG.singaporeCenter,
-    zoom: 11.2,
+    zoom: 10,
     styles: DARK_MAP_STYLE,
     clickableIcons: true,
     gestureHandling: 'greedy',
@@ -21,4 +21,9 @@ export function createMap(element: HTMLElement): google.maps.Map {
       strictBounds: true,
     },
   })
+
+  // Let Google pick the zoom that fits the whole country in the current panel.
+  map.fitBounds(SINGAPORE_BOUNDS_LITERAL, 24)
+
+  return map
 }

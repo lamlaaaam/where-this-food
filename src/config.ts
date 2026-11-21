@@ -7,7 +7,6 @@ export const CONFIG = {
   timePenaltyPerBlock: 5,
   timeBlockSeconds: 30,
   singaporeCenter: { lat: 1.3521, lng: 103.8198 },
-  singaporeZoom: 11.2,
   answerSearchRadiusMeters: 25_000,
   guessSnapRadiusMeters: 120,
   maxCandidatesToInspect: 6,

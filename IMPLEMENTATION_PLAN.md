@@ -105,7 +105,9 @@ Missing photos disable a hint (no penalty).
 - `clickableIcons: true`; the `click` event's `placeId` is used to fetch the POI.
 - Non-food POIs and places outside Singapore are rejected with a toast.
 - Empty click: `Place.searchNearby()` with `rankPreference: DISTANCE` and a 120 m snap radius.
-- Correct/incorrect finish reveals the answer with a green marker and info window.
+- Initial view uses `fitBounds()` on the Singapore bounding box with padding.
+- Correct/incorrect/skipped finish reveals the answer with a green marker and info window.
+- Skipping a round records a 0-point result and is labelled as skipped in the summary.
 
 ## Deployment
 - `.github/workflows/deploy.yml` builds on push to `main`.

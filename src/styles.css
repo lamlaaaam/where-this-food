@@ -379,11 +379,13 @@ input {
 }
 
 .reviews-panel {
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
   padding: 18px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
 .panel-head {
@@ -414,7 +416,6 @@ input {
 }
 
 .demo-notice {
-  grid-row: 2;
   display: flex;
   gap: 9px;
   align-items: flex-start;
@@ -442,7 +443,6 @@ input {
 }
 
 .place-cuisine {
-  grid-row: 1;
   display: flex;
   gap: 8px;
   align-items: center;
@@ -473,7 +473,6 @@ input {
 }
 
 .hints-head {
-  grid-row: 4;
   margin: 12px 0 0;
   padding-top: 12px;
   border-top: 1px solid var(--border);
@@ -486,15 +485,9 @@ input {
 }
 
 .reviews {
-  grid-row: 3;
   display: grid;
   align-content: start;
   gap: 10px;
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
 .review {
@@ -570,15 +563,11 @@ input {
 }
 
 .review-text {
-  display: -webkit-box;
-  overflow: hidden;
   margin: 0;
   color: #cbd6e2;
   font-size: 13px;
   line-height: 1.5;
   overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
 }
 
 .review-text.muted {
@@ -587,15 +576,9 @@ input {
 }
 
 .hints {
-  grid-row: 5;
   display: grid;
   align-content: start;
   gap: 8px;
-  height: clamp(180px, 26vh, 250px);
-  overflow-y: auto;
-  padding-right: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
 .hint {
@@ -665,8 +648,6 @@ input {
 }
 
 .hint-content {
-  max-height: 150px;
-  overflow: hidden;
   padding: 0 13px 13px;
   animation: fade 0.25s ease both;
 }
@@ -694,7 +675,7 @@ input {
 .hint-photo img {
   display: block;
   width: 100%;
-  max-height: 110px;
+  max-height: 220px;
   object-fit: cover;
 }
 
@@ -1198,14 +1179,6 @@ input {
 
   .reviews-panel {
     padding: 12px;
-  }
-
-  .hints {
-    height: 150px;
-  }
-
-  .hint-photo img {
-    max-height: 84px;
   }
 
   .map-panel,

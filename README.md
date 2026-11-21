@@ -9,6 +9,8 @@ A browser game: guess Singapore food places from their Google reviews and drop a
 - **30 seconds free**, then −5 points every 30 seconds
 - Each hint costs **−12 points**
 - Correct on the 1st / 2nd / 3rd guess scores **100% / 70% / 40%** of the remaining points
+- **Skip round** if you are stuck — reveals the answer and awards 0 points
+- Map starts fitted to the whole of Singapore; only the clues panel scrolls
 
 ## Stack
 

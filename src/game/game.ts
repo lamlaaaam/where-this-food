@@ -202,6 +202,7 @@ export class Game {
               <span class="guess-kicker">Drop a pin</span>
               <span>Tap a restaurant on the map to choose your guess.</span>
             </div>
+            <button class="btn ghost" id="skip-round" type="button" disabled>Skip round</button>
             <button class="btn primary" id="confirm-guess" type="button" disabled>Confirm guess</button>
           </div>
         </div>
@@ -213,6 +214,7 @@ export class Game {
     document
       .getElementById('confirm-guess')
       ?.addEventListener('click', () => this.handleConfirm())
+    document.getElementById('skip-round')?.addEventListener('click', () => this.skipRound())
     document
       .getElementById('hints')
       ?.addEventListener('click', (event) => this.handleHintClick(event))
@@ -259,6 +261,9 @@ export class Game {
     this.usedPlaceIds.add(place.placeId)
     this.hints = buildHints(place)
     this.loading = false
+
+    const skip = document.getElementById('skip-round') as HTMLButtonElement | null
+    if (skip) skip.disabled = false
 
     this.renderReviews()
     this.renderHints()
@@ -419,6 +424,11 @@ export class Game {
     this.updateHud()
   }
 
+  private skipRound(): void {
+    if (this.roundOver || this.loading || !this.currentPlace) return
+    this.finishRound(false, true)
+  }
+
   private handleConfirm(): void {
     if (this.roundOver || this.loading || !this.currentPlace || !this.interaction) return
 
@@ -446,7 +456,7 @@ export class Game {
     this.finishRound(false)
   }
 
-  private finishRound(correct: boolean): void {
+  private finishRound(correct: boolean, skipped = false): void {
     const place = this.currentPlace
     if (!place) return
 
@@ -467,6 +477,8 @@ export class Game {
 
     const confirm = document.getElementById('confirm-guess') as HTMLButtonElement | null
     if (confirm) confirm.disabled = true
+    const skip = document.getElementById('skip-round') as HTMLButtonElement | null
+    if (skip) skip.disabled = true
 
     if (correct) {
       this.totalScore += score
@@ -480,12 +492,13 @@ export class Game {
       score,
       placeName: place.name,
       correct,
+      skipped,
       attempts: this.attempts,
       hintsUsed,
       elapsedSeconds: Math.round(elapsed),
     })
 
-    this.showResult(correct, breakdown, place, score)
+    this.showResult(correct, breakdown, place, score, skipped)
   }
 
   private showResult(
@@ -493,21 +506,28 @@ export class Game {
     breakdown: ScoreBreakdown,
     place: PlaceData,
     score: number,
+    skipped = false,
   ): void {
     document.getElementById('result-modal')?.remove()
 
     const isLast = this.roundIndex === CONFIG.totalRounds - 1
     const multiplier = Math.round(breakdown.attemptMultiplier * 100)
+    const title = skipped ? 'Round skipped' : correct ? 'Nailed it!' : 'Out of guesses'
+    const badge = skipped ? '→' : correct ? '✓' : '✕'
+    const lead = skipped ? 'You skipped. The answer was' : correct ? 'You found' : 'The answer was'
+    const note = skipped
+      ? 'No points awarded for a skipped round.'
+      : 'No points this round — but now you know the spot.'
 
     document.body.insertAdjacentHTML(
       'beforeend',
       `
       <div class="modal-backdrop" id="result-modal">
         <div class="modal ${correct ? 'good' : 'bad'}">
-          <div class="result-badge">${correct ? '✓' : '✕'}</div>
-          <h2>${correct ? 'Nailed it!' : 'Out of guesses'}</h2>
+          <div class="result-badge">${badge}</div>
+          <h2>${title}</h2>
           <p class="result-place">
-            ${correct ? 'You found' : 'The answer was'}
+            ${lead}
             <strong>${escapeHtml(place.name)}</strong>
           </p>
           <p class="result-address">${escapeHtml(place.address)}</p>
@@ -522,7 +542,7 @@ export class Game {
                   <div class="total"><span>Round score</span><span>${score}</span></div>
                 </div>
               `
-              : `<p class="result-note">No points this round — but now you know the spot.</p>`
+              : `<p class="result-note">${note}</p>`
           }
           <button class="btn primary large" id="next-round" type="button">
             ${isLast ? 'See final score' : 'Next round'}
@@ -570,7 +590,7 @@ export class Game {
                   <div class="round-row ${round.correct ? 'good' : 'bad'}">
                     <span class="round-num">R${round.round}</span>
                     <span class="round-name">${escapeHtml(round.placeName)}</span>
-                    <span class="round-meta">${round.hintsUsed} hint${round.hintsUsed === 1 ? '' : 's'} · ${round.attempts} ${round.attempts === 1 ? 'try' : 'tries'}</span>
+                    <span class="round-meta">${round.skipped ? 'Skipped' : `${round.hintsUsed} hint${round.hintsUsed === 1 ? '' : 's'} · ${round.attempts} ${round.attempts === 1 ? 'try' : 'tries'}`}</span>
                     <span class="round-score">${round.score}</span>
                   </div>
                 `,
