@@ -29,7 +29,7 @@ cp .env.example .env      # Windows: copy .env.example .env
 npm run dev
 ```
 
-The map key is read only from `.env`; nothing is stored in the browser. If the variable is missing, the app shows setup instructions instead of the menu.
+The map key is read only from `.env`; nothing is stored in the browser. If the variable is missing in local development, the app shows setup instructions. A deployed build with no key shows a configuration error instead of prompting players.
 
 ### Daily puzzle generation
 

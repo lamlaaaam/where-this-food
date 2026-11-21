@@ -44,7 +44,7 @@ export class Game {
   async boot(): Promise<void> {
     this.apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
     if (!this.apiKey) {
-      this.renderSetup()
+      this.renderKeyProblem()
       return
     }
 
@@ -210,6 +210,32 @@ export class Game {
     `
   }
 
+  private renderKeyProblem(error?: string): void {
+    if (import.meta.env.DEV) {
+      this.renderSetup(error)
+      return
+    }
+    this.renderConfigurationError(error)
+  }
+
+  private renderConfigurationError(error?: string): void {
+    this.root.innerHTML = `
+      <div class="setup">
+        <div class="setup-card">
+          <span class="brand-mark large">WTF</span>
+          <h1>Game configuration error</h1>
+          <p class="lede">This build is missing its Google Maps configuration.</p>
+          ${
+            error
+              ? `<p class="setup-error">${escapeHtml(error)}</p>`
+              : ''
+          }
+          <p class="fineprint">Please check back later. No action is needed from players.</p>
+        </div>
+      </div>
+    `
+  }
+
   private renderShell(): void {
     this.root.innerHTML = `
       <div class="app">
@@ -297,14 +323,14 @@ export class Game {
 
   private async startGame(): Promise<void> {
     if (!this.apiKey) {
-      this.renderSetup()
+      this.renderKeyProblem()
       return
     }
 
     try {
       await loadGoogleMaps(this.apiKey)
     } catch {
-      this.renderSetup(
+      this.renderKeyProblem(
         'Could not load Google Maps. Check that the key is valid and that the Maps JavaScript API is enabled.',
       )
       return
