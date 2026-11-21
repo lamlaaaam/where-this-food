@@ -30,7 +30,7 @@ If you do not want to create a `.env`, press **Start game** without a key — a 
 ### Demo mode (no billing required)
 
 The **Maps Demo Key** from Google lets you try the game without a billing account, but it
-does **not** include the Places API reviews or photos. The game detects this and
+does **not** include Places API (New) reviews or photos. The game detects this and
 automatically falls back to **bundled demo places** — you can still play all 5 rounds with
 real reviews, photos, MRT/landmark hints, and map guessing. A notice appears at the top
 of the clues panel when demo mode is active.
@@ -38,7 +38,7 @@ of the clues panel when demo mode is active.
 ### Google Cloud setup (full experience)
 
 1. Create a Google Cloud project and enable billing.
-2. Enable **Maps JavaScript API** and **Places API**.
+2. Enable **Maps JavaScript API** and **Places API (New)**.
 3. Create an API key and restrict it by **HTTP referrer**:
    - `http://localhost:5173/*`
    - `https://<your-github-username>.github.io/*`

@@ -1,8 +1,7 @@
 import { CONFIG } from '../config'
 import { isInSingapore } from '../data/geo'
 import type { PlaceData } from '../types'
-import { isFoodPlace, type PlaceResult, toPlaceData } from './service'
-import type { PlacesApi } from './service'
+import { isFoodPlace, PlacesApi } from './service'
 
 const SEARCH_CENTERS = [
   CONFIG.singaporeCenter,
@@ -20,7 +19,7 @@ export async function selectAnswerPlace(
   let lastError: unknown = null
 
   for (const center of centers) {
-    let results: PlaceResult[]
+    let results: PlaceData[]
     try {
       results = await api.nearbyRestaurants(center, CONFIG.answerSearchRadiusMeters)
     } catch (error) {
@@ -29,27 +28,23 @@ export async function selectAnswerPlace(
     }
 
     const candidates = shuffle(
-      results.filter((result) => {
-        const location = result.geometry?.location
-        if (!location) return false
+      results.filter((place) => {
         return (
-          Boolean(result.place_id) &&
-          !usedPlaceIds.has(result.place_id as string) &&
-          (result.user_ratings_total ?? 0) >= 5 &&
-          isFoodPlace(result.types) &&
-          isInSingapore({ lat: location.lat(), lng: location.lng() })
+          Boolean(place.placeId) &&
+          !usedPlaceIds.has(place.placeId) &&
+          (place.userRatingsTotal ?? 0) >= 5 &&
+          isFoodPlace(place.types) &&
+          isInSingapore(place.location)
         )
       }),
     ).slice(0, CONFIG.maxCandidatesToInspect)
 
     for (const candidate of candidates) {
-      const placeId = candidate.place_id
-      if (!placeId) continue
-
       try {
-        const details = await api.details(placeId)
-        const place = toPlaceData(details)
-        const distinctRatings = new Set(place.reviews.map((review) => Math.round(review.rating)))
+        const place = await api.details(candidate.placeId)
+        const distinctRatings = new Set(
+          place.reviews.map((review) => Math.round(review.rating)),
+        )
 
         if (place.reviews.length >= 5 && distinctRatings.size >= 3) {
           return place

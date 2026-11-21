@@ -1,21 +1,31 @@
 import { Loader } from '@googlemaps/js-api-loader'
-import { haversineMeters } from '../data/geo'
+import { haversineMeters, isInSingapore } from '../data/geo'
 import type { PlaceData, ReviewData } from '../types'
 
-export type PlaceResult = google.maps.places.PlaceResult
-
+/**
+ * Places API (New) field masks.
+ * Only request what the game actually uses to keep requests cheap.
+ */
 const DETAIL_FIELDS = [
-  'place_id',
-  'name',
-  'geometry',
+  'id',
+  'displayName',
+  'formattedAddress',
+  'location',
   'photos',
   'reviews',
   'types',
+  'primaryType',
   'rating',
-  'user_ratings_total',
-  'formatted_address',
-  'vicinity',
-  'url',
+  'userRatingCount',
+]
+
+const SEARCH_FIELDS = [
+  'id',
+  'displayName',
+  'location',
+  'types',
+  'rating',
+  'userRatingCount',
 ]
 
 const FOOD_TYPES = new Set([
@@ -37,6 +47,7 @@ const GENERIC_TYPES = new Set([
   'store',
   'meal_takeaway',
   'meal_delivery',
+  'night_club',
 ])
 
 export class PlacesError extends Error {
@@ -49,24 +60,58 @@ export class PlacesError extends Error {
   }
 }
 
-function placesFailure(status: string): PlacesError {
+function errorStatus(error: unknown): string {
+  if (error instanceof PlacesError) return error.status
+
+  if (error && typeof error === 'object') {
+    const candidate = (error as { status?: unknown; code?: unknown; name?: unknown }).status ??
+      (error as { status?: unknown; code?: unknown; name?: unknown }).code ??
+      (error as { status?: unknown; code?: unknown; name?: unknown }).name
+    if (typeof candidate === 'string' && candidate.length > 0) return candidate.toUpperCase()
+  }
+
+  const message = error instanceof Error ? error.message : String(error)
+  const match = message.match(
+    /\b(REQUEST_DENIED|PERMISSION_DENIED|OVER_QUERY_LIMIT|RESOURCE_EXHAUSTED|INVALID_REQUEST|INVALID_ARGUMENT|NOT_FOUND)\b/,
+  )
+  return match?.[1] ?? 'UNKNOWN'
+}
+
+function placesFailure(error: unknown): PlacesError {
+  const status = errorStatus(error)
+
   switch (status) {
     case 'REQUEST_DENIED':
+    case 'PERMISSION_DENIED':
       return new PlacesError(
-        'Google Places denied the request. The key may be a Maps Demo Key, or the Places API may not be enabled for it.',
+        'Google Places denied the request. Check that Places API (New) is enabled for this key and that billing is configured.',
         status,
       )
     case 'OVER_QUERY_LIMIT':
+    case 'RESOURCE_EXHAUSTED':
       return new PlacesError('Google Places quota exceeded for this key.', status)
     case 'INVALID_REQUEST':
+    case 'INVALID_ARGUMENT':
       return new PlacesError('Google Places rejected the request.', status)
+    case 'NOT_FOUND':
+      return new PlacesError('Google Places could not find that place.', status)
     default:
       return new PlacesError(`Google Places request failed (${status}).`, status)
   }
 }
 
-let loaderPromise: Promise<typeof google> | null = null
+async function callPlaces<T>(request: () => Promise<T>): Promise<T> {
+  try {
+    return await request()
+  } catch (error) {
+    throw placesFailure(error)
+  }
+}
 
+let loaderPromise: Promise<typeof google> | null = null
+let placeClassPromise: Promise<typeof google.maps.places.Place> | null = null
+
+/** Load the Maps JavaScript API with the new Places library. */
 export function loadGoogleMaps(apiKey: string): Promise<typeof google> {
   if (!loaderPromise) {
     const loader = new Loader({
@@ -74,93 +119,40 @@ export function loadGoogleMaps(apiKey: string): Promise<typeof google> {
       version: 'weekly',
       libraries: ['places'],
     })
-    loaderPromise = loader.load().catch((error: unknown) => {
-      // Allow the player to retry with a different key.
-      loaderPromise = null
-      throw error
-    })
+
+    loaderPromise = loader
+      .load()
+      .then(async () => {
+        await getPlaceClass()
+        return google
+      })
+      .catch((error: unknown) => {
+        loaderPromise = null
+        placeClassPromise = null
+        throw error
+      })
   }
   return loaderPromise
 }
 
-export class PlacesApi {
-  private readonly service: google.maps.places.PlacesService
-  private readonly cache = new Map<string, PlaceResult>()
-
-  constructor(map: google.maps.Map) {
-    this.service = new google.maps.places.PlacesService(map)
+async function getPlaceClass(): Promise<typeof google.maps.places.Place> {
+  if (!placeClassPromise) {
+    placeClassPromise = google.maps
+      .importLibrary('places')
+      .then((library) => {
+        const placesLibrary = library as google.maps.PlacesLibrary
+        const PlaceClass = placesLibrary.Place ?? google.maps.places.Place
+        if (!PlaceClass) {
+          throw new PlacesError('Google Places API (New) is not available.', 'UNKNOWN')
+        }
+        return PlaceClass
+      })
+      .catch((error: unknown) => {
+        placeClassPromise = null
+        throw placesFailure(error)
+      })
   }
-
-  nearbyRestaurants(
-    center: google.maps.LatLngLiteral,
-    radiusMeters: number,
-  ): Promise<PlaceResult[]> {
-    return new Promise((resolve, reject) => {
-      this.service.nearbySearch(
-        { location: center, radius: radiusMeters, type: 'restaurant' },
-        (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            resolve(results)
-          } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-            resolve([])
-          } else {
-            reject(placesFailure(status))
-          }
-        },
-      )
-    })
-  }
-
-  nearestRestaurants(
-    location: google.maps.LatLngLiteral,
-    radiusMeters: number,
-  ): Promise<PlaceResult[]> {
-    return new Promise((resolve, reject) => {
-      this.service.nearbySearch(
-        {
-          location,
-          type: 'restaurant',
-          rankBy: google.maps.places.RankBy.DISTANCE,
-        },
-        (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            const nearby = results.filter((result) => {
-              const point = result.geometry?.location
-              if (!point) return false
-              return (
-                haversineMeters(location, { lat: point.lat(), lng: point.lng() }) <=
-                radiusMeters
-              )
-            })
-            resolve(nearby)
-          } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-            resolve([])
-          } else {
-            reject(placesFailure(status))
-          }
-        },
-      )
-    })
-  }
-
-  details(placeId: string): Promise<PlaceResult> {
-    const cached = this.cache.get(placeId)
-    if (cached) return Promise.resolve(cached)
-
-    return new Promise((resolve, reject) => {
-      this.service.getDetails(
-        { placeId, fields: DETAIL_FIELDS },
-        (result, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && result) {
-            this.cache.set(placeId, result)
-            resolve(result)
-          } else {
-            reject(placesFailure(status))
-          }
-        },
-      )
-    })
-  }
+  return placeClassPromise
 }
 
 export function isFoodPlace(types: string[] | undefined): boolean {
@@ -184,35 +176,105 @@ function humanizeType(type: string): string {
     .replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
-export function toPlaceData(place: PlaceResult): PlaceData {
-  const location = place.geometry?.location
+function toPlaceData(place: google.maps.places.Place): PlaceData {
+  const location = place.location
   if (!location) throw new Error('Place is missing a location')
 
-  return {
-    placeId: place.place_id ?? '',
-    name: place.name ?? 'Unknown place',
-    address: place.formatted_address ?? place.vicinity ?? '',
-    location: { lat: location.lat(), lng: location.lng() },
-    rating: place.rating,
-    userRatingsTotal: place.user_ratings_total,
-    types: place.types ?? [],
-    photos: photoUrls(place),
-    reviews: (place.reviews ?? []).map(toReviewData),
+  const types = [...(place.types ?? [])]
+  if (place.primaryType && !types.includes(place.primaryType)) {
+    types.unshift(place.primaryType)
   }
-}
 
-function toReviewData(review: google.maps.places.PlaceReview): ReviewData {
-  return {
-    author: review.author_name || 'Google user',
+  const photos =
+    place.photos
+      ?.map((photo) => photo.getURI({ maxWidth: 1000 }))
+      .filter((url): url is string => Boolean(url)) ?? []
+
+  const reviews: ReviewData[] = (place.reviews ?? []).map((review) => ({
+    author: review.authorAttribution?.displayName || 'Google user',
     rating: review.rating ?? 0,
     text: review.text || '',
-    relativeTime: review.relative_time_description || '',
-    profilePhoto: review.profile_photo_url,
+    relativeTime: review.relativePublishTimeDescription || '',
+    profilePhoto: review.authorAttribution?.photoURI || undefined,
+  }))
+
+  return {
+    placeId: place.id,
+    name: place.displayName || 'Unknown place',
+    address: place.formattedAddress || '',
+    location: { lat: location.lat(), lng: location.lng() },
+    rating: place.rating ?? undefined,
+    userRatingsTotal: place.userRatingCount ?? undefined,
+    types,
+    photos,
+    reviews,
   }
 }
 
-function photoUrls(place: PlaceResult, maxWidth = 1000): string[] {
-  return (place.photos ?? []).map((photo) =>
-    photo.getUrl({ maxWidth, maxHeight: maxWidth }),
-  )
+export class PlacesApi {
+  private readonly detailsCache = new Map<string, PlaceData>()
+
+  async nearbyRestaurants(
+    center: google.maps.LatLngLiteral,
+    radiusMeters: number,
+  ): Promise<PlaceData[]> {
+    const PlaceClass = await getPlaceClass()
+
+    const response = await callPlaces(() =>
+      PlaceClass.searchNearby({
+        fields: SEARCH_FIELDS,
+        locationRestriction: { center, radius: radiusMeters },
+        includedTypes: [...FOOD_TYPES],
+        maxResultCount: 20,
+        language: 'en',
+      }),
+    )
+
+    return (response.places ?? [])
+      .map(toPlaceData)
+      .filter((place) => isFoodPlace(place.types) && isInSingapore(place.location))
+  }
+
+  async nearestRestaurants(
+    location: google.maps.LatLngLiteral,
+    radiusMeters: number,
+  ): Promise<PlaceData[]> {
+    const PlaceClass = await getPlaceClass()
+
+    const response = await callPlaces(() =>
+      PlaceClass.searchNearby({
+        fields: SEARCH_FIELDS,
+        locationRestriction: { center: location, radius: radiusMeters },
+        includedTypes: [...FOOD_TYPES],
+        maxResultCount: 10,
+        rankPreference: 'DISTANCE',
+        language: 'en',
+      }),
+    )
+
+    return (response.places ?? [])
+      .map(toPlaceData)
+      .filter((place) => {
+        return (
+          isFoodPlace(place.types) &&
+          haversineMeters(location, place.location) <= radiusMeters
+        )
+      })
+  }
+
+  async details(placeId: string): Promise<PlaceData> {
+    const cached = this.detailsCache.get(placeId)
+    if (cached) return cached
+
+    const PlaceClass = await getPlaceClass()
+    const place = await callPlaces(async () => {
+      const request = new PlaceClass({ id: placeId, requestedLanguage: 'en' })
+      const response = await request.fetchFields({ fields: DETAIL_FIELDS })
+      return response.place ?? request
+    })
+
+    const data = toPlaceData(place)
+    this.detailsCache.set(placeId, data)
+    return data
+  }
 }

@@ -133,18 +133,18 @@ export class MapInteraction {
           return
         }
 
-        const location = details.geometry?.location
-        if (!location || !details.place_id) return
+        const location = details.location
+        if (!details.placeId) return
 
-        if (!isInSingapore({ lat: location.lat(), lng: location.lng() })) {
+        if (!isInSingapore(location)) {
           this.callbacks.onMessage('This round is Singapore only — pick a local food place.')
           return
         }
 
         this.setGuess({
-          placeId: details.place_id,
-          name: details.name ?? 'Selected place',
-          location: { lat: location.lat(), lng: location.lng() },
+          placeId: details.placeId,
+          name: details.name || 'Selected place',
+          location,
         })
       } catch {
         this.callbacks.onMessage('Could not load that place. Try another one.')
@@ -162,20 +162,16 @@ export class MapInteraction {
       )
       if (token !== this.requestToken) return
 
-      const nearest = results.find((result) => {
-        const point = result.geometry?.location
-        return point && isInSingapore({ lat: point.lat(), lng: point.lng() })
-      })
-      const location = nearest?.geometry?.location
-      if (!nearest?.place_id || !location) {
+      const nearest = results.find((place) => isInSingapore(place.location))
+      if (!nearest?.placeId) {
         this.callbacks.onMessage('No food place nearby — tap a restaurant on the map.')
         return
       }
 
       this.setGuess({
-        placeId: nearest.place_id,
-        name: nearest.name ?? 'Selected place',
-        location: { lat: location.lat(), lng: location.lng() },
+        placeId: nearest.placeId,
+        name: nearest.name || 'Selected place',
+        location: nearest.location,
       })
     } catch {
       this.callbacks.onMessage('Could not snap to a place. Try tapping a restaurant.')

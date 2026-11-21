@@ -9,15 +9,15 @@ Stack: **Vite 8 + TypeScript + Google Maps JavaScript API (Places library)**. No
 engine — the map is the game board.
 
 ## Key decisions
-- Data: runtime Google Places API with an HTTP-referrer-restricted key.
+- Data: runtime Places API (New) via the Maps JavaScript `Place` class, with an HTTP-referrer-restricted key.
 - Map: Google Maps JS API with clickable POIs.
-- Place selection: live `nearbySearch` filtered to Singapore places with ≥5 reviews.
+- Place selection: live `Place.searchNearby()` filtered to Singapore places with ≥5 reviews.
 - Hints: −12 points each.
 - Leaderboard/multiplayer: deferred to a later version.
 
 ## Prerequisites
 - Google Cloud project with billing enabled.
-- Enable **Maps JavaScript API** and **Places API**.
+- Enable **Maps JavaScript API** and **Places API (New)**.
 - API key restricted by HTTP referrer:
   - `http://localhost:5173/*`
   - `https://<username>.github.io/*`
@@ -38,7 +38,7 @@ src/
     pois.ts              POI click, snap-to-nearest, guess/answer markers
     style.ts             dark map style
   places/
-    service.ts           Google Maps loader, PlacesService wrappers
+    service.ts           Google Maps loader, Places API (New) Place class wrappers
     selection.ts         answer selection with review filter
     reviews.ts           one review per star
   data/
@@ -81,19 +81,21 @@ score = clamp(round((base − hintPenalty − timePenalty) × attemptMultiplier)
 The HUD shows the live potential score and updates every second and on hint use.
 
 ## Hints
+Cuisine type is always visible in the clues panel (derived from `place.types` with generic
+types filtered out), so it is not a paid hint.
+
 | Hint | Source |
 | --- | --- |
 | Photo of the place | `place.photos[0]` |
 | Nearest MRT | haversine over `data/mrt.ts` |
 | Nearest landmark | haversine over `data/landmarks.ts` |
-| Cuisine type | `place.types`, generic types filtered out |
 | Menu photo | `place.photos[1]` |
 | Food photo | `place.photos[2]` |
 
 Missing photos disable the hint (no penalty).
 
 ## Place selection
-- `nearbySearch` around several Singapore centres, radius 25 km.
+- `Place.searchNearby()` around several Singapore centres, radius 25 km.
 - Keep places with `user_ratings_total >= 5`, food types, and coordinates inside the
   Singapore bounding box.
 - Fetch details; prefer places with ≥5 reviews and ≥3 distinct star ratings.
@@ -102,7 +104,7 @@ Missing photos disable the hint (no penalty).
 ## Map interaction
 - `clickableIcons: true`; the `click` event's `placeId` is used to fetch the POI.
 - Non-food POIs and places outside Singapore are rejected with a toast.
-- Empty click: `nearbySearch` with `rankBy: DISTANCE` and a 120 m snap radius.
+- Empty click: `Place.searchNearby()` with `rankPreference: DISTANCE` and a 120 m snap radius.
 - Correct/incorrect finish reveals the answer with a green marker and info window.
 
 ## Deployment
@@ -112,7 +114,7 @@ Missing photos disable the hint (no penalty).
 - GitHub Pages source: **GitHub Actions**.
 
 ## Demo mode fallback
-When Google Places returns `REQUEST_DENIED` (e.g., Maps Demo Key or a key without Places
+When Places API (New) returns `REQUEST_DENIED` (e.g., Maps Demo Key or a key without Places
 enabled), the game automatically switches to 15 bundled Singapore hawker centres with
 hand-crafted reviews and SVG photos. The map still uses the real Google Maps JavaScript
 API so the pin-dropping UX works. A "Demo mode" notice tells the player what happened.

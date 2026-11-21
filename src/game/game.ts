@@ -2,10 +2,9 @@ import { CONFIG, type HintId } from '../config'
 import { computeBreakdown, type ScoreBreakdown } from './scoring'
 import { buildHints } from './hints'
 import { DEMO_PLACES, pickDemoPlace } from '../data/demoPlaces'
-import { describeCuisine } from '../places/service'
+import { describeCuisine, loadGoogleMaps, PlacesApi, PlacesError } from '../places/service'
 import { createMap } from '../map/init'
 import { MapInteraction } from '../map/pois'
-import { loadGoogleMaps, PlacesApi, PlacesError } from '../places/service'
 import { reviewsByStar } from '../places/reviews'
 import { selectAnswerPlace } from '../places/selection'
 import type { Guess, Hint, PlaceData, RoundScore } from '../types'
@@ -79,7 +78,7 @@ export class Game {
             <button class="btn primary" type="submit">Save &amp; play</button>
           </form>
           <p class="fineprint">
-            The key is stored in this browser only. Enable the Maps JavaScript API and Places API,
+            The key is stored in this browser only. Enable the Maps JavaScript API and Places API (New),
             then restrict the key by HTTP referrer (localhost and your GitHub Pages domain).
           </p>
         </div>
@@ -209,7 +208,7 @@ export class Game {
       await loadGoogleMaps(this.apiKey)
     } catch {
       this.renderSetup(
-        'Could not load Google Maps. Check that the key is valid and that the Maps JavaScript API and Places API are enabled.',
+        'Could not load Google Maps. Check that the key is valid and that the Maps JavaScript API and Places API (New) are enabled.',
       )
       return
     }
@@ -285,7 +284,7 @@ export class Game {
     if (!mapElement) return
 
     this.map = createMap(mapElement)
-    this.api = new PlacesApi(this.map)
+    this.api = new PlacesApi()
     this.interaction = new MapInteraction(this.map, this.api, {
       onGuessChange: (guess) => this.updateGuessUi(guess),
       onMessage: toast,
