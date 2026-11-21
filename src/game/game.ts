@@ -5,7 +5,7 @@ import { DEMO_PLACES, pickDemoPlace } from '../data/demoPlaces'
 import { describeCuisine, loadGoogleMaps, PlacesApi, PlacesError } from '../places/service'
 import { createMap } from '../map/init'
 import { MapInteraction } from '../map/pois'
-import { reviewsByStar, usableReviews } from '../places/reviews'
+import { reviewsForDisplay } from '../places/reviews'
 import { selectAnswerPlace } from '../places/selection'
 import type { Guess, Hint, PlaceData, RoundScore } from '../types'
 import { escapeHtml, formatClock, toast } from '../ui/utils'
@@ -338,9 +338,8 @@ export class Game {
     const container = document.getElementById('reviews')
     if (!place || !container) return
 
-    const eligibleReviews = usableReviews(place.reviews, place.name)
-    const starReviews = reviewsByStar(place.reviews, place.name)
-    const count = eligibleReviews.length
+    const starReviews = reviewsForDisplay(place.reviews, place.name)
+    const count = starReviews.length
     this.setText('review-count', `${count} review${count === 1 ? '' : 's'}`)
 
     // Show cuisine type
@@ -353,18 +352,6 @@ export class Game {
 
     container.innerHTML = starReviews
       .map(({ star, review }) => {
-        if (!review) {
-          return `
-            <article class="review empty">
-              <div class="review-head">
-                <span class="star-badge star-${star} dim">${star}★</span>
-                <span class="review-author">No ${star}-star review</span>
-              </div>
-              <p class="review-text muted">Google did not return a ${star}-star review for this place.</p>
-            </article>
-          `
-        }
-
         return `
           <article class="review">
             <div class="review-head">

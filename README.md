@@ -3,8 +3,8 @@
 A browser game: guess Singapore food places from their Google reviews and drop a pin on the map.
 
 - **5 rounds**, 100 points per round, **500 max**
-- One review per star rating (1★–5★) as your clue
-- **6 optional hints** — place photo, nearest MRT, nearest landmark, cuisine, menu photo, food photo
+- Real Google reviews, preferred one per star rating (1★–5★), as your clue
+- **5 optional hints** — place photo, nearest MRT, nearest landmark, menu photo, food photo
 - **3 guesses** per round
 - **30 seconds free**, then −5 points every 30 seconds
 - Each hint costs **−12 points**
@@ -111,8 +111,10 @@ src/
 
 ## Notes
 
-- Place selection uses `nearbySearch` around Singapore and keeps places with at least
-  5 reviews and at least 3 distinct star ratings, so the clue panel is usually full.
+- Place selection uses Nearby Search around Singapore and keeps food places with at least
+  3 usable reviews. Reviews that name the place are filtered out. Google returns at most
+  5 review texts per place, so the clue panel uses the available real reviews and never
+  shows missing-review placeholders.
 - Clicking a restaurant POI on the map snaps the pin to it. Clicking empty map space
   snaps to the nearest restaurant within 120 m.
 - Photos come from Google Places and are displayed at runtime; they are not stored.

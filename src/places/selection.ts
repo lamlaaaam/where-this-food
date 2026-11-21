@@ -1,7 +1,7 @@
 import { CONFIG } from '../config'
 import { isInSingapore } from '../data/geo'
 import type { PlaceData } from '../types'
-import { reviewsByStar, usableReviews } from './reviews'
+import { usableReviews } from './reviews'
 import { isFoodPlace, PlacesApi } from './service'
 
 const SEARCH_CENTERS = [CONFIG.singaporeCenter, { lat: 1.32, lng: 103.85 }]
@@ -66,9 +66,10 @@ export async function selectAnswerPlace(
             `photos=${place.photos.length} reviews=${eligible.length}`
         }
 
-        // Every star (1★–5★) must be covered by a review that does not give
-        // away the answer by naming the place.
-        if (reviewsByStar(place.reviews, place.name).every((slot) => slot.review)) {
+        // The Places API returns at most 5 reviews total, so requiring every
+        // star bucket is too strict. Accept places with enough usable,
+        // non-spoiling reviews; prefer fuller star coverage.
+        if (eligible.length >= 3) {
           return place
         }
       } catch (error) {
@@ -81,7 +82,7 @@ export async function selectAnswerPlace(
 
   const detail = lastError instanceof Error ? `: ${lastError.message}` : ''
   throw new Error(
-    `Google Places returned no Singapore food place with one non-spoiling review for every star ` +
+    `Google Places returned no usable Singapore food place with reviews ` +
       `(results: ${totalResults}, candidates: ${totalCandidates}, ` +
       `inspected: ${inspected}, max reviews: ${maxReviews})${sample}${detail}.`,
   )

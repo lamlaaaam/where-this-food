@@ -11,7 +11,7 @@ engine — the map is the game board.
 ## Key decisions
 - Data: runtime Places API (New) via the Maps JavaScript `Place` class, with an HTTP-referrer-restricted key.
 - Map: Google Maps JS API with clickable POIs.
-- Place selection: live `Place.searchNearby()` filtered to Singapore places with ≥5 reviews.
+- Place selection: live `Place.searchNearby()` filtered to Singapore food places with usable reviews.
 - Hints: −12 points each.
 - Leaderboard/multiplayer: deferred to a later version.
 
@@ -98,7 +98,8 @@ Missing photos disable the hint (no penalty).
 - `Place.searchNearby()` around several Singapore centres, radius 25 km.
 - Keep places with `user_ratings_total >= 5`, food types, and coordinates inside the
   Singapore bounding box.
-- Fetch details; prefer places with ≥5 reviews and ≥3 distinct star ratings.
+- Fetch details; require at least 3 usable reviews that do not name the place. Prefer
+  one review per star from 5★ down to 1★, then fill remaining slots with other real reviews.
 - Remember used place IDs so a round never repeats a place.
 
 ## Map interaction
@@ -122,6 +123,7 @@ happened and includes the quota/billing guidance when available.
 
 ## Risks / notes
 - Live Places calls cost money; selection usually resolves in one or two detail calls.
-- Review coverage varies; the UI shows placeholders for missing star ratings.
+- Google returns at most 5 review texts per place; star coverage varies, so the UI shows
+  only real reviews and may repeat a star rating.
 - The key is visible in the built bundle, so referrer restrictions are essential.
 - Maps Demo Key works for the map but not Places; demo mode covers that gap.
