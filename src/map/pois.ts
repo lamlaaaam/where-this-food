@@ -1,5 +1,5 @@
 import { CONFIG } from '../config'
-import { isInSingapore } from '../data/geo'
+import { haversineMeters, isInSingapore } from '../data/geo'
 import type { Guess, PlaceData } from '../types'
 import { isFoodPlace, type PlacesApi } from '../places/service'
 import { escapeHtml } from '../ui/utils'
@@ -19,6 +19,9 @@ export class MapInteraction {
   private currentGuess: Guess | null = null
   private enabled = false
   private requestToken = 0
+  private demoMode = false
+  private demoPlaces: PlaceData[] = []
+  private demoMarkers: google.maps.Marker[] = []
 
   constructor(
     map: google.maps.Map,
@@ -36,6 +39,13 @@ export class MapInteraction {
 
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
+  }
+
+  /** Switch to bundled demo places when Google Places is unavailable. */
+  setDemoPlaces(places: PlaceData[]): void {
+    this.demoMode = true
+    this.demoPlaces = places
+    this.addDemoMarkers()
   }
 
   getGuess(): Guess | null {
@@ -85,12 +95,29 @@ export class MapInteraction {
     })
     this.answerInfo.open({ map: this.map, anchor: this.answerMarker })
 
+    this.clearDemoMarkers()
     this.map.panTo(place.location)
     this.map.setZoom(16)
   }
 
   private async handleMapClick(event: google.maps.MapMouseEvent): Promise<void> {
     if (!this.enabled) return
+
+    if (this.demoMode) {
+      const latLng = event.latLng
+      if (!latLng) return
+      const nearest = this.nearestDemoPlace({ lat: latLng.lat(), lng: latLng.lng() })
+      if (!nearest) {
+        this.callbacks.onMessage('Tap one of the demo place markers to guess.')
+        return
+      }
+      this.setGuess({
+        placeId: nearest.placeId,
+        name: nearest.name,
+        location: nearest.location,
+      })
+      return
+    }
 
     const token = ++this.requestToken
     const iconEvent = event as google.maps.IconMouseEvent
@@ -153,6 +180,59 @@ export class MapInteraction {
     } catch {
       this.callbacks.onMessage('Could not snap to a place. Try tapping a restaurant.')
     }
+  }
+
+  private addDemoMarkers(): void {
+    this.clearDemoMarkers()
+
+    this.demoMarkers = this.demoPlaces.map((place) => {
+      const marker = new google.maps.Marker({
+        map: this.map,
+        position: place.location,
+        title: place.name,
+        zIndex: 5,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 7,
+          fillColor: '#ff7a1a',
+          fillOpacity: 0.9,
+          strokeColor: '#fff4ea',
+          strokeWeight: 2,
+        },
+      })
+
+      marker.addListener('click', () => {
+        if (!this.enabled) return
+        this.setGuess({
+          placeId: place.placeId,
+          name: place.name,
+          location: place.location,
+        })
+      })
+
+      return marker
+    })
+  }
+
+  private clearDemoMarkers(): void {
+    this.demoMarkers.forEach((marker) => marker.setMap(null))
+    this.demoMarkers = []
+  }
+
+  private nearestDemoPlace(point: { lat: number; lng: number }): PlaceData | null {
+    let best: { place: PlaceData; distance: number } | null = null
+
+    for (const place of this.demoPlaces) {
+      const distance = haversineMeters(point, place.location)
+      if (!best || distance < best.distance) {
+        best = { place, distance }
+      }
+    }
+
+    if (best && best.distance <= CONFIG.guessSnapRadiusMeters * 3) {
+      return best.place
+    }
+    return null
   }
 
   private setGuess(guess: Guess): void {

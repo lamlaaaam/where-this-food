@@ -17,12 +17,14 @@ export async function selectAnswerPlace(
 ): Promise<PlaceData> {
   const centers = shuffle([...SEARCH_CENTERS])
   let fallback: PlaceData | null = null
+  let lastError: unknown = null
 
   for (const center of centers) {
     let results: PlaceResult[]
     try {
       results = await api.nearbyRestaurants(center, CONFIG.answerSearchRadiusMeters)
-    } catch {
+    } catch (error) {
+      lastError = error
       continue
     }
 
@@ -55,7 +57,8 @@ export async function selectAnswerPlace(
         if (!fallback && place.reviews.length >= 3) {
           fallback = place
         }
-      } catch {
+      } catch (error) {
+        lastError = error
         // Try the next candidate.
       }
     }
@@ -64,7 +67,10 @@ export async function selectAnswerPlace(
   }
 
   if (fallback) return fallback
-  throw new Error('Could not find a place with enough reviews. Please try again.')
+  if (lastError) throw lastError
+  throw new Error(
+    'Google Places returned no Singapore food places with reviews. Please try again.',
+  )
 }
 
 export function shuffle<T>(items: T[]): T[] {

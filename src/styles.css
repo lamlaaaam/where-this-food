@@ -399,6 +399,33 @@ input {
   white-space: nowrap;
 }
 
+.demo-notice {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 122, 26, 0.3);
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--muted-strong);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.demo-notice[hidden] {
+  display: none;
+}
+
+.demo-notice strong {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .hints-head {
   margin-top: 22px;
   padding-top: 18px;

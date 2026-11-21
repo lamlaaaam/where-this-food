@@ -39,6 +39,32 @@ const GENERIC_TYPES = new Set([
   'meal_delivery',
 ])
 
+export class PlacesError extends Error {
+  constructor(
+    message: string,
+    readonly status: string,
+  ) {
+    super(message)
+    this.name = 'PlacesError'
+  }
+}
+
+function placesFailure(status: string): PlacesError {
+  switch (status) {
+    case 'REQUEST_DENIED':
+      return new PlacesError(
+        'Google Places denied the request. The key may be a Maps Demo Key, or the Places API may not be enabled for it.',
+        status,
+      )
+    case 'OVER_QUERY_LIMIT':
+      return new PlacesError('Google Places quota exceeded for this key.', status)
+    case 'INVALID_REQUEST':
+      return new PlacesError('Google Places rejected the request.', status)
+    default:
+      return new PlacesError(`Google Places request failed (${status}).`, status)
+  }
+}
+
 let loaderPromise: Promise<typeof google> | null = null
 
 export function loadGoogleMaps(apiKey: string): Promise<typeof google> {
@@ -78,7 +104,7 @@ export class PlacesApi {
           } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
             resolve([])
           } else {
-            reject(new Error(`Places nearbySearch failed: ${status}`))
+            reject(placesFailure(status))
           }
         },
       )
@@ -110,7 +136,7 @@ export class PlacesApi {
           } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
             resolve([])
           } else {
-            reject(new Error(`Places nearbySearch failed: ${status}`))
+            reject(placesFailure(status))
           }
         },
       )
@@ -129,7 +155,7 @@ export class PlacesApi {
             this.cache.set(placeId, result)
             resolve(result)
           } else {
-            reject(new Error(`Places getDetails failed: ${status}`))
+            reject(placesFailure(status))
           }
         },
       )

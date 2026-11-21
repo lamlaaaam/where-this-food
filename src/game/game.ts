@@ -1,9 +1,10 @@
 import { CONFIG, type HintId } from '../config'
 import { computeBreakdown, type ScoreBreakdown } from './scoring'
 import { buildHints } from './hints'
+import { DEMO_PLACES, pickDemoPlace } from '../data/demoPlaces'
 import { createMap } from '../map/init'
 import { MapInteraction } from '../map/pois'
-import { loadGoogleMaps, PlacesApi } from '../places/service'
+import { loadGoogleMaps, PlacesApi, PlacesError } from '../places/service'
 import { reviewsByStar } from '../places/reviews'
 import { selectAnswerPlace } from '../places/selection'
 import type { Guess, Hint, PlaceData, RoundScore } from '../types'
@@ -31,6 +32,8 @@ export class Game {
   private timerId: number | null = null
   private roundOver = false
   private loading = false
+  private demoMode = false
+  private demoReason = ''
 
   constructor(root: HTMLElement) {
     this.root = root
@@ -98,6 +101,8 @@ export class Game {
       }
 
       this.apiKey = key
+      this.demoMode = false
+      this.demoReason = ''
       if (button) {
         button.disabled = true
         button.textContent = 'Loading…'
@@ -235,6 +240,7 @@ export class Game {
             <h2>What people say</h2>
             <span class="badge" id="review-count">Loading…</span>
           </div>
+          <div class="demo-notice" id="demo-notice" hidden></div>
           <div class="reviews" id="reviews">
             <div class="skeleton"></div>
             <div class="skeleton"></div>
@@ -282,12 +288,19 @@ export class Game {
       onGuessChange: (guess) => this.updateGuessUi(guess),
       onMessage: toast,
     })
+    if (this.demoMode) this.interaction.setDemoPlaces(DEMO_PLACES)
     this.interaction.setEnabled(false)
 
     void this.loadPlace()
   }
 
   private async loadPlace(): Promise<void> {
+    if (this.demoMode) {
+      this.renderDemoNotice(this.demoReason)
+      this.loadDemoPlace()
+      return
+    }
+
     if (!this.api) return
 
     this.loading = true
@@ -295,23 +308,53 @@ export class Game {
 
     try {
       const place = await selectAnswerPlace(this.api, this.usedPlaceIds)
-      this.currentPlace = place
-      this.usedPlaceIds.add(place.placeId)
-      this.hints = buildHints(place)
-      this.loading = false
-
-      this.renderReviews()
-      this.renderHints()
-      this.interaction?.setEnabled(true)
-      this.startedAt = Date.now()
-      this.startTimer()
-      this.updateHud()
+      this.applyPlace(place)
     } catch (error) {
-      this.loading = false
-      this.renderLoadError(
-        error instanceof Error ? error.message : 'Could not load a place. Please try again.',
-      )
+      this.enterDemoMode(error)
     }
+  }
+
+  private applyPlace(place: PlaceData): void {
+    this.currentPlace = place
+    this.usedPlaceIds.add(place.placeId)
+    this.hints = buildHints(place)
+    this.loading = false
+
+    this.renderReviews()
+    this.renderHints()
+    this.interaction?.setEnabled(true)
+    this.startedAt = Date.now()
+    this.startTimer()
+    this.updateHud()
+  }
+
+  private enterDemoMode(error: unknown): void {
+    this.demoMode = true
+    this.demoReason =
+      error instanceof PlacesError
+        ? `${error.message} Switched to bundled demo places so you can keep playing.`
+        : 'Google Places is unavailable. Switched to bundled demo places so you can keep playing.'
+
+    this.interaction?.setDemoPlaces(DEMO_PLACES)
+    this.renderDemoNotice(this.demoReason)
+    this.loadDemoPlace()
+  }
+
+  private loadDemoPlace(): void {
+    const place = pickDemoPlace(this.usedPlaceIds)
+    if (!place) {
+      this.loading = false
+      this.renderLoadError('No more demo places left. Restart the game to play again.')
+      return
+    }
+    this.applyPlace(place)
+  }
+
+  private renderDemoNotice(message: string): void {
+    const element = document.getElementById('demo-notice')
+    if (!element) return
+    element.hidden = false
+    element.innerHTML = `<strong>Demo mode</strong><span>${escapeHtml(message)}</span>`
   }
 
   private renderReviewsLoading(): void {
