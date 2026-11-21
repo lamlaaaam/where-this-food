@@ -142,7 +142,10 @@ JavaScript API so the pin-dropping UX works. A "Demo mode" notice tells the play
 happened and includes the quota/billing guidance when available.
 
 ## Risks / notes
-- Live Places calls cost money; up to 6 shuffled candidates are inspected per round.
+- Live Places calls cost money. Answer selection uses up to 3 nearby searches per round and
+  reads reviews/photos from those responses instead of fetching full details per candidate.
+  Map guesses use cached, review-free nearby searches, and one map instance is reused for the
+  whole game.
 - Google returns at most 5 review texts per place, so places with fewer usable reviews are
   skipped in favour of places that can fill all five slots.
 - The key is visible in the built bundle, so referrer restrictions are essential.

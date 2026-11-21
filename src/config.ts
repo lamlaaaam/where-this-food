@@ -8,6 +8,8 @@ export const CONFIG = {
   timeBlockSeconds: 30,
   singaporeCenter: { lat: 1.3521, lng: 103.8198 },
   answerSearchRadiusMeters: 25_000,
+  // Random Singapore points to try before falling back to demo mode.
+  answerCoordinateAttempts: 3,
   guessSnapRadiusMeters: 120,
   maxCandidatesToInspect: 10,
 } as const

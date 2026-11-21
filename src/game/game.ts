@@ -22,6 +22,7 @@ export class Game {
   private readonly usedPlaceOrder: string[] = []
 
   private map: google.maps.Map | null = null
+  private mapElement: HTMLElement | null = null
   private api: PlacesApi | null = null
   private interaction: MapInteraction | null = null
 
@@ -173,9 +174,6 @@ export class Game {
     this.hints = []
     this.lastMissMeters = null
     this.startedAt = 0
-    this.map = null
-    this.api = null
-    this.interaction = null
 
     this.setPlayingLayout(true)
     const screen = this.screen()
@@ -228,15 +226,32 @@ export class Game {
 
     await nextFrame()
 
-    const mapElement = document.getElementById('map')
-    if (!mapElement) return
+    const placeholder = document.getElementById('map')
+    const mapWrap = screen.querySelector('.map-wrap')
+    if (!placeholder || !mapWrap) return
 
-    this.map = createMap(mapElement)
-    this.api = new PlacesApi()
-    this.interaction = new MapInteraction(this.map, this.api, {
-      onGuessChange: (guess) => this.updateGuessUi(guess),
-      onMessage: toast,
-    })
+    // Reuse the same Map object across rounds so a full game only triggers one
+    // billable map load. Moving its container is enough; just trigger a resize.
+    let map = this.map
+    if (map && this.mapElement) {
+      placeholder.replaceWith(this.mapElement)
+      const reusableMap = map
+      requestAnimationFrame(() => google.maps.event.trigger(reusableMap, 'resize'))
+    } else {
+      this.mapElement = placeholder
+      map = createMap(placeholder)
+      this.map = map
+    }
+
+    const api = this.api ?? new PlacesApi()
+    this.api = api
+    if (!this.interaction) {
+      this.interaction = new MapInteraction(map, api, {
+        onGuessChange: (guess) => this.updateGuessUi(guess),
+        onMessage: toast,
+      })
+    }
+    this.interaction.resetForRound()
     if (this.demoMode) this.interaction.setDemoPlaces(DEMO_PLACES)
     this.interaction.setEnabled(false)
 

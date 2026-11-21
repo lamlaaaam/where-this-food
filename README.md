@@ -47,12 +47,13 @@ of the clues panel when demo mode is active.
    - `https://<your-github-username>.github.io/*`
 4. Optionally restrict the key to those two APIs.
 
-If you see **“Google Places quota exceeded for this key”**, the exhausted metric is
-`GetPlaceRequest` (the Place Details call used for reviews/photos). In the Google Cloud
-console for the project shown in the error, go to **APIs & Services → Quotas**, search for
-`GetPlaceRequest`, and request an increase for the **per day** limit. Also confirm billing
-is active and that you are using the intended project/key. The game automatically switches
-to bundled demo places until the quota resets, so gameplay continues without interruptions.
+If you see **“Google Places quota exceeded for this key”**, the exhausted metric is likely
+`SearchNearbyRequest` (reviews and photos are fetched together in one nearby search) or
+`GetPlaceRequest` / Places Photos. In the Google Cloud console for the project shown in the
+error, go to **APIs & Services → Quotas**, search for that metric, and request an increase for
+the **per day** limit. Also confirm billing is active and that you are using the intended
+project/key. The game automatically switches to bundled demo places until the quota resets,
+so gameplay continues without interruptions.
 
 ## Build
 
@@ -115,15 +116,17 @@ src/
 
 - Each round picks a random coordinate inside a Singapore outline (not just the bounding
   box, which includes Johor), takes the 10 nearest food places, and requires Google's
-  `SG` country component. Only the highest-review-count playable place is used.
-  A rolling place history keeps playthroughs different.
+  `SG` country component. Reviews and photos are returned in the same nearby search and are
+  never cached, so there are no per-candidate detail calls. Only the highest-review-count
+  playable place is used. A rolling place history keeps playthroughs different.
 - Google Places returns **at most five review texts** per place, so the game shuffles all
   five usable reviews instead of pretending it can fetch 50.
 - Photos, MRT stations, expected cost and the Name hint are randomised each round. Google
   does not label photos as menus or food, so photo hints are simply numbered.
-- Nearby searches and review-free place summaries (used for map snapping) are deduplicated
-  by a **session-only, in-memory cache**. It needs no server, so it works on GitHub Pages;
-  nothing is written to browser storage, no review text is cached, and reloading starts fresh.
+- Review-free nearby searches used for map snapping are deduplicated by a **session-only,
+  in-memory cache**. It needs no server, so it works on GitHub Pages; nothing is written to
+  browser storage, no review text is cached, and reloading starts fresh.
+- The map instance is reused across rounds, so a full game triggers one billable map load.
 - Wrong-guess distance appears only in the permanent map footer — no toast or result-modal
   duplicate.
 - Running out of guesses **or skipping** keeps the map unobscured and leaves a green pin on

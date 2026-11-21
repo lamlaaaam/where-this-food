@@ -6,37 +6,6 @@ import type { PlaceData, ReviewData } from '../types'
  * Places API (New) field masks.
  * Only request what the game actually uses to keep requests cheap.
  */
-const DETAIL_FIELDS = [
-  'id',
-  'displayName',
-  'formattedAddress',
-  'addressComponents',
-  'location',
-  'photos',
-  'reviews',
-  'types',
-  'primaryType',
-  'rating',
-  'userRatingCount',
-]
-
-// Review texts are user-generated content and are deliberately never cached.
-// Map snapping only needs this lighter, reusable place summary.
-const DETAIL_META_FIELDS = [
-  'id',
-  'displayName',
-  'formattedAddress',
-  'addressComponents',
-  'location',
-  'types',
-  'primaryType',
-  'rating',
-  'userRatingCount',
-]
-
-// Keep searches on the cheaper Pro SKU; rating/ratings are fetched for the
-// chosen place only. `primaryType` is needed to reject hotels that also carry
-// a `restaurant` type because they contain a restaurant.
 const SEARCH_FIELDS = [
   'id',
   'displayName',
@@ -46,13 +15,23 @@ const SEARCH_FIELDS = [
   'primaryType',
 ]
 
-// `userRatingCount` lets place selection compare review counts without paying
-// for full review details on every nearby candidate. It is a pricier Nearby
-// Search field, so it is only requested by the answer-selection pipeline.
-const SEARCH_WITH_RATINGS_FIELDS = [...SEARCH_FIELDS, 'userRatingCount']
+/**
+ * Answer selection asks Nearby Search for reviews and photos in the same call.
+ * One Enterprise + Atmosphere search can return reviews for up to 10 places,
+ * which is much cheaper than fetching full details for every candidate.
+ * These results are never cached because reviews are user-generated content.
+ */
+const ANSWER_SEARCH_FIELDS = [
+  ...SEARCH_FIELDS,
+  'formattedAddress',
+  'photos',
+  'reviews',
+  'rating',
+  'userRatingCount',
+]
 
 /**
- * Browser-only cache for search results and review-free place summaries.
+ * Browser-only cache for review-free search results used by map snapping.
  * GitHub Pages has no server layer, so the cache lives in module memory for the
  * current tab session. Nothing is written to localStorage/sessionStorage, no
  * review text is retained, and the cache is discarded on reload.
@@ -62,12 +41,9 @@ interface CacheEntry<T> {
   expiresAt: number
 }
 
-const DETAIL_CACHE_TTL_MS = 10 * 60_000
 const SEARCH_CACHE_TTL_MS = 5 * 60_000
 
-const metaCache = new Map<string, CacheEntry<PlaceData>>()
 const searchCache = new Map<string, CacheEntry<PlaceData[]>>()
-const metaInFlight = new Map<string, Promise<PlaceData>>()
 const searchInFlight = new Map<string, Promise<PlaceData[]>>()
 
 function getCached<T>(cache: Map<string, CacheEntry<T>>, key: string): T | undefined {
@@ -110,9 +86,8 @@ function coordKey(point: google.maps.LatLngLiteral): string {
   return `${point.lat.toFixed(4)},${point.lng.toFixed(4)}`
 }
 
-/** Clear the in-memory Places cache (useful after changing the API key). */
+/** Clear the in-memory Places search cache (useful after changing the API key). */
 export function clearPlacesCache(): void {
-  metaCache.clear()
   searchCache.clear()
 }
 
@@ -540,19 +515,47 @@ export class PlacesApi {
     })
   }
 
+  /**
+   * Nearby search for answer selection. Reviews and photos come back in the
+   * same billable request, so no per-candidate detail calls are needed.
+   * Deliberately not cached: review text is user-generated content.
+   */
+  async nearbyAnswerCandidates(
+    center: google.maps.LatLngLiteral,
+    radiusMeters: number,
+  ): Promise<PlaceData[]> {
+    const PlaceClass = await getPlaceClass()
+
+    const response = await callPlaces(() =>
+      PlaceClass.searchNearby({
+        fields: ANSWER_SEARCH_FIELDS,
+        locationRestriction: { center, radius: radiusMeters },
+        includedTypes: SEARCH_FOOD_TYPES,
+        maxResultCount: 10,
+        rankPreference: 'DISTANCE',
+        language: 'en',
+      }),
+    )
+
+    return (response.places ?? [])
+      .map(toPlaceDataSafe)
+      .filter((place): place is PlaceData => Boolean(place))
+      .filter((place) => isFoodPlace(place.types) && isSingaporePlace(place))
+  }
+
+  /** Cached, review-free nearby search used only for map guessing. */
   async nearestRestaurants(
     location: google.maps.LatLngLiteral,
     radiusMeters: number,
-    includeRatings = false,
   ): Promise<PlaceData[]> {
-    const key = `nearest:${radiusMeters}:${includeRatings}:${coordKey(location)}`
+    const key = `nearest:${radiusMeters}:${coordKey(location)}`
 
     return cached(searchCache, searchInFlight, key, SEARCH_CACHE_TTL_MS, async () => {
       const PlaceClass = await getPlaceClass()
 
       const response = await callPlaces(() =>
         PlaceClass.searchNearby({
-          fields: includeRatings ? SEARCH_WITH_RATINGS_FIELDS : SEARCH_FIELDS,
+          fields: SEARCH_FIELDS,
           locationRestriction: { center: location, radius: radiusMeters },
           includedTypes: SEARCH_FOOD_TYPES,
           maxResultCount: 10,
@@ -569,32 +572,5 @@ export class PlacesApi {
       // Re-check the radius on cache hits: the key rounds the click coordinate.
       places.filter((place) => haversineMeters(location, place.location) <= radiusMeters),
     )
-  }
-
-  /** Fetch full details including reviews. Never cached. */
-  async details(placeId: string): Promise<PlaceData> {
-    const PlaceClass = await getPlaceClass()
-    const place = await callPlaces(async () => {
-      // Google's documented pattern: fetchFields() mutates this instance.
-      const request = new PlaceClass({ id: placeId, requestedLanguage: 'en' })
-      await request.fetchFields({ fields: DETAIL_FIELDS })
-      return request
-    })
-
-    return toPlaceData(place)
-  }
-
-  /** Cached, review-free details for map snapping and repeat lookups. */
-  async placeSummary(placeId: string): Promise<PlaceData> {
-    return cached(metaCache, metaInFlight, `meta:${placeId}`, DETAIL_CACHE_TTL_MS, async () => {
-      const PlaceClass = await getPlaceClass()
-      const place = await callPlaces(async () => {
-        const request = new PlaceClass({ id: placeId, requestedLanguage: 'en' })
-        await request.fetchFields({ fields: DETAIL_META_FIELDS })
-        return request
-      })
-
-      return toPlaceData(place)
-    })
   }
 }

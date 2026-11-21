@@ -4,7 +4,6 @@ import type { PlaceData } from '../types'
 import { usableReviews } from './reviews'
 import { isFoodPlace, isSingaporePlace, PlacesApi } from './service'
 
-const COORDINATE_ATTEMPTS = 8
 const LOCAL_RADIUS_METERS = 12_000
 
 function isQuotaError(error: unknown): boolean {
@@ -15,6 +14,8 @@ function isQuotaError(error: unknown): boolean {
 /**
  * Pick a random point in Singapore, take the 10 nearest food places, and play
  * the one with the most reviews that can supply five non-spoiling review texts.
+ * Reviews and photos arrive with the nearby search, so no extra detail calls
+ * are needed for the candidates that are inspected.
  */
 export async function selectAnswerPlace(
   api: PlacesApi,
@@ -27,14 +28,16 @@ export async function selectAnswerPlace(
   let maxReviews = 0
   let sample = ''
 
-  for (let attempt = 0; attempt < COORDINATE_ATTEMPTS; attempt += 1) {
+  for (let attempt = 0; attempt < CONFIG.answerCoordinateAttempts; attempt += 1) {
     const center = randomPointInSingapore()
     const radiusMeters =
-      attempt < 4 ? LOCAL_RADIUS_METERS : CONFIG.answerSearchRadiusMeters
+      attempt < CONFIG.answerCoordinateAttempts - 1
+        ? LOCAL_RADIUS_METERS
+        : CONFIG.answerSearchRadiusMeters
 
     let results: PlaceData[]
     try {
-      results = await api.nearestRestaurants(center, radiusMeters, true)
+      results = await api.nearbyAnswerCandidates(center, radiusMeters)
     } catch (error) {
       lastError = error
       if (isQuotaError(error)) throw error
@@ -58,31 +61,24 @@ export async function selectAnswerPlace(
 
     for (const candidate of candidates) {
       inspected += 1
-      try {
-        const place = await api.details(candidate.placeId)
-        if (!isFoodPlace(place.types) || !isSingaporePlace(place)) {
-          console.warn('[Places] Skipping ineligible detail result:', place.name, place.types)
-          continue
-        }
+      if (!isFoodPlace(candidate.types) || !isSingaporePlace(candidate)) {
+        console.warn('[Places] Skipping ineligible search result:', candidate.name, candidate.types)
+        continue
+      }
 
-        // Google returns at most five review texts per place, so all five must
-        // be usable clues for a round to be playable.
-        const eligible = usableReviews(place.reviews, place.name)
-        maxReviews = Math.max(maxReviews, eligible.length)
-        if (!sample) {
-          sample =
-            ` sample: "${place.name}" id=${place.placeId} ` +
-            `rating=${place.rating} ratings=${place.userRatingsTotal} ` +
-            `photos=${place.photos.length} reviews=${eligible.length}`
-        }
+      // Google returns at most five review texts per place, so all five must
+      // be usable clues for a round to be playable.
+      const eligible = usableReviews(candidate.reviews, candidate.name)
+      maxReviews = Math.max(maxReviews, eligible.length)
+      if (!sample) {
+        sample =
+          ` sample: "${candidate.name}" id=${candidate.placeId} ` +
+          `rating=${candidate.rating} ratings=${candidate.userRatingsTotal} ` +
+          `photos=${candidate.photos.length} reviews=${eligible.length}`
+      }
 
-        if (eligible.length >= 5) {
-          return place
-        }
-      } catch (error) {
-        lastError = error
-        if (isQuotaError(error)) throw error
-        // Try the next nearby candidate.
+      if (eligible.length >= 5) {
+        return candidate
       }
     }
   }
@@ -90,7 +86,7 @@ export async function selectAnswerPlace(
   const detail = lastError instanceof Error ? `: ${lastError.message}` : ''
   throw new Error(
     `Google Places returned no Singapore food place with 5 usable reviews ` +
-      `(points: ${COORDINATE_ATTEMPTS}, results: ${totalResults}, ` +
+      `(attempts: ${CONFIG.answerCoordinateAttempts}, results: ${totalResults}, ` +
       `candidates: ${totalCandidates}, inspected: ${inspected}, ` +
       `max reviews: ${maxReviews})${sample}${detail}.`,
   )

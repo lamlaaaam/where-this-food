@@ -1,7 +1,7 @@
 import { CONFIG } from '../config'
 import { haversineMeters } from '../data/geo'
 import type { Guess, PlaceData } from '../types'
-import { isFoodPlace, isSingaporePlace, type PlacesApi } from '../places/service'
+import { isSingaporePlace, type PlacesApi } from '../places/service'
 import { escapeHtml } from '../ui/utils'
 
 interface MapInteractionCallbacks {
@@ -62,6 +62,7 @@ export class MapInteraction {
 
   resetForRound(): void {
     this.clearGuess()
+    this.clearDemoMarkers()
     this.answerMarker?.setMap(null)
     this.answerMarker = null
     this.answerInfo?.close()
@@ -121,36 +122,7 @@ export class MapInteraction {
 
     const token = ++this.requestToken
     const iconEvent = event as google.maps.IconMouseEvent
-
-    if (iconEvent.placeId) {
-      iconEvent.stop()
-      try {
-        const details = await this.api.placeSummary(iconEvent.placeId)
-        if (token !== this.requestToken) return
-
-        if (!isFoodPlace(details.types)) {
-          this.callbacks.onMessage('That is not a food place — pick a restaurant, cafe or hawker spot.')
-          return
-        }
-
-        const location = details.location
-        if (!details.placeId) return
-
-        if (!isSingaporePlace(details)) {
-          this.callbacks.onMessage('This round is Singapore only — pick a local food place.')
-          return
-        }
-
-        this.setGuess({
-          placeId: details.placeId,
-          name: details.name || 'Selected place',
-          location,
-        })
-      } catch {
-        this.callbacks.onMessage('Could not load that place. Try another one.')
-      }
-      return
-    }
+    if (iconEvent.placeId) iconEvent.stop()
 
     const latLng = event.latLng
     if (!latLng) return
