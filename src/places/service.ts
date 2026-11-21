@@ -28,16 +28,24 @@ const SEARCH_FIELDS = [
   'userRatingCount',
 ]
 
-const FOOD_TYPES = new Set([
+/**
+ * Types allowed in an `includedTypes` request parameter (Table A of the
+ * Places API place-types reference). Table B values such as `food` may only
+ * appear in responses — sending one makes searchNearby fail with
+ * INVALID_ARGUMENT.
+ */
+const SEARCH_FOOD_TYPES = [
   'restaurant',
   'cafe',
   'bakery',
   'bar',
-  'food',
   'meal_takeaway',
   'meal_delivery',
   'night_club',
-])
+]
+
+/** Types used to recognize food results, including response-only values. */
+const FOOD_TYPES = new Set([...SEARCH_FOOD_TYPES, 'food'])
 
 const GENERIC_TYPES = new Set([
   'restaurant',
@@ -77,8 +85,20 @@ function errorStatus(error: unknown): string {
   return match?.[1] ?? 'UNKNOWN'
 }
 
+function errorDetail(error: unknown): string {
+  const message =
+    error && typeof error === 'object' && typeof (error as { message?: unknown }).message === 'string'
+      ? (error as { message: string }).message
+      : error instanceof Error
+        ? error.message
+        : ''
+  return message.replace(/\s+/g, ' ').slice(0, 200)
+}
+
 function placesFailure(error: unknown): PlacesError {
   const status = errorStatus(error)
+  const detail = errorDetail(error)
+  console.error('[Places] request failed:', error)
 
   switch (status) {
     case 'REQUEST_DENIED':
@@ -92,7 +112,10 @@ function placesFailure(error: unknown): PlacesError {
       return new PlacesError('Google Places quota exceeded for this key.', status)
     case 'INVALID_REQUEST':
     case 'INVALID_ARGUMENT':
-      return new PlacesError('Google Places rejected the request.', status)
+      return new PlacesError(
+        `Google Places rejected the request${detail ? ` (${detail})` : ''}.`,
+        status,
+      )
     case 'NOT_FOUND':
       return new PlacesError('Google Places could not find that place.', status)
     default:
@@ -224,7 +247,7 @@ export class PlacesApi {
       PlaceClass.searchNearby({
         fields: SEARCH_FIELDS,
         locationRestriction: { center, radius: radiusMeters },
-        includedTypes: [...FOOD_TYPES],
+        includedTypes: SEARCH_FOOD_TYPES,
         maxResultCount: 20,
         language: 'en',
       }),
@@ -245,7 +268,7 @@ export class PlacesApi {
       PlaceClass.searchNearby({
         fields: SEARCH_FIELDS,
         locationRestriction: { center: location, radius: radiusMeters },
-        includedTypes: [...FOOD_TYPES],
+        includedTypes: SEARCH_FOOD_TYPES,
         maxResultCount: 10,
         rankPreference: 'DISTANCE',
         language: 'en',
