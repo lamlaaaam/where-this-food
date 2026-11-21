@@ -138,9 +138,12 @@ Missing photos disable those hints (no penalty).
 - `public/daily-puzzle.json` is committed by the workflow and served as a static asset.
 - `public/daily-puzzle-default.json` is a committed fallback generated once with the same
   script (`npm run puzzle:default`).
-- Photo URLs and review text are copied from Google Places into these JSON files. Verify
-  Google's current caching/redistribution terms before shipping publicly.
-- Photo URLs may expire; a failed photo hint simply shows no image.
+- Review text is copied from Google Places into these JSON files. Verify Google's current
+  caching/redistribution terms before shipping publicly.
+- Place photos are downloaded during generation and committed under `public/photos/`; the JSON
+  stores local paths only. Player photo hints therefore load static files, not Google endpoints.
+- Rehosting Google Place photos is not expressly permitted by Google's terms; this is a
+  deliberate cost trade-off and carries a compliance risk.
 
 ## Deployment
 - `.github/workflows/deploy.yml` builds on push to `main`.
@@ -150,10 +153,12 @@ Missing photos disable those hints (no penalty).
 - GitHub Pages source: **GitHub Actions**.
 
 ## Risks / notes
-- Daily Places usage is bounded: roughly 15 nearby searches per day for five rounds, plus
-  photo media requests from players. Player traffic does not call Places selection APIs.
+- Daily Places usage is bounded: roughly 15 nearby searches per day for five rounds, plus up
+  to 50 photo downloads during generation. Player traffic does not call Places selection APIs
+  or Place Photos endpoints.
 - Google returns at most 5 review texts per place, so places with fewer usable reviews are
   skipped in favour of places that can fill all five slots.
-- The key is visible in the built bundle, so referrer restrictions are essential.
+- The key is visible in the built bundle, so referrer restrictions are essential. Earlier
+  commits also embedded it in photo URLs inside the puzzle JSON; rotate that key.
 - If generation fails, the previous dated file becomes stale at midnight SGT and players see
   the default-puzzle warning until the workflow is fixed and re-run.

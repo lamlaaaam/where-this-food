@@ -29,6 +29,8 @@ const OUTPUT = resolve(
     (IS_DEFAULT ? 'public/daily-puzzle-default.json' : 'public/daily-puzzle.json'),
 )
 const SEED = process.env.PUZZLE_SEED ?? (IS_DEFAULT ? 'default' : DATE)
+const PHOTO_DIR = resolve(ROOT, 'public/photos')
+const PHOTO_PREFIX = IS_DEFAULT ? 'default' : 'daily'
 
 const CONFIG = {
   seed: SEED,
@@ -348,12 +350,13 @@ async function generateInBrowser(page, apiKey) {
           place.photos
             ?.map((photo) => {
               try {
-                return photo.getURI({ maxWidth: 1000 })
+                return photo.getURI({ maxWidth: 600 })
               } catch {
                 return null
               }
             })
-            .filter(Boolean) ?? []
+            .filter(Boolean)
+            .slice(0, 3) ?? []
 
         const reviews = (place.reviews ?? [])
           .map((review) => ({
@@ -466,6 +469,68 @@ async function main() {
     await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' })
 
     const places = await generateInBrowser(page, API_KEY)
+
+    // Download the Place photos once during generation and serve them as static
+    // files. The JSON then contains local paths instead of Google photo URLs,
+    // so players never trigger a Place Photos request.
+    const photoTargets = new Map()
+    places.forEach((place, round) => {
+      place.photos = place.photos.map((url, index) => {
+        const filename = `${PHOTO_PREFIX}-${String(round + 1).padStart(2, '0')}-${String(
+          index + 1,
+        ).padStart(2, '0')}.jpg`
+        photoTargets.set(url, resolve(PHOTO_DIR, filename))
+        return `photos/${filename}`
+      })
+    })
+
+    await mkdir(PHOTO_DIR, { recursive: true })
+    const pendingWrites = []
+    page.on('response', (response) => {
+      if (response.status() >= 300 && response.status() < 400) return
+
+      const request = response.request()
+      const redirectUrls = (request.redirectChain?.() ?? []).map((entry) => entry.url())
+      const sourceUrl = [response.url(), request.url(), ...redirectUrls].find((url) =>
+        photoTargets.has(url),
+      )
+      const target = sourceUrl ? photoTargets.get(sourceUrl) : undefined
+      if (!target) return
+
+      pendingWrites.push(
+        (async () => {
+          if (!response.ok()) {
+            throw new Error(`Photo download failed (${response.status()}): ${response.url()}`)
+          }
+          await writeFile(target, await response.buffer())
+        })(),
+      )
+    })
+
+    const failedPhotos = await page.evaluate(async (urls) => {
+      const failed = []
+      await Promise.all(
+        urls.map(
+          (url) =>
+            new Promise((resolveImage) => {
+              const image = new Image()
+              image.onload = () => resolveImage()
+              image.onerror = () => {
+                failed.push(url)
+                resolveImage()
+              }
+              image.src = url
+            }),
+        ),
+      )
+      return failed
+    }, [...photoTargets.keys()])
+
+    if (failedPhotos.length > 0) {
+      throw new Error(`Could not download ${failedPhotos.length} photo(s).`)
+    }
+    await Promise.all(pendingWrites)
+
     const puzzle = {
       source: IS_DEFAULT ? 'default' : 'daily',
       date: DATE,
@@ -475,7 +540,7 @@ async function main() {
 
     await mkdir(dirname(OUTPUT), { recursive: true })
     await writeFile(OUTPUT, `${JSON.stringify(puzzle, null, 2)}\n`)
-    console.log(`Wrote ${OUTPUT} (${places.length} places)`)
+    console.log(`Wrote ${OUTPUT} (${places.length} places, ${photoTargets.size} photos)`)
     for (const place of places) console.log(`  ${place.name}`)
   } finally {
     await browser?.close()

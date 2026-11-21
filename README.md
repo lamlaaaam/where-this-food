@@ -35,9 +35,13 @@ The map key is read only from `.env`; nothing is stored in the browser. If the v
 
 The Google Places work happens once a day in GitHub Actions, not in every player's browser.
 `.github/workflows/daily-puzzle.yml` runs `scripts/generateDailyPuzzle.mjs` at 11:50 PM SGT,
-writes tomorrow's puzzle to `public/daily-puzzle.json`, and commits it. The deploy workflow
+downloads each Place photo into `public/photos/`, writes local image paths and tomorrow's
+puzzle to `public/daily-puzzle.json`, and commits the JSON plus images. The deploy workflow
 then publishes the updated static site. The game resets at **12:00 AM SGT**, and a countdown
 to that reset is shown in the top bar, menu, and summary.
+
+This means player photo hints load static files from GitHub Pages instead of calling the
+Places Photo endpoint on every reveal.
 
 If the dated puzzle is missing or stale, the app loads `public/daily-puzzle-default.json`
 instead and shows a prominent warning that daily puzzle generation failed and you are playing
@@ -85,8 +89,14 @@ npm run preview
 4. Push to `main`. The workflow in `.github/workflows/deploy.yml` builds with the
    correct base path and deploys `dist/`.
 
-The browser only loads Google Maps, `daily-puzzle.json` (or the bundled default). All Places
-calls happen in the scheduled generator, so player traffic does not consume Places quota.
+The browser only loads Google Maps, `daily-puzzle.json` (or the bundled default), and the
+committed photos in `public/photos/`. All Places calls happen in the scheduled generator, so
+player traffic does not consume Places quota.
+
+> **Terms warning:** committing Google Place photos rehosts Google Maps Content outside the
+> Services, which Google's Maps Platform Terms prohibit except where expressly permitted.
+> This project does it deliberately to avoid per-player photo charges; review that risk before
+> publishing.
 
 ## How the score is calculated
 
@@ -146,5 +156,6 @@ src/
 - Running out of guesses **or skipping** keeps the map unobscured and leaves a green pin on
   the answer; the result card moves to the corner instead of covering the map.
 - The summary offers no replay; a new puzzle arrives the next day.
-- Photo URLs in the daily JSON come from Places and may expire. If a photo hint fails to load,
-  no alternative is provided.
+- Photo hints point to committed static files under `public/photos/`, so they do not expire or
+  create per-player Places Photo requests. The daily workflow overwrites the `daily-*.jpg`
+  files each run; old versions remain in Git history.
