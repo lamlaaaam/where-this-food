@@ -2,7 +2,6 @@ import { HINT_LABELS, HINT_ORDER, type HintId } from '../config'
 import { formatDistance, nearestPoint } from '../data/geo'
 import { LANDMARKS } from '../data/landmarks'
 import { MRT_STATIONS } from '../data/mrt'
-import { describeCuisine } from '../places/service'
 import type { Hint, PlaceData } from '../types'
 import { escapeHtml } from '../ui/utils'
 
@@ -49,10 +48,6 @@ function buildHint(
             )}</p><p class="hint-sub">${formatDistance(landmark.distanceMeters)} away</p>`,
           }
         : { content: '' }
-    case 'cuisine':
-      return {
-        content: `<p class="hint-big">${escapeHtml(describeCuisine(place.types))}</p>`,
-      }
     case 'menuPhoto':
       return photoHint(place.photos[1], 'Menu', 'menu-photo')
     case 'foodPhoto':

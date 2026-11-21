@@ -12,6 +12,14 @@ export const SINGAPORE_BOUNDS = {
   maxLng: 104.05,
 } as const
 
+/** LatLngBoundsLiteral for Google Maps restriction. */
+export const SINGAPORE_BOUNDS_LITERAL: google.maps.LatLngBoundsLiteral = {
+  north: 1.475,
+  south: 1.23,
+  east: 104.05,
+  west: 103.6,
+}
+
 export function isInSingapore(point: { lat: number; lng: number }): boolean {
   return (
     point.lat >= SINGAPORE_BOUNDS.minLat &&

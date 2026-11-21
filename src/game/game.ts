@@ -2,6 +2,7 @@ import { CONFIG, type HintId } from '../config'
 import { computeBreakdown, type ScoreBreakdown } from './scoring'
 import { buildHints } from './hints'
 import { DEMO_PLACES, pickDemoPlace } from '../data/demoPlaces'
+import { describeCuisine } from '../places/service'
 import { createMap } from '../map/init'
 import { MapInteraction } from '../map/pois'
 import { loadGoogleMaps, PlacesApi, PlacesError } from '../places/service'
@@ -240,6 +241,7 @@ export class Game {
             <h2>What people say</h2>
             <span class="badge" id="review-count">Loading…</span>
           </div>
+          <div class="place-cuisine" id="place-cuisine" hidden></div>
           <div class="demo-notice" id="demo-notice" hidden></div>
           <div class="reviews" id="reviews">
             <div class="skeleton"></div>
@@ -390,6 +392,14 @@ export class Game {
     const starReviews = reviewsByStar(place.reviews)
     const count = place.reviews.length
     this.setText('review-count', `${count} review${count === 1 ? '' : 's'}`)
+
+    // Show cuisine type
+    const cuisineEl = document.getElementById('place-cuisine')
+    if (cuisineEl) {
+      const cuisine = describeCuisine(place.types)
+      cuisineEl.hidden = false
+      cuisineEl.innerHTML = `<span class="cuisine-label">Cuisine</span><span class="cuisine-value">${escapeHtml(cuisine)}</span>`
+    }
 
     container.innerHTML = starReviews
       .map(({ star, review }) => {

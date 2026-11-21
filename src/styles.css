@@ -426,6 +426,36 @@ input {
   text-transform: uppercase;
 }
 
+.place-cuisine {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.place-cuisine[hidden] {
+  display: none;
+}
+
+.cuisine-label {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cuisine-value {
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .hints-head {
   margin-top: 22px;
   padding-top: 18px;

@@ -67,7 +67,7 @@ export class MapInteraction {
     this.answerInfo?.close()
     this.answerInfo = null
     this.map.setCenter(CONFIG.singaporeCenter)
-    this.map.setZoom(CONFIG.singaporeZoom)
+    this.map.setZoom(11.2)
   }
 
   revealAnswer(place: PlaceData): void {
