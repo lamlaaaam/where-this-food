@@ -21,6 +21,7 @@ export async function selectAnswerPlace(
   let totalCandidates = 0
   let inspected = 0
   let maxReviews = 0
+  let sample = ''
 
   for (const center of centers) {
     let results: PlaceData[]
@@ -52,6 +53,12 @@ export async function selectAnswerPlace(
       try {
         const place = await api.details(candidate.placeId)
         maxReviews = Math.max(maxReviews, place.reviews.length)
+        if (!sample) {
+          sample =
+            ` sample: "${place.name}" id=${place.placeId} ` +
+            `rating=${place.rating} ratings=${place.userRatingsTotal} ` +
+            `photos=${place.photos.length} reviews=${place.reviews.length}`
+        }
         const distinctRatings = new Set(
           place.reviews.map((review) => Math.round(review.rating)),
         )
@@ -77,7 +84,7 @@ export async function selectAnswerPlace(
   throw new Error(
     `Google Places returned no usable Singapore food place with reviews ` +
       `(results: ${totalResults}, candidates: ${totalCandidates}, ` +
-      `inspected: ${inspected}, max reviews: ${maxReviews})${detail}.`,
+      `inspected: ${inspected}, max reviews: ${maxReviews})${sample}${detail}.`,
   )
 }
 

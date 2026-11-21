@@ -309,9 +309,10 @@ export class PlacesApi {
 
     const PlaceClass = await getPlaceClass()
     const place = await callPlaces(async () => {
+      // Google's documented pattern: fetchFields() mutates this instance.
       const request = new PlaceClass({ id: placeId, requestedLanguage: 'en' })
-      const response = await request.fetchFields({ fields: DETAIL_FIELDS })
-      return response.place ?? request
+      await request.fetchFields({ fields: DETAIL_FIELDS })
+      return request
     })
 
     const data = toPlaceData(place)
