@@ -37,22 +37,10 @@ export class Game {
     window.addEventListener('resize', this.handleResize)
   }
 
-  async boot(): Promise<void> {
+  boot(): void {
     this.apiKey = this.readApiKey()
-    if (!this.apiKey) {
-      this.renderSetup()
-      return
-    }
-
-    try {
-      await loadGoogleMaps(this.apiKey)
-      this.renderShell()
-      this.renderMenu()
-    } catch {
-      this.renderSetup(
-        'Could not load Google Maps. Check that the key is valid and that the Maps JavaScript API and Places API are enabled.',
-      )
-    }
+    this.renderShell()
+    this.renderMenu()
   }
 
   private readonly handleResize = (): void => {
@@ -119,6 +107,7 @@ export class Game {
         .then(() => {
           this.renderShell()
           this.renderMenu()
+          void this.startGame()
         })
         .catch(() => {
           if (button) {
@@ -204,7 +193,21 @@ export class Game {
     document.getElementById('start-game')?.addEventListener('click', () => this.startGame())
   }
 
-  private startGame(): void {
+  private async startGame(): Promise<void> {
+    if (!this.apiKey) {
+      this.renderSetup()
+      return
+    }
+
+    try {
+      await loadGoogleMaps(this.apiKey)
+    } catch {
+      this.renderSetup(
+        'Could not load Google Maps. Check that the key is valid and that the Maps JavaScript API and Places API are enabled.',
+      )
+      return
+    }
+
     this.roundIndex = 0
     this.totalScore = 0
     this.roundScores = []

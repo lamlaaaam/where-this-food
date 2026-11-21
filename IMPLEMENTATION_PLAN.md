@@ -51,9 +51,11 @@ src/
 ```
 
 ## Game flow
-1. **Boot**: read key from `VITE_GOOGLE_MAPS_API_KEY` or `localStorage`; if missing or
-   invalid, show a setup screen where the player can paste a key.
-2. **Menu**: rules and Start button.
+1. **Boot**: render the menu immediately; the key is read from
+   `VITE_GOOGLE_MAPS_API_KEY` or `localStorage`. Google Maps is only loaded when the
+   player presses Start, so the first paint stays fast.
+2. **Menu**: rules and Start button. If no key is configured, Start opens a setup screen
+   where the player can paste one; an invalid key also returns to setup with an error.
 3. **Round**: pick an answer place, render one review per star (1★–5★), start the timer,
    enable the map.
 4. **Guessing**: click a restaurant POI to snap the pin, or click empty space to snap to

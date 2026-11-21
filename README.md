@@ -25,7 +25,7 @@ cp .env.example .env      # Windows: copy .env.example .env
 npm run dev
 ```
 
-If you do not want to create a `.env`, the app also shows a setup screen where you can paste a key. It is stored in `localStorage` for that browser only.
+If you do not want to create a `.env`, press **Start game** without a key — a setup screen lets you paste one. It is stored in `localStorage` for that browser only.
 
 ### Google Cloud setup
 
