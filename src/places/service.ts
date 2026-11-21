@@ -103,7 +103,10 @@ function placesFailure(error: unknown): PlacesError {
       )
     case 'OVER_QUERY_LIMIT':
     case 'RESOURCE_EXHAUSTED':
-      return new PlacesError('Google Places quota exceeded for this key.', status)
+      return new PlacesError(
+        `Google Places quota exceeded for this key (${status}${detail ? `: ${detail}` : ''}). Check the Google Cloud Quotas page and billing for Places API (New) / Maps JavaScript Places usage.`,
+        status,
+      )
     case 'INVALID_REQUEST':
     case 'INVALID_ARGUMENT':
       return new PlacesError(

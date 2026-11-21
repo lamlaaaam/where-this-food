@@ -115,9 +115,10 @@ Missing photos disable the hint (no penalty).
 
 ## Demo mode fallback
 When Places API (New) returns `REQUEST_DENIED` (e.g., Maps Demo Key or a key without Places
-enabled), the game automatically switches to 15 bundled Singapore hawker centres with
-hand-crafted reviews and SVG photos. The map still uses the real Google Maps JavaScript
-API so the pin-dropping UX works. A "Demo mode" notice tells the player what happened.
+enabled) or a quota error, the game automatically switches to 15 bundled Singapore hawker
+centres with hand-crafted reviews and SVG photos. The map still uses the real Google Maps
+JavaScript API so the pin-dropping UX works. A "Demo mode" notice tells the player what
+happened and includes the quota/billing guidance when available.
 
 ## Risks / notes
 - Live Places calls cost money; selection usually resolves in one or two detail calls.
