@@ -1,0 +1,45 @@
+import type { HintId } from './config'
+
+export interface ReviewData {
+  author: string
+  rating: number
+  text: string
+  relativeTime: string
+  profilePhoto?: string
+}
+
+export interface PlaceData {
+  placeId: string
+  name: string
+  address: string
+  location: google.maps.LatLngLiteral
+  rating?: number
+  userRatingsTotal?: number
+  types: string[]
+  photos: string[]
+  reviews: ReviewData[]
+}
+
+export interface Guess {
+  placeId: string
+  name: string
+  location: google.maps.LatLngLiteral
+}
+
+export interface Hint {
+  id: HintId
+  label: string
+  unlocked: boolean
+  available: boolean
+  content: string
+}
+
+export interface RoundScore {
+  round: number
+  score: number
+  placeName: string
+  correct: boolean
+  attempts: number
+  hintsUsed: number
+  elapsedSeconds: number
+}

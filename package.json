@@ -1,0 +1,20 @@
+{
+  "name": "where-this-food",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Guess Singapore food places from Google reviews and pin them on the map.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@googlemaps/js-api-loader": "^1.16.8"
+  },
+  "devDependencies": {
+    "@types/google.maps": "^3.58.1",
+    "typescript": "^5.6.3",
+    "vite": "^8.3.8"
+  }
+}
