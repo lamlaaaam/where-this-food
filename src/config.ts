@@ -9,7 +9,7 @@ export const CONFIG = {
   singaporeCenter: { lat: 1.3521, lng: 103.8198 },
   answerSearchRadiusMeters: 25_000,
   guessSnapRadiusMeters: 120,
-  maxCandidatesToInspect: 6,
+  maxCandidatesToInspect: 10,
 } as const
 
 export const HINT_LABELS = {
@@ -18,7 +18,7 @@ export const HINT_LABELS = {
   photo3: 'Photo 3',
   mrt: 'Nearby MRT',
   cost: 'Expected cost',
-  maskedAnswer: 'Blanked-out answer',
+  maskedAnswer: 'Name hint',
 } as const
 
 export type HintId = keyof typeof HINT_LABELS

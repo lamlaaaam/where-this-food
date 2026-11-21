@@ -132,11 +132,11 @@ function buildHint(
 ): { content: string } {
   switch (id) {
     case 'photo1':
-      return photoHint(photos[0], 'Photo 1', 'photo-one')
+      return photoHint(photos[0], 'photo-one')
     case 'photo2':
-      return photoHint(photos[1], 'Photo 2', 'photo-two')
+      return photoHint(photos[1], 'photo-two')
     case 'photo3':
-      return photoHint(photos[2], 'Photo 3', 'photo-three')
+      return photoHint(photos[2], 'photo-three')
     case 'mrt':
       return mrt
         ? {
@@ -160,18 +160,12 @@ function buildHint(
   }
 }
 
-function photoHint(
-  url: string | undefined,
-  label: string,
-  className: string,
-): { content: string } {
+function photoHint(url: string | undefined, className: string): { content: string } {
   if (!url) return { content: '' }
 
   return {
     content: `<figure class="hint-photo ${className}"><img src="${escapeHtml(
       url,
-    )}" alt="${escapeHtml(label)}" loading="lazy" /><figcaption>${escapeHtml(
-      label,
-    )}</figcaption></figure>`,
+    )}" alt="Hint photo" loading="lazy" /></figure>`,
   }
 }

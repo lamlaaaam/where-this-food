@@ -27,6 +27,7 @@ export class Game {
 
   private currentPlace: PlaceData | null = null
   private hints: Hint[] = []
+  private lastMissMeters: number | null = null
   private attempts = 1
   private startedAt = 0
   private timerId: number | null = null
@@ -117,7 +118,7 @@ export class Game {
             </li>
             <li>
               <span class="rule-icon">💡</span>
-              <div><strong>6 hints, −12 pts each</strong><p>Photos, nearby MRT, expected cost and a masked answer — use them wisely.</p></div>
+              <div><strong>6 hints, −12 pts each</strong><p>Photos, nearby MRT, expected cost and a name hint — use them wisely.</p></div>
             </li>
             <li>
               <span class="rule-icon">📍</span>
@@ -170,6 +171,7 @@ export class Game {
     this.attempts = 1
     this.currentPlace = null
     this.hints = []
+    this.lastMissMeters = null
     this.startedAt = 0
     this.map = null
     this.api = null
@@ -203,6 +205,7 @@ export class Game {
             <div class="guess-info" id="guess-info">
               <span class="guess-kicker">Drop a pin</span>
               <span>Tap a restaurant on the map to choose your guess.</span>
+              <span class="guess-feedback" id="guess-feedback" aria-live="polite">&nbsp;</span>
             </div>
             <div class="map-actions">
               <button class="btn ghost" id="skip-round" type="button" disabled>Skip Round</button>
@@ -362,12 +365,15 @@ export class Game {
 
     const starReviews = reviewsForDisplay(place.reviews, place.name)
 
-    // Show cuisine type
+    // Show cuisine type only when Google gives us something more specific than
+    // the generic "restaurant" category.
     const cuisineEl = document.getElementById('place-cuisine')
     if (cuisineEl) {
       const cuisine = describeCuisine(place.types)
-      cuisineEl.hidden = false
-      cuisineEl.innerHTML = `<span class="cuisine-label">Cuisine</span><span class="cuisine-value">${escapeHtml(cuisine)}</span>`
+      cuisineEl.hidden = cuisine.length === 0
+      if (cuisine) {
+        cuisineEl.innerHTML = `<span class="cuisine-label">Cuisine</span><span class="cuisine-value">${escapeHtml(cuisine)}</span>`
+      }
     }
 
     // Show the place's overall average rating from Google.
@@ -479,6 +485,7 @@ export class Game {
 
     if (this.attempts < CONFIG.maxAttempts) {
       this.attempts += 1
+      this.lastMissMeters = distanceMeters
       this.interaction.clearGuess()
       this.updateAttempts()
       this.updateHud()
@@ -490,6 +497,8 @@ export class Game {
       return
     }
 
+    this.lastMissMeters = distanceMeters
+    this.updateGuessUi(guess)
     this.finishRound(false, false, guess)
   }
 
@@ -674,13 +683,28 @@ export class Game {
     if (!info || !button) return
 
     if (guess) {
-      info.innerHTML = `<span class="guess-kicker">Your pin</span><strong>${escapeHtml(guess.name)}</strong>`
+      info.innerHTML =
+        `<span class="guess-kicker">Your pin</span><strong>${escapeHtml(guess.name)}</strong>` +
+        this.guessFeedbackHtml()
       button.disabled = this.roundOver
     } else {
       info.innerHTML =
-        '<span class="guess-kicker">Drop a pin</span><span>Tap a restaurant on the map to choose your guess.</span>'
+        '<span class="guess-kicker">Drop a pin</span>' +
+        '<span>Tap a restaurant on the map to choose your guess.</span>' +
+        this.guessFeedbackHtml()
       button.disabled = true
     }
+  }
+
+  private guessFeedbackHtml(): string {
+    if (this.lastMissMeters === null) {
+      return '<span class="guess-feedback" aria-hidden="true">&nbsp;</span>'
+    }
+
+    return (
+      `<span class="guess-feedback">Last guess: ${formatDistance(this.lastMissMeters)} off — ` +
+      `${missFlavour(this.lastMissMeters)}</span>`
+    )
   }
 
   private updateHud(): void {

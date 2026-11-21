@@ -29,6 +29,18 @@ export function isInSingapore(point: { lat: number; lng: number }): boolean {
   )
 }
 
+/** Uniform random point inside the Singapore bounding box. */
+export function randomPointInSingapore(): google.maps.LatLngLiteral {
+  return {
+    lat:
+      SINGAPORE_BOUNDS.minLat +
+      Math.random() * (SINGAPORE_BOUNDS.maxLat - SINGAPORE_BOUNDS.minLat),
+    lng:
+      SINGAPORE_BOUNDS.minLng +
+      Math.random() * (SINGAPORE_BOUNDS.maxLng - SINGAPORE_BOUNDS.minLng),
+  }
+}
+
 const EARTH_RADIUS_M = 6_371_000
 
 function toRadians(degrees: number): number {

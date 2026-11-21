@@ -24,6 +24,11 @@ const DETAIL_FIELDS = [
 // a `restaurant` type because they contain a restaurant.
 const SEARCH_FIELDS = ['id', 'displayName', 'location', 'types', 'primaryType']
 
+// `userRatingCount` lets place selection compare review counts without paying
+// for full review details on every nearby candidate. It is a pricier Nearby
+// Search field, so it is only requested by the answer-selection pipeline.
+const SEARCH_WITH_RATINGS_FIELDS = [...SEARCH_FIELDS, 'userRatingCount']
+
 /**
  * Types allowed in an `includedTypes` request parameter (Table A of the
  * Places API place-types reference). Table B values such as `food` may only
@@ -193,6 +198,7 @@ const GENERIC_TYPES = new Set([
   'point_of_interest',
   'establishment',
   'store',
+  'restaurant',
   'meal_takeaway',
   'meal_delivery',
   'night_club',
@@ -339,7 +345,7 @@ export function describeCuisine(types: string[]): string {
     .filter(Boolean)
     .slice(0, 3)
 
-  return cuisines.length > 0 ? cuisines.join(' · ') : 'Restaurant'
+  return cuisines.join(' · ')
 }
 
 function humanizeType(type: string): string {
@@ -429,12 +435,13 @@ export class PlacesApi {
   async nearestRestaurants(
     location: google.maps.LatLngLiteral,
     radiusMeters: number,
+    includeRatings = false,
   ): Promise<PlaceData[]> {
     const PlaceClass = await getPlaceClass()
 
     const response = await callPlaces(() =>
       PlaceClass.searchNearby({
-        fields: SEARCH_FIELDS,
+        fields: includeRatings ? SEARCH_WITH_RATINGS_FIELDS : SEARCH_FIELDS,
         locationRestriction: { center: location, radius: radiusMeters },
         includedTypes: SEARCH_FOOD_TYPES,
         maxResultCount: 10,
@@ -446,12 +453,12 @@ export class PlacesApi {
     return (response.places ?? [])
       .map(toPlaceDataSafe)
       .filter((place): place is PlaceData => Boolean(place))
-      .filter((place) => {
-        return (
+      .filter(
+        (place) =>
           isFoodPlace(place.types) &&
-          haversineMeters(location, place.location) <= radiusMeters
-        )
-      })
+          isInSingapore(place.location) &&
+          haversineMeters(location, place.location) <= radiusMeters,
+      )
   }
 
   async details(placeId: string): Promise<PlaceData> {

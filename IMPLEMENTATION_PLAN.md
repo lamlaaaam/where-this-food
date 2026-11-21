@@ -80,25 +80,28 @@ score = clamp(round((base − hintPenalty − timePenalty) × attemptMultiplier)
 The HUD shows the live potential score and updates every second and on hint use.
 
 ## Hints
-Cuisine type is always visible in the clues panel (derived from `place.types` with generic
-types filtered out), so it is not a paid hint.
+Cuisine type is free information in the clues panel (derived from `place.types` with generic
+types filtered out). The row is hidden when Google only supplies a broad type such as
+`restaurant`.
 
 | Hint | Source |
 | --- | --- |
 | Photo 1 / 2 / 3 | three random photos from `place.photos` |
 | Nearby MRT | randomly chosen from the 3 closest stations in `data/mrt.ts` |
 | Expected cost | type-based SGD range with random jitter per round |
-| Blanked-out answer | ~40% of the place name's letters revealed at random |
+| Name hint | ~40% of the place name's letters revealed at random |
 
 Google does not label photos as menus or food, so the photo hints use neutral numbers.
 Missing photos disable those hints (no penalty).
 
 ## Place selection
-- `Place.searchNearby()` around 2 randomly chosen Singapore centres out of 7, radius 25 km.
-- Keep places with `user_ratings_total >= 5`, food types, and coordinates inside the
-  Singapore bounding box.
-- Shuffle the busier eligible candidates so repeat games pick different places.
-- Fetch details; require 5 usable reviews that do not name the place (Google returns at most 5).
+- Pick a uniform random coordinate inside the Singapore bounding box.
+- `Place.searchNearby()` with `rankPreference: DISTANCE` returns the 10 nearest food places;
+  start with a 12 km radius and widen to 25 km for sparse random points.
+- Request `userRatingCount` on this search only, then sort candidates by review count and
+  take the highest-ranked playable place.
+- Fetch details; require 5 usable reviews that do not name the place. Google Places returns
+  at most 5 review texts per place, so a 50-review pool is not available from this API.
 - Shuffle the usable reviews before showing them; stars are informational only.
 - Remember a rolling 50-place history across playthroughs so each run gets different places.
 
@@ -109,6 +112,8 @@ Missing photos disable those hints (no penalty).
 - Initial view uses `fitBounds()` on the Singapore bounding box, then zooms out one extra
   level so strict bounds prevent panning until the player zooms in.
 - Correct/incorrect/skipped finish reveals the answer with a green marker and info window.
+- Failed guesses keep their distance and flavour text in the map footer instead of only in
+  a disappearing toast.
 - Skipping a round records a 0-point result and is labelled as skipped in the summary.
 
 ## Deployment
