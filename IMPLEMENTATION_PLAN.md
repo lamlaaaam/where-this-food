@@ -40,10 +40,9 @@ src/
   places/
     service.ts           Google Maps loader, Places API (New) Place class wrappers
     selection.ts         answer selection with review filter
-    reviews.ts           one review per star
+    reviews.ts           review filtering and random five-review selection
   data/
     mrt.ts               MRT station coordinates
-    landmarks.ts         landmark coordinates
     geo.ts               haversine + Singapore bounds
   ui/
     utils.ts             escape, clock formatting, toast
@@ -86,20 +85,20 @@ types filtered out), so it is not a paid hint.
 
 | Hint | Source |
 | --- | --- |
-| Photo of the place | `place.photos[0]` |
-| Nearest MRT | haversine over `data/mrt.ts` |
-| Nearest landmark | haversine over `data/landmarks.ts` |
-| Menu photo | `place.photos[1]` |
-| Food photo | `place.photos[2]` |
+| Photo of the place | random photo from `place.photos` |
+| Nearby MRT | randomly chosen from the 3 closest stations in `data/mrt.ts` |
+| Another photo | a second random photo from `place.photos` |
 
-Missing photos disable the hint (no penalty).
+Google does not label photos as menus or food, so those unreliable hints were removed.
+Missing photos disable a hint (no penalty).
 
 ## Place selection
 - `Place.searchNearby()` around several Singapore centres, radius 25 km.
 - Keep places with `user_ratings_total >= 5`, food types, and coordinates inside the
   Singapore bounding box.
-- Fetch details; require at least 3 usable reviews that do not name the place. Prefer
-  one review per star from 5★ down to 1★, then fill remaining slots with other real reviews.
+- Shuffle the busier eligible candidates so repeat games pick different places.
+- Fetch details; require 5 usable reviews that do not name the place (Google returns at most 5).
+- Shuffle the usable reviews before showing them; stars are informational only.
 - Remember used place IDs so a round never repeats a place.
 
 ## Map interaction
@@ -122,8 +121,8 @@ JavaScript API so the pin-dropping UX works. A "Demo mode" notice tells the play
 happened and includes the quota/billing guidance when available.
 
 ## Risks / notes
-- Live Places calls cost money; selection usually resolves in one or two detail calls.
-- Google returns at most 5 review texts per place; star coverage varies, so the UI shows
-  only real reviews and may repeat a star rating.
+- Live Places calls cost money; up to 6 shuffled candidates are inspected per round.
+- Google returns at most 5 review texts per place, so places with fewer usable reviews are
+  skipped in favour of places that can fill all five slots.
 - The key is visible in the built bundle, so referrer restrictions are essential.
 - Maps Demo Key works for the map but not Places; demo mode covers that gap.

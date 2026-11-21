@@ -3,8 +3,8 @@
 A browser game: guess Singapore food places from their Google reviews and drop a pin on the map.
 
 - **5 rounds**, 100 points per round, **500 max**
-- Real Google reviews, preferred one per star rating (1★–5★), as your clue
-- **5 optional hints** — place photo, nearest MRT, nearest landmark, menu photo, food photo
+- **5 real Google reviews** per round, chosen at random (star ratings are informational)
+- **3 optional hints** — a photo of the place, a nearby MRT station, and another photo
 - **3 guesses** per round
 - **30 seconds free**, then −5 points every 30 seconds
 - Each hint costs **−12 points**
@@ -32,7 +32,7 @@ The key is read only from `.env`; nothing is stored in the browser. If the varia
 The **Maps Demo Key** from Google lets you try the game without a billing account, but it
 does **not** include Places API (New) reviews or photos. The game detects this and
 automatically falls back to **bundled demo places** — you can still play all 5 rounds with
-real reviews, photos, MRT/landmark hints, and map guessing. A notice appears at the top
+real reviews, photos, nearby-MRT hints, and map guessing. A notice appears at the top
 of the clues panel when demo mode is active.
 
 ### Google Cloud setup (full experience)
@@ -99,10 +99,9 @@ src/
   places/
     service.ts           Google Maps loader + Places wrappers
     selection.ts         pick an answer place with enough reviews
-    reviews.ts           one review per star
+    reviews.ts           review filtering and random selection
   data/
     mrt.ts               MRT station coordinates
-    landmarks.ts         landmark coordinates
     geo.ts               haversine helpers
   ui/
     utils.ts             escape/format/toast helpers
@@ -111,10 +110,11 @@ src/
 
 ## Notes
 
-- Place selection uses Nearby Search around Singapore and keeps food places with at least
-  3 usable reviews. Reviews that name the place are filtered out. Google returns at most
-  5 review texts per place, so the clue panel uses the available real reviews and never
-  shows missing-review placeholders.
+- Place selection uses Nearby Search around Singapore, shuffles a set of busy candidates,
+  and keeps food places with 5 real reviews that do not name the place. Reviews and hint
+  photos are shuffled each round for replayability.
+- Google Places does not label photos as menus or food, so the paid photo hints are simply
+  “Photo of the place” and “Another photo” rather than making an unreliable claim.
 - Clicking a restaurant POI on the map snaps the pin to it. Clicking empty map space
   snaps to the nearest restaurant within 120 m.
 - Photos come from Google Places and are displayed at runtime; they are not stored.

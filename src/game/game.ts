@@ -115,7 +115,7 @@ export class Game {
             </li>
             <li>
               <span class="rule-icon">💡</span>
-              <div><strong>5 hints, −12 pts each</strong><p>Photos, nearest MRT, landmark and menu/food shots — use them wisely.</p></div>
+              <div><strong>3 hints, −12 pts each</strong><p>Two photos and a nearby MRT station — use them wisely.</p></div>
             </li>
             <li>
               <span class="rule-icon">📍</span>
@@ -179,10 +179,6 @@ export class Game {
     screen.innerHTML = `
       <section class="play">
         <div class="panel reviews-panel">
-          <div class="panel-head">
-            <h2>What people say</h2>
-            <span class="badge" id="review-count">Loading…</span>
-          </div>
           <div class="place-cuisine" id="place-cuisine" hidden></div>
           <div class="demo-notice" id="demo-notice" hidden></div>
           <div class="reviews" id="reviews">
@@ -315,8 +311,9 @@ export class Game {
       <div class="skeleton"></div>
       <div class="skeleton"></div>
       <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
     `
-    this.setText('review-count', 'Loading…')
   }
 
   private renderLoadError(message: string): void {
@@ -339,8 +336,6 @@ export class Game {
     if (!place || !container) return
 
     const starReviews = reviewsForDisplay(place.reviews, place.name)
-    const count = starReviews.length
-    this.setText('review-count', `${count} review${count === 1 ? '' : 's'}`)
 
     // Show cuisine type
     const cuisineEl = document.getElementById('place-cuisine')

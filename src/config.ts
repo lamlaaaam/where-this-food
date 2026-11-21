@@ -10,23 +10,15 @@ export const CONFIG = {
   singaporeZoom: 11.2,
   answerSearchRadiusMeters: 25_000,
   guessSnapRadiusMeters: 120,
-  maxCandidatesToInspect: 5,
+  maxCandidatesToInspect: 6,
 } as const
 
 export const HINT_LABELS = {
   placePhoto: 'Photo of the place',
-  mrt: 'Nearest MRT',
-  landmark: 'Nearest landmark',
-  menuPhoto: 'Menu photo',
-  foodPhoto: 'Food photo',
+  mrt: 'Nearby MRT',
+  foodPhoto: 'Another photo',
 } as const
 
 export type HintId = keyof typeof HINT_LABELS
 
-export const HINT_ORDER: HintId[] = [
-  'placePhoto',
-  'mrt',
-  'landmark',
-  'menuPhoto',
-  'foodPhoto',
-]
+export const HINT_ORDER: HintId[] = ['placePhoto', 'mrt', 'foodPhoto']

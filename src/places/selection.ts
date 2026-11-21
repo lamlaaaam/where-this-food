@@ -1,7 +1,7 @@
 import { CONFIG } from '../config'
 import { isInSingapore } from '../data/geo'
 import type { PlaceData } from '../types'
-import { usableReviews } from './reviews'
+import { hasEnoughUsableReviews, usableReviews } from './reviews'
 import { isFoodPlace, PlacesApi } from './service'
 
 const SEARCH_CENTERS = [CONFIG.singaporeCenter, { lat: 1.32, lng: 103.85 }]
@@ -37,7 +37,7 @@ export async function selectAnswerPlace(
 
     // Prefer busy places, but do not require userRatingCount: some responses
     // omit it, and a place with reviews is still playable.
-    const candidates = results
+    const eligibleCandidates = results
       .filter(
         (place) =>
           Boolean(place.placeId) &&
@@ -46,6 +46,10 @@ export async function selectAnswerPlace(
           isInSingapore(place.location),
       )
       .sort((a, b) => (b.userRatingsTotal ?? 0) - (a.userRatingsTotal ?? 0))
+
+    // Stay among the busier places, but randomise which of them get inspected
+    // so repeat games do not unfold the same way.
+    const candidates = shuffle(eligibleCandidates.slice(0, 12))
 
     totalCandidates += candidates.length
 
@@ -66,10 +70,9 @@ export async function selectAnswerPlace(
             `photos=${place.photos.length} reviews=${eligible.length}`
         }
 
-        // The Places API returns at most 5 reviews total, so requiring every
-        // star bucket is too strict. Accept places with enough usable,
-        // non-spoiling reviews; prefer fuller star coverage.
-        if (eligible.length >= 3) {
+        // Google returns at most 5 reviews. Require all five to be usable so
+        // every round can show five real, non-spoiling reviews.
+        if (hasEnoughUsableReviews(place.reviews, place.name)) {
           return place
         }
       } catch (error) {
@@ -82,7 +85,7 @@ export async function selectAnswerPlace(
 
   const detail = lastError instanceof Error ? `: ${lastError.message}` : ''
   throw new Error(
-    `Google Places returned no usable Singapore food place with reviews ` +
+    `Google Places returned no Singapore food place with 5 usable reviews ` +
       `(results: ${totalResults}, candidates: ${totalCandidates}, ` +
       `inspected: ${inspected}, max reviews: ${maxReviews})${sample}${detail}.`,
   )
