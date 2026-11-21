@@ -1057,37 +1057,23 @@ input {
   line-height: 1.5;
 }
 
-.key-form {
-  display: grid;
-  gap: 8px;
+.env-example {
   margin: 20px 0 0;
-}
-
-.key-form label {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.key-form input {
-  width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--border-strong);
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.25);
   color: var(--text);
-  outline: none;
+  font-size: 13px;
+  overflow-x: auto;
 }
 
-.key-form input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-.key-form .btn {
-  margin-top: 6px;
+.fineprint code,
+.lede code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.92em;
 }
 
 /* ---------- Toast ---------- */

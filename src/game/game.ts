@@ -10,8 +10,6 @@ import { selectAnswerPlace } from '../places/selection'
 import type { Guess, Hint, PlaceData, RoundScore } from '../types'
 import { escapeHtml, formatClock, toast } from '../ui/utils'
 
-const KEY_STORAGE = 'wtf-google-maps-key'
-
 export class Game {
   private readonly root: HTMLElement
   private apiKey = ''
@@ -41,7 +39,11 @@ export class Game {
   }
 
   boot(): void {
-    this.apiKey = this.readApiKey()
+    this.apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
+    if (!this.apiKey) {
+      this.renderSetup()
+      return
+    }
     this.renderShell()
     this.renderMenu()
   }
@@ -50,88 +52,27 @@ export class Game {
     if (this.map) google.maps.event.trigger(this.map, 'resize')
   }
 
-  private readApiKey(): string {
-    try {
-      const stored = window.localStorage.getItem(KEY_STORAGE)
-      if (stored) return stored
-    } catch {
-      // Ignore storage access errors.
-    }
-    return import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
-  }
-
   private renderSetup(error?: string): void {
     this.root.innerHTML = `
       <div class="setup">
         <div class="setup-card">
           <span class="brand-mark large">WTF</span>
           <h1>Where This Food</h1>
-          <p class="lede">Add a Google Maps API key to start guessing Singapore food places.</p>
+          <p class="lede">Add your Google Maps API key to <code>.env</code> and restart the app.</p>
           ${
             error
               ? `<p class="setup-error">${escapeHtml(error)}</p>`
               : ''
           }
-          <form id="key-form" class="key-form">
-            <label for="key-input">Google Maps API key</label>
-            <input id="key-input" type="password" autocomplete="off" placeholder="AIza…" />
-            <button class="btn primary" type="submit">Save &amp; play</button>
-          </form>
+          <pre class="env-example">VITE_GOOGLE_MAPS_API_KEY=your_key_here</pre>
           <p class="fineprint">
-            The key is stored in this browser only. Enable the Maps JavaScript API and Places API (New),
-            then restrict the key by HTTP referrer (localhost and your GitHub Pages domain).
+            Enable the Maps JavaScript API and Places API (New), then restrict the key by HTTP
+            referrer (localhost and your GitHub Pages domain). Keys are read only from
+            <code>.env</code> — nothing is stored in the browser.
           </p>
         </div>
       </div>
     `
-
-    const form = document.getElementById('key-form') as HTMLFormElement | null
-    const input = document.getElementById('key-input') as HTMLInputElement | null
-    const button = form?.querySelector<HTMLButtonElement>('button[type="submit"]')
-
-    form?.addEventListener('submit', (event) => {
-      event.preventDefault()
-      const key = input?.value.trim() ?? ''
-      if (!key) return
-
-      try {
-        window.localStorage.setItem(KEY_STORAGE, key)
-      } catch {
-        // The key still works for this session.
-      }
-
-      this.apiKey = key
-      this.demoMode = false
-      this.demoReason = ''
-      if (button) {
-        button.disabled = true
-        button.textContent = 'Loading…'
-      }
-
-      void loadGoogleMaps(key)
-        .then(() => {
-          this.renderShell()
-          this.renderMenu()
-          void this.startGame()
-        })
-        .catch(() => {
-          if (button) {
-            button.disabled = false
-            button.textContent = 'Save & play'
-          }
-          const errorElement = document.querySelector('.setup-error')
-          const message =
-            'Could not load Google Maps with that key. Check the key restrictions and enabled APIs.'
-          if (errorElement) {
-            errorElement.textContent = message
-          } else {
-            form?.insertAdjacentHTML(
-              'beforebegin',
-              `<p class="setup-error">${escapeHtml(message)}</p>`,
-            )
-          }
-        })
-    })
   }
 
   private renderShell(): void {
@@ -173,7 +114,7 @@ export class Game {
             </li>
             <li>
               <span class="rule-icon">💡</span>
-              <div><strong>6 hints, −12 pts each</strong><p>Photos, nearest MRT, landmark and cuisine — use them wisely.</p></div>
+              <div><strong>5 hints, −12 pts each</strong><p>Photos, nearest MRT, landmark and menu/food shots — use them wisely.</p></div>
             </li>
             <li>
               <span class="rule-icon">📍</span>
