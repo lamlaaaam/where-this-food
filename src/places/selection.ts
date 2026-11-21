@@ -53,6 +53,10 @@ export async function selectAnswerPlace(
       inspected += 1
       try {
         const place = await api.details(candidate.placeId)
+        if (!isFoodPlace(place.types)) {
+          console.warn('[Places] Skipping non-food detail result:', place.name, place.types)
+          continue
+        }
         maxReviews = Math.max(maxReviews, place.reviews.length)
         if (!sample) {
           sample =

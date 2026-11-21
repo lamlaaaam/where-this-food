@@ -14,13 +14,15 @@ const DETAIL_FIELDS = [
   'photos',
   'reviews',
   'types',
+  'primaryType',
   'rating',
   'userRatingCount',
 ]
 
 // Keep searches on the cheaper Pro SKU; rating/ratings are fetched for the
-// chosen place only. Results stay in prominence order.
-const SEARCH_FIELDS = ['id', 'displayName', 'location', 'types']
+// chosen place only. `primaryType` is needed to reject hotels that also carry
+// a `restaurant` type because they contain a restaurant.
+const SEARCH_FIELDS = ['id', 'displayName', 'location', 'types', 'primaryType']
 
 /**
  * Types allowed in an `includedTypes` request parameter (Table A of the
@@ -38,11 +40,155 @@ const SEARCH_FOOD_TYPES = [
   'night_club',
 ]
 
-/** Types used to recognize food results, including response-only values. */
-const FOOD_TYPES = new Set([...SEARCH_FOOD_TYPES, 'food'])
+/**
+ * Food-and-drink types from Google's Place Types reference. Search uses only
+ * `SEARCH_FOOD_TYPES`, but responses can contain more specific values such as
+ * `chinese_restaurant` or `food_court`, so recognition needs the wider set.
+ */
+const FOOD_TYPES = new Set([
+  ...SEARCH_FOOD_TYPES,
+  'food',
+  'acai_shop',
+  'bagel_shop',
+  'bar_and_grill',
+  'bistro',
+  'brewery',
+  'brewpub',
+  'cafeteria',
+  'cake_shop',
+  'candy_store',
+  'cat_cafe',
+  'chocolate_factory',
+  'chocolate_shop',
+  'cocktail_bar',
+  'coffee_roastery',
+  'coffee_shop',
+  'coffee_stand',
+  'confectionery',
+  'deli',
+  'dessert_shop',
+  'diner',
+  'dog_cafe',
+  'donut_shop',
+  'food_court',
+  'gastropub',
+  'hookah_bar',
+  'hot_dog_stand',
+  'ice_cream_shop',
+  'irish_pub',
+  'juice_shop',
+  'kebab_shop',
+  'lounge_bar',
+  'noodle_shop',
+  'pastry_shop',
+  'pizza_delivery',
+  'pub',
+  'salad_shop',
+  'sandwich_shop',
+  'snack_bar',
+  'sports_bar',
+  'steak_house',
+  'tea_house',
+  'vineyard',
+  'wine_bar',
+  'winery',
+])
+
+/**
+ * A place can carry a food type while primarily being something else — most
+ * commonly a hotel that has a restaurant inside. Reject any such place, even
+ * if Google also returns `restaurant` or `food`.
+ */
+const NON_FOOD_TYPES = new Set([
+  // Lodging
+  'bed_and_breakfast',
+  'budget_japanese_inn',
+  'campground',
+  'camping_cabin',
+  'cottage',
+  'extended_stay_hotel',
+  'farmstay',
+  'guest_house',
+  'hostel',
+  'hotel',
+  'inn',
+  'japanese_inn',
+  'lodging',
+  'mobile_home_park',
+  'motel',
+  'private_guest_room',
+  'resort_hotel',
+  'rv_park',
+  // Shopping / groceries
+  'convenience_store',
+  'department_store',
+  'food_store',
+  'grocery_store',
+  'health_food_store',
+  'hypermarket',
+  'market',
+  'shopping_mall',
+  'supermarket',
+  'warehouse_store',
+  'wholesaler',
+  // Transport and travel
+  'airport',
+  'bus_station',
+  'car_dealer',
+  'car_repair',
+  'car_wash',
+  'gas_station',
+  'parking',
+  'subway_station',
+  'tour_agency',
+  'tourist_information_center',
+  'train_station',
+  'transit_station',
+  'travel_agency',
+  // Other venues that may contain food but are not food places
+  'aquarium',
+  'banquet_hall',
+  'casino',
+  'cinema',
+  'convention_center',
+  'event_venue',
+  'historical_landmark',
+  'karaoke',
+  'movie_theater',
+  'museum',
+  'place_of_worship',
+  'stadium',
+  'tourist_attraction',
+  'wedding_venue',
+  'zoo',
+  // Services / institutions
+  'atm',
+  'bank',
+  'beauty_salon',
+  'dentist',
+  'doctor',
+  'electrician',
+  'fitness_center',
+  'general_contractor',
+  'gym',
+  'hair_salon',
+  'hospital',
+  'insurance_agency',
+  'laundry',
+  'locksmith',
+  'moving_company',
+  'painter',
+  'pharmacy',
+  'plumber',
+  'real_estate_agency',
+  'school',
+  'spa',
+  'storage',
+  'university',
+  'veterinary_care',
+])
 
 const GENERIC_TYPES = new Set([
-  'restaurant',
   'food',
   'point_of_interest',
   'establishment',
@@ -176,7 +322,14 @@ async function getPlaceClass(): Promise<typeof google.maps.places.Place> {
 }
 
 export function isFoodPlace(types: string[] | undefined): boolean {
-  return (types ?? []).some((type) => FOOD_TYPES.has(type))
+  const placeTypes = types ?? []
+  if (placeTypes.length === 0) return false
+
+  // Reject hotels, supermarkets, attractions, etc. even when Google also
+  // tags them with a food type because they contain a restaurant or café.
+  if (placeTypes.some((type) => NON_FOOD_TYPES.has(type))) return false
+
+  return placeTypes.some((type) => FOOD_TYPES.has(type) || type.endsWith('_restaurant'))
 }
 
 export function describeCuisine(types: string[]): string {
