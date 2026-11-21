@@ -892,6 +892,32 @@ input {
   animation: fade 0.2s ease both;
 }
 
+/* Failed rounds keep the map visible so the revealed answer can be seen. */
+.modal-backdrop.map-visible {
+  place-items: end start;
+  background: transparent;
+  backdrop-filter: none;
+  pointer-events: none;
+}
+
+.modal-backdrop.map-visible .modal {
+  width: min(360px, 100%);
+  padding: 18px;
+  text-align: left;
+  pointer-events: auto;
+}
+
+.modal-backdrop.map-visible .result-badge {
+  width: 42px;
+  height: 42px;
+  margin: 0 0 10px;
+  font-size: 19px;
+}
+
+.modal-backdrop.map-visible .modal h2 {
+  font-size: 21px;
+}
+
 .modal {
   width: min(430px, 100%);
   padding: 28px;
@@ -1317,6 +1343,14 @@ input {
 
   .modal {
     padding: 22px;
+  }
+
+  .modal-backdrop.map-visible {
+    place-items: end center;
+  }
+
+  .modal-backdrop.map-visible .modal {
+    padding: 16px;
   }
 }
 

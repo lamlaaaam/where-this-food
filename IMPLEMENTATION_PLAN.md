@@ -114,7 +114,17 @@ Missing photos disable those hints (no penalty).
 - Correct/incorrect/skipped finish reveals the answer with a green marker and info window.
 - Failed guesses keep their distance and flavour text in the map footer instead of only in
   a disappearing toast.
+- After three wrong guesses, the result card moves to the corner with a transparent overlay
+  so the green answer pin and its info window remain visible on the map.
 - Skipping a round records a 0-point result and is labelled as skipped in the summary.
+
+## Caching
+- GitHub Pages is static, so caching is in-memory only; no server or browser storage is used.
+- Nearby-search results are cached for 5 minutes by radius and rounded centre.
+- Review-free place summaries are cached for 10 minutes by place ID and are used for map
+  snapping. Concurrent duplicate requests share one in-flight promise.
+- Full place details (including reviews and photos) are never cached; every round fetches
+  its own review texts.
 
 ## Deployment
 - `.github/workflows/deploy.yml` builds on push to `main`.

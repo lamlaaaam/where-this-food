@@ -19,6 +19,19 @@ const DETAIL_FIELDS = [
   'userRatingCount',
 ]
 
+// Review texts are user-generated content and are deliberately never cached.
+// Map snapping only needs this lighter, reusable place summary.
+const DETAIL_META_FIELDS = [
+  'id',
+  'displayName',
+  'formattedAddress',
+  'location',
+  'types',
+  'primaryType',
+  'rating',
+  'userRatingCount',
+]
+
 // Keep searches on the cheaper Pro SKU; rating/ratings are fetched for the
 // chosen place only. `primaryType` is needed to reject hotels that also carry
 // a `restaurant` type because they contain a restaurant.
@@ -28,6 +41,71 @@ const SEARCH_FIELDS = ['id', 'displayName', 'location', 'types', 'primaryType']
 // for full review details on every nearby candidate. It is a pricier Nearby
 // Search field, so it is only requested by the answer-selection pipeline.
 const SEARCH_WITH_RATINGS_FIELDS = [...SEARCH_FIELDS, 'userRatingCount']
+
+/**
+ * Browser-only cache for search results and review-free place summaries.
+ * GitHub Pages has no server layer, so the cache lives in module memory for the
+ * current tab session. Nothing is written to localStorage/sessionStorage, no
+ * review text is retained, and the cache is discarded on reload.
+ */
+interface CacheEntry<T> {
+  value: T
+  expiresAt: number
+}
+
+const DETAIL_CACHE_TTL_MS = 10 * 60_000
+const SEARCH_CACHE_TTL_MS = 5 * 60_000
+
+const metaCache = new Map<string, CacheEntry<PlaceData>>()
+const searchCache = new Map<string, CacheEntry<PlaceData[]>>()
+const metaInFlight = new Map<string, Promise<PlaceData>>()
+const searchInFlight = new Map<string, Promise<PlaceData[]>>()
+
+function getCached<T>(cache: Map<string, CacheEntry<T>>, key: string): T | undefined {
+  const entry = cache.get(key)
+  if (!entry) return undefined
+  if (entry.expiresAt <= Date.now()) {
+    cache.delete(key)
+    return undefined
+  }
+  return entry.value
+}
+
+function cached<T>(
+  cache: Map<string, CacheEntry<T>>,
+  inFlight: Map<string, Promise<T>>,
+  key: string,
+  ttlMs: number,
+  load: () => Promise<T>,
+): Promise<T> {
+  const hit = getCached(cache, key)
+  if (hit !== undefined) return Promise.resolve(hit)
+
+  const pending = inFlight.get(key)
+  if (pending) return pending
+
+  const promise = load()
+    .then((value) => {
+      cache.set(key, { value, expiresAt: Date.now() + ttlMs })
+      return value
+    })
+    .finally(() => {
+      inFlight.delete(key)
+    })
+
+  inFlight.set(key, promise)
+  return promise
+}
+
+function coordKey(point: google.maps.LatLngLiteral): string {
+  return `${point.lat.toFixed(4)},${point.lng.toFixed(4)}`
+}
+
+/** Clear the in-memory Places cache (useful after changing the API key). */
+export function clearPlacesCache(): void {
+  metaCache.clear()
+  searchCache.clear()
+}
 
 /**
  * Types allowed in an `includedTypes` request parameter (Table A of the
@@ -408,28 +486,30 @@ function toPlaceDataSafe(place: google.maps.places.Place): PlaceData | null {
 }
 
 export class PlacesApi {
-  private readonly detailsCache = new Map<string, PlaceData>()
-
   async nearbyRestaurants(
     center: google.maps.LatLngLiteral,
     radiusMeters: number,
   ): Promise<PlaceData[]> {
-    const PlaceClass = await getPlaceClass()
+    const key = `nearby:${radiusMeters}:${coordKey(center)}`
 
-    const response = await callPlaces(() =>
-      PlaceClass.searchNearby({
-        fields: SEARCH_FIELDS,
-        locationRestriction: { center, radius: radiusMeters },
-        includedTypes: SEARCH_FOOD_TYPES,
-        maxResultCount: 20,
-        language: 'en',
-      }),
-    )
+    return cached(searchCache, searchInFlight, key, SEARCH_CACHE_TTL_MS, async () => {
+      const PlaceClass = await getPlaceClass()
 
-    return (response.places ?? [])
-      .map(toPlaceDataSafe)
-      .filter((place): place is PlaceData => Boolean(place))
-      .filter((place) => isFoodPlace(place.types) && isInSingapore(place.location))
+      const response = await callPlaces(() =>
+        PlaceClass.searchNearby({
+          fields: SEARCH_FIELDS,
+          locationRestriction: { center, radius: radiusMeters },
+          includedTypes: SEARCH_FOOD_TYPES,
+          maxResultCount: 20,
+          language: 'en',
+        }),
+      )
+
+      return (response.places ?? [])
+        .map(toPlaceDataSafe)
+        .filter((place): place is PlaceData => Boolean(place))
+        .filter((place) => isFoodPlace(place.types) && isInSingapore(place.location))
+    })
   }
 
   async nearestRestaurants(
@@ -437,34 +517,34 @@ export class PlacesApi {
     radiusMeters: number,
     includeRatings = false,
   ): Promise<PlaceData[]> {
-    const PlaceClass = await getPlaceClass()
+    const key = `nearest:${radiusMeters}:${includeRatings}:${coordKey(location)}`
 
-    const response = await callPlaces(() =>
-      PlaceClass.searchNearby({
-        fields: includeRatings ? SEARCH_WITH_RATINGS_FIELDS : SEARCH_FIELDS,
-        locationRestriction: { center: location, radius: radiusMeters },
-        includedTypes: SEARCH_FOOD_TYPES,
-        maxResultCount: 10,
-        rankPreference: 'DISTANCE',
-        language: 'en',
-      }),
-    )
+    return cached(searchCache, searchInFlight, key, SEARCH_CACHE_TTL_MS, async () => {
+      const PlaceClass = await getPlaceClass()
 
-    return (response.places ?? [])
-      .map(toPlaceDataSafe)
-      .filter((place): place is PlaceData => Boolean(place))
-      .filter(
-        (place) =>
-          isFoodPlace(place.types) &&
-          isInSingapore(place.location) &&
-          haversineMeters(location, place.location) <= radiusMeters,
+      const response = await callPlaces(() =>
+        PlaceClass.searchNearby({
+          fields: includeRatings ? SEARCH_WITH_RATINGS_FIELDS : SEARCH_FIELDS,
+          locationRestriction: { center: location, radius: radiusMeters },
+          includedTypes: SEARCH_FOOD_TYPES,
+          maxResultCount: 10,
+          rankPreference: 'DISTANCE',
+          language: 'en',
+        }),
       )
+
+      return (response.places ?? [])
+        .map(toPlaceDataSafe)
+        .filter((place): place is PlaceData => Boolean(place))
+        .filter((place) => isFoodPlace(place.types) && isInSingapore(place.location))
+    }).then((places) =>
+      // Re-check the radius on cache hits: the key rounds the click coordinate.
+      places.filter((place) => haversineMeters(location, place.location) <= radiusMeters),
+    )
   }
 
+  /** Fetch full details including reviews. Never cached. */
   async details(placeId: string): Promise<PlaceData> {
-    const cached = this.detailsCache.get(placeId)
-    if (cached) return cached
-
     const PlaceClass = await getPlaceClass()
     const place = await callPlaces(async () => {
       // Google's documented pattern: fetchFields() mutates this instance.
@@ -473,8 +553,20 @@ export class PlacesApi {
       return request
     })
 
-    const data = toPlaceData(place)
-    this.detailsCache.set(placeId, data)
-    return data
+    return toPlaceData(place)
+  }
+
+  /** Cached, review-free details for map snapping and repeat lookups. */
+  async placeSummary(placeId: string): Promise<PlaceData> {
+    return cached(metaCache, metaInFlight, `meta:${placeId}`, DETAIL_CACHE_TTL_MS, async () => {
+      const PlaceClass = await getPlaceClass()
+      const place = await callPlaces(async () => {
+        const request = new PlaceClass({ id: placeId, requestedLanguage: 'en' })
+        await request.fetchFields({ fields: DETAIL_META_FIELDS })
+        return request
+      })
+
+      return toPlaceData(place)
+    })
   }
 }

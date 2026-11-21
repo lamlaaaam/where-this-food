@@ -125,7 +125,7 @@ export class MapInteraction {
     if (iconEvent.placeId) {
       iconEvent.stop()
       try {
-        const details = await this.api.details(iconEvent.placeId)
+        const details = await this.api.placeSummary(iconEvent.placeId)
         if (token !== this.requestToken) return
 
         if (!isFoodPlace(details.types)) {

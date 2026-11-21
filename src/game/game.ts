@@ -563,12 +563,13 @@ export class Game {
 
     const isLast = this.roundIndex === CONFIG.totalRounds - 1
     const multiplier = Math.round(breakdown.attemptMultiplier * 100)
+    const mapVisible = !correct && !skipped
     const title = skipped ? 'Round skipped' : correct ? 'Nailed it!' : 'Out of guesses'
     const badge = skipped ? '→' : correct ? '✓' : '✕'
     const lead = skipped ? 'You skipped. The answer was' : correct ? 'You found' : 'The answer was'
     const note = skipped
       ? 'No points awarded for a skipped round.'
-      : 'No points this round — but now you know the spot.'
+      : 'No points this round. The green pin on the map shows the answer.'
     const distanceHtml =
       missMeters !== undefined
         ? `<p class="result-distance"><strong>${formatDistance(missMeters)} off.</strong> ${missFlavour(missMeters)}</p>`
@@ -577,7 +578,7 @@ export class Game {
     document.body.insertAdjacentHTML(
       'beforeend',
       `
-      <div class="modal-backdrop" id="result-modal">
+      <div class="modal-backdrop ${mapVisible ? 'map-visible' : ''}" id="result-modal">
         <div class="modal ${correct ? 'good' : 'bad'}">
           <div class="result-badge">${badge}</div>
           <h2>${title}</h2>

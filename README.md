@@ -120,6 +120,11 @@ src/
   five usable reviews instead of pretending it can fetch 50.
 - Photos, MRT stations, expected cost and the Name hint are randomised each round. Google
   does not label photos as menus or food, so photo hints are simply numbered.
+- Nearby searches and review-free place summaries (used for map snapping) are deduplicated
+  by a **session-only, in-memory cache**. It needs no server, so it works on GitHub Pages;
+  nothing is written to browser storage, no review text is cached, and reloading starts fresh.
+- Running out of guesses keeps the map unobscured and leaves a green pin on the answer; the
+  result card moves to the corner instead of covering the map.
 - Clicking a restaurant POI on the map snaps the pin to it. Clicking empty map space
   snaps to the nearest restaurant within 120 m.
 - Photos come from Google Places and are displayed at runtime; they are not stored.
