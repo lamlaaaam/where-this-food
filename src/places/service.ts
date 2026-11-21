@@ -210,7 +210,13 @@ function toPlaceData(place: google.maps.places.Place): PlaceData {
 
   const photos =
     place.photos
-      ?.map((photo) => photo.getURI({ maxWidth: 1000 }))
+      ?.map((photo) => {
+        try {
+          return photo.getURI({ maxWidth: 1000 })
+        } catch {
+          return null
+        }
+      })
       .filter((url): url is string => Boolean(url)) ?? []
 
   const reviews: ReviewData[] = (place.reviews ?? []).map((review) => ({
@@ -234,6 +240,16 @@ function toPlaceData(place: google.maps.places.Place): PlaceData {
   }
 }
 
+/** Skip malformed search results instead of failing the whole request. */
+function toPlaceDataSafe(place: google.maps.places.Place): PlaceData | null {
+  try {
+    return toPlaceData(place)
+  } catch (error) {
+    console.warn('[Places] Skipping incomplete place result:', error)
+    return null
+  }
+}
+
 export class PlacesApi {
   private readonly detailsCache = new Map<string, PlaceData>()
 
@@ -254,7 +270,8 @@ export class PlacesApi {
     )
 
     return (response.places ?? [])
-      .map(toPlaceData)
+      .map(toPlaceDataSafe)
+      .filter((place): place is PlaceData => Boolean(place))
       .filter((place) => isFoodPlace(place.types) && isInSingapore(place.location))
   }
 
@@ -276,7 +293,8 @@ export class PlacesApi {
     )
 
     return (response.places ?? [])
-      .map(toPlaceData)
+      .map(toPlaceDataSafe)
+      .filter((place): place is PlaceData => Boolean(place))
       .filter((place) => {
         return (
           isFoodPlace(place.types) &&

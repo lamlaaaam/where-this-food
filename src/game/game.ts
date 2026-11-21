@@ -331,10 +331,17 @@ export class Game {
 
   private enterDemoMode(error: unknown): void {
     this.demoMode = true
-    this.demoReason =
-      error instanceof PlacesError
-        ? `${error.message} Switched to bundled demo places so you can keep playing.`
-        : 'Google Places is unavailable. Switched to bundled demo places so you can keep playing.'
+    console.error('[Game] Falling back to demo mode:', error)
+
+    const detail =
+      error instanceof PlacesError || error instanceof Error
+        ? error.message
+        : typeof error === 'string'
+          ? error
+          : ''
+    this.demoReason = detail
+      ? `${detail} Switched to bundled demo places so you can keep playing.`
+      : 'Google Places is unavailable. Switched to bundled demo places so you can keep playing.'
 
     this.interaction?.setDemoPlaces(DEMO_PLACES)
     this.renderDemoNotice(this.demoReason)

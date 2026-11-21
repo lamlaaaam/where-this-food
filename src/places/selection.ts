@@ -17,6 +17,10 @@ export async function selectAnswerPlace(
   const centers = shuffle([...SEARCH_CENTERS])
   let fallback: PlaceData | null = null
   let lastError: unknown = null
+  let totalResults = 0
+  let totalCandidates = 0
+  let inspected = 0
+  let maxReviews = 0
 
   for (const center of centers) {
     let results: PlaceData[]
@@ -27,21 +31,27 @@ export async function selectAnswerPlace(
       continue
     }
 
-    const candidates = shuffle(
-      results.filter((place) => {
-        return (
+    totalResults += results.length
+
+    // Prefer busy places, but do not require userRatingCount: some responses
+    // omit it, and a place with reviews is still playable.
+    const candidates = results
+      .filter(
+        (place) =>
           Boolean(place.placeId) &&
           !usedPlaceIds.has(place.placeId) &&
-          (place.userRatingsTotal ?? 0) >= 5 &&
           isFoodPlace(place.types) &&
-          isInSingapore(place.location)
-        )
-      }),
-    ).slice(0, CONFIG.maxCandidatesToInspect)
+          isInSingapore(place.location),
+      )
+      .sort((a, b) => (b.userRatingsTotal ?? 0) - (a.userRatingsTotal ?? 0))
 
-    for (const candidate of candidates) {
+    totalCandidates += candidates.length
+
+    for (const candidate of candidates.slice(0, CONFIG.maxCandidatesToInspect)) {
+      inspected += 1
       try {
         const place = await api.details(candidate.placeId)
+        maxReviews = Math.max(maxReviews, place.reviews.length)
         const distinctRatings = new Set(
           place.reviews.map((review) => Math.round(review.rating)),
         )
@@ -62,9 +72,12 @@ export async function selectAnswerPlace(
   }
 
   if (fallback) return fallback
-  if (lastError) throw lastError
+
+  const detail = lastError instanceof Error ? `: ${lastError.message}` : ''
   throw new Error(
-    'Google Places returned no Singapore food places with reviews. Please try again.',
+    `Google Places returned no usable Singapore food place with reviews ` +
+      `(results: ${totalResults}, candidates: ${totalCandidates}, ` +
+      `inspected: ${inspected}, max reviews: ${maxReviews})${detail}.`,
   )
 }
 
