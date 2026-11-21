@@ -1,5 +1,7 @@
 # Where This Food (WTF)
 
+[▶ Play the live game](https://lamlaaaam.github.io/where-this-food/)
+
 A browser game: guess Singapore food places from their Google reviews and drop a pin on the map.
 
 - **One shared puzzle per day** — everyone plays the same five places, with `Puzzle #1` on 22 Nov 2026 SGT and +1 each day
