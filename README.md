@@ -98,7 +98,7 @@ src/
     hints.ts             hint content builder
   map/
     init.ts              map creation
-    pois.ts              click-to-guess, snapping, answer reveal
+    pois.ts              POI click-to-guess, answer reveal
     style.ts             dark map style
   places/
     service.ts           Google Maps loader + Places wrappers
@@ -123,14 +123,12 @@ src/
   five usable reviews instead of pretending it can fetch 50.
 - Photos, MRT stations, expected cost and the Name hint are randomised each round. Google
   does not label photos as menus or food, so photo hints are simply numbered.
-- Review-free nearby searches used for map snapping are deduplicated by a **session-only,
-  in-memory cache**. It needs no server, so it works on GitHub Pages; nothing is written to
-  browser storage, no review text is cached, and reloading starts fresh.
 - The map instance is reused across rounds, so a full game triggers one billable map load.
-- Wrong-guess distance appears only in the permanent map footer — no toast or result-modal
-  duplicate.
+- Guessing costs no extra API calls: click the food place itself, and its Google place ID is
+  used directly. Clicking empty map space asks for another click instead of searching nearby.
+- Wrong guesses flash the screen red. Distance appears only in the permanent map footer — no
+  toast or result-modal duplicate.
 - Running out of guesses **or skipping** keeps the map unobscured and leaves a green pin on
   the answer; the result card moves to the corner instead of covering the map.
-- Clicking a restaurant POI on the map snaps the pin to it. Clicking empty map space
-  snaps to the nearest restaurant within 120 m.
+- In demo mode, click one of the orange place markers to guess.
 - Photos come from Google Places and are displayed at runtime; they are not stored.

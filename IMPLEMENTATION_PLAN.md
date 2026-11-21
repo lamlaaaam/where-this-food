@@ -35,7 +35,7 @@ src/
     hints.ts             hint content from place data + bundled geo data
   map/
     init.ts              map creation
-    pois.ts              POI click, snap-to-nearest, guess/answer markers
+    pois.ts              POI click, guess/answer markers
     style.ts             dark map style
   places/
     service.ts           Google Maps loader, Places API (New) Place class wrappers
@@ -57,8 +57,8 @@ src/
    error; nothing is persisted in the browser.
 3. **Round**: pick an answer place, render one review per star (1★–5★), start the timer,
    enable the map.
-4. **Guessing**: click a restaurant POI to snap the pin, or click empty space to snap to
-   the nearest restaurant within 120 m. Confirm a guess; 3 attempts.
+4. **Guessing**: click the food place POI itself; empty-map clicks are rejected. Confirm a
+   guess; 3 attempts. Wrong guesses flash the screen red and show distance in the footer.
 5. **Result**: correct/incorrect, score breakdown, map reveal.
 6. **Summary** after 5 rounds: total /500, per-round rows, Play Again.
 
@@ -108,9 +108,9 @@ Missing photos disable those hints (no penalty).
 - Remember a rolling 50-place history across playthroughs so each run gets different places.
 
 ## Map interaction
-- `clickableIcons: true`; the `click` event's `placeId` is used to fetch the POI.
-- Non-food POIs and places without Google's `SG` country component are rejected with a toast.
-- Empty click: `Place.searchNearby()` with `rankPreference: DISTANCE` and a 120 m snap radius.
+- `clickableIcons: true`; the `click` event's `placeId` is used directly as the guess.
+- Empty-map clicks show a prompt instead of causing a billable nearby search.
+- No extra Places calls are made while guessing; only answer selection uses the API.
 - Initial view uses `fitBounds()` on the Singapore bounding box, then zooms out one extra
   level so strict bounds prevent panning until the player zooms in.
 - Correct/incorrect/skipped finish reveals the answer with a green marker and info window.
@@ -121,12 +121,8 @@ Missing photos disable those hints (no penalty).
 - Skipping a round records a 0-point result and is labelled as skipped in the summary.
 
 ## Caching
-- GitHub Pages is static, so caching is in-memory only; no server or browser storage is used.
-- Nearby-search results are cached for 5 minutes by radius and rounded centre.
-- Review-free place summaries are cached for 10 minutes by place ID and are used for map
-  snapping. Concurrent duplicate requests share one in-flight promise.
-- Full place details (including reviews and photos) are never cached; every round fetches
-  its own review texts.
+- No Google Places data is cached. Reviews and photos are fetched fresh for each round, and
+  nothing is written to browser storage, so the app works on static GitHub Pages.
 
 ## Deployment
 - `.github/workflows/deploy.yml` builds on push to `main`.
@@ -144,8 +140,7 @@ happened and includes the quota/billing guidance when available.
 ## Risks / notes
 - Live Places calls cost money. Answer selection uses up to 3 nearby searches per round and
   reads reviews/photos from those responses instead of fetching full details per candidate.
-  Map guesses use cached, review-free nearby searches, and one map instance is reused for the
-  whole game.
+  Guessing makes no Places calls, and one map instance is reused for the whole game.
 - Google returns at most 5 review texts per place, so places with fewer usable reviews are
   skipped in favour of places that can fill all five slots.
 - The key is visible in the built bundle, so referrer restrictions are essential.

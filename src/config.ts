@@ -10,7 +10,6 @@ export const CONFIG = {
   answerSearchRadiusMeters: 25_000,
   // Random Singapore points to try before falling back to demo mode.
   answerCoordinateAttempts: 3,
-  guessSnapRadiusMeters: 120,
   maxCandidatesToInspect: 10,
 } as const
 

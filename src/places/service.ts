@@ -1,5 +1,5 @@
 import { Loader } from '@googlemaps/js-api-loader'
-import { haversineMeters, isInSingapore } from '../data/geo'
+import { isInSingapore } from '../data/geo'
 import type { PlaceData, ReviewData } from '../types'
 
 /**
@@ -29,67 +29,6 @@ const ANSWER_SEARCH_FIELDS = [
   'rating',
   'userRatingCount',
 ]
-
-/**
- * Browser-only cache for review-free search results used by map snapping.
- * GitHub Pages has no server layer, so the cache lives in module memory for the
- * current tab session. Nothing is written to localStorage/sessionStorage, no
- * review text is retained, and the cache is discarded on reload.
- */
-interface CacheEntry<T> {
-  value: T
-  expiresAt: number
-}
-
-const SEARCH_CACHE_TTL_MS = 5 * 60_000
-
-const searchCache = new Map<string, CacheEntry<PlaceData[]>>()
-const searchInFlight = new Map<string, Promise<PlaceData[]>>()
-
-function getCached<T>(cache: Map<string, CacheEntry<T>>, key: string): T | undefined {
-  const entry = cache.get(key)
-  if (!entry) return undefined
-  if (entry.expiresAt <= Date.now()) {
-    cache.delete(key)
-    return undefined
-  }
-  return entry.value
-}
-
-function cached<T>(
-  cache: Map<string, CacheEntry<T>>,
-  inFlight: Map<string, Promise<T>>,
-  key: string,
-  ttlMs: number,
-  load: () => Promise<T>,
-): Promise<T> {
-  const hit = getCached(cache, key)
-  if (hit !== undefined) return Promise.resolve(hit)
-
-  const pending = inFlight.get(key)
-  if (pending) return pending
-
-  const promise = load()
-    .then((value) => {
-      cache.set(key, { value, expiresAt: Date.now() + ttlMs })
-      return value
-    })
-    .finally(() => {
-      inFlight.delete(key)
-    })
-
-  inFlight.set(key, promise)
-  return promise
-}
-
-function coordKey(point: google.maps.LatLngLiteral): string {
-  return `${point.lat.toFixed(4)},${point.lng.toFixed(4)}`
-}
-
-/** Clear the in-memory Places search cache (useful after changing the API key). */
-export function clearPlacesCache(): void {
-  searchCache.clear()
-}
 
 /**
  * Types allowed in an `includedTypes` request parameter (Table A of the
@@ -489,32 +428,6 @@ function toPlaceDataSafe(place: google.maps.places.Place): PlaceData | null {
 }
 
 export class PlacesApi {
-  async nearbyRestaurants(
-    center: google.maps.LatLngLiteral,
-    radiusMeters: number,
-  ): Promise<PlaceData[]> {
-    const key = `nearby:${radiusMeters}:${coordKey(center)}`
-
-    return cached(searchCache, searchInFlight, key, SEARCH_CACHE_TTL_MS, async () => {
-      const PlaceClass = await getPlaceClass()
-
-      const response = await callPlaces(() =>
-        PlaceClass.searchNearby({
-          fields: SEARCH_FIELDS,
-          locationRestriction: { center, radius: radiusMeters },
-          includedTypes: SEARCH_FOOD_TYPES,
-          maxResultCount: 20,
-          language: 'en',
-        }),
-      )
-
-      return (response.places ?? [])
-        .map(toPlaceDataSafe)
-        .filter((place): place is PlaceData => Boolean(place))
-        .filter((place) => isFoodPlace(place.types) && isSingaporePlace(place))
-    })
-  }
-
   /**
    * Nearby search for answer selection. Reviews and photos come back in the
    * same billable request, so no per-candidate detail calls are needed.
@@ -541,36 +454,5 @@ export class PlacesApi {
       .map(toPlaceDataSafe)
       .filter((place): place is PlaceData => Boolean(place))
       .filter((place) => isFoodPlace(place.types) && isSingaporePlace(place))
-  }
-
-  /** Cached, review-free nearby search used only for map guessing. */
-  async nearestRestaurants(
-    location: google.maps.LatLngLiteral,
-    radiusMeters: number,
-  ): Promise<PlaceData[]> {
-    const key = `nearest:${radiusMeters}:${coordKey(location)}`
-
-    return cached(searchCache, searchInFlight, key, SEARCH_CACHE_TTL_MS, async () => {
-      const PlaceClass = await getPlaceClass()
-
-      const response = await callPlaces(() =>
-        PlaceClass.searchNearby({
-          fields: SEARCH_FIELDS,
-          locationRestriction: { center: location, radius: radiusMeters },
-          includedTypes: SEARCH_FOOD_TYPES,
-          maxResultCount: 10,
-          rankPreference: 'DISTANCE',
-          language: 'en',
-        }),
-      )
-
-      return (response.places ?? [])
-        .map(toPlaceDataSafe)
-        .filter((place): place is PlaceData => Boolean(place))
-        .filter((place) => isFoodPlace(place.types) && isSingaporePlace(place))
-    }).then((places) =>
-      // Re-check the radius on cache hits: the key rounds the click coordinate.
-      places.filter((place) => haversineMeters(location, place.location) <= radiusMeters),
-    )
   }
 }

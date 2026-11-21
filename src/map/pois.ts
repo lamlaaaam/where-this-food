@@ -1,7 +1,5 @@
 import { CONFIG } from '../config'
-import { haversineMeters } from '../data/geo'
 import type { Guess, PlaceData } from '../types'
-import { isSingaporePlace, type PlacesApi } from '../places/service'
 import { escapeHtml } from '../ui/utils'
 
 interface MapInteractionCallbacks {
@@ -11,25 +9,18 @@ interface MapInteractionCallbacks {
 
 export class MapInteraction {
   private readonly map: google.maps.Map
-  private readonly api: PlacesApi
   private readonly callbacks: MapInteractionCallbacks
   private guessMarker: google.maps.Marker | null = null
   private answerMarker: google.maps.Marker | null = null
   private answerInfo: google.maps.InfoWindow | null = null
   private currentGuess: Guess | null = null
   private enabled = false
-  private requestToken = 0
   private demoMode = false
   private demoPlaces: PlaceData[] = []
   private demoMarkers: google.maps.Marker[] = []
 
-  constructor(
-    map: google.maps.Map,
-    api: PlacesApi,
-    callbacks: MapInteractionCallbacks,
-  ) {
+  constructor(map: google.maps.Map, callbacks: MapInteractionCallbacks) {
     this.map = map
-    this.api = api
     this.callbacks = callbacks
 
     map.addListener('click', (event: google.maps.MapMouseEvent) => {
@@ -53,7 +44,6 @@ export class MapInteraction {
   }
 
   clearGuess(): void {
-    this.requestToken += 1
     this.guessMarker?.setMap(null)
     this.guessMarker = null
     this.currentGuess = null
@@ -105,49 +95,29 @@ export class MapInteraction {
     if (!this.enabled) return
 
     if (this.demoMode) {
-      const latLng = event.latLng
-      if (!latLng) return
-      const nearest = this.nearestDemoPlace({ lat: latLng.lat(), lng: latLng.lng() })
-      if (!nearest) {
-        this.callbacks.onMessage('Tap one of the demo place markers to guess.')
-        return
+      if (!this.currentGuess) {
+        this.callbacks.onMessage('Click an orange demo place marker to guess.')
       }
-      this.setGuess({
-        placeId: nearest.placeId,
-        name: nearest.name,
-        location: nearest.location,
-      })
       return
     }
 
-    const token = ++this.requestToken
     const iconEvent = event as google.maps.IconMouseEvent
-    if (iconEvent.placeId) iconEvent.stop()
+    if (!iconEvent.placeId) {
+      this.callbacks.onMessage('Click the food place itself on the map to guess.')
+      return
+    }
+    iconEvent.stop()
 
     const latLng = event.latLng
     if (!latLng) return
 
-    try {
-      const results = await this.api.nearestRestaurants(
-        { lat: latLng.lat(), lng: latLng.lng() },
-        CONFIG.guessSnapRadiusMeters,
-      )
-      if (token !== this.requestToken) return
-
-      const nearest = results.find((place) => isSingaporePlace(place))
-      if (!nearest?.placeId) {
-        this.callbacks.onMessage('No food place nearby — tap a restaurant on the map.')
-        return
-      }
-
-      this.setGuess({
-        placeId: nearest.placeId,
-        name: nearest.name || 'Selected place',
-        location: nearest.location,
-      })
-    } catch {
-      this.callbacks.onMessage('Could not snap to a place. Try tapping a restaurant.')
-    }
+    // No API call: the clicked POI already gives us the place ID, and the click
+    // position is close enough to the POI for distance feedback.
+    this.setGuess({
+      placeId: iconEvent.placeId,
+      name: 'Selected food place',
+      location: { lat: latLng.lat(), lng: latLng.lng() },
+    })
   }
 
   private addDemoMarkers(): void {
@@ -185,22 +155,6 @@ export class MapInteraction {
   private clearDemoMarkers(): void {
     this.demoMarkers.forEach((marker) => marker.setMap(null))
     this.demoMarkers = []
-  }
-
-  private nearestDemoPlace(point: { lat: number; lng: number }): PlaceData | null {
-    let best: { place: PlaceData; distance: number } | null = null
-
-    for (const place of this.demoPlaces) {
-      const distance = haversineMeters(point, place.location)
-      if (!best || distance < best.distance) {
-        best = { place, distance }
-      }
-    }
-
-    if (best && best.distance <= CONFIG.guessSnapRadiusMeters * 3) {
-      return best.place
-    }
-    return null
   }
 
   private setGuess(guess: Guess): void {

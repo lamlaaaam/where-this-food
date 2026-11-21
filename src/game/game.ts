@@ -36,6 +36,7 @@ export class Game {
   private loading = false
   private demoMode = false
   private demoReason = ''
+  private flashTimerId: number | null = null
 
   constructor(root: HTMLElement) {
     this.root = root
@@ -95,6 +96,7 @@ export class Game {
           </div>
         </header>
         <main id="screen" class="screen"></main>
+        <div class="wrong-flash" id="wrong-flash" aria-hidden="true"></div>
       </div>
     `
   }
@@ -123,7 +125,7 @@ export class Game {
             </li>
             <li>
               <span class="rule-icon">📍</span>
-              <div><strong>3 guesses</strong><p>Tap a restaurant on the map to snap your pin. First try scores best.</p></div>
+              <div><strong>3 guesses</strong><p>Click the food place itself on the map. First try scores best.</p></div>
             </li>
             <li>
               <span class="rule-icon">⏱️</span>
@@ -202,7 +204,7 @@ export class Game {
           <div class="map-footer">
             <div class="guess-info" id="guess-info">
               <span class="guess-kicker">Drop a pin</span>
-              <span>Tap a restaurant on the map to choose your guess.</span>
+              <span>Click the food place itself on the map to guess.</span>
               <span class="guess-feedback" id="guess-feedback" aria-live="polite">&nbsp;</span>
             </div>
             <div class="map-actions">
@@ -246,7 +248,7 @@ export class Game {
     const api = this.api ?? new PlacesApi()
     this.api = api
     if (!this.interaction) {
-      this.interaction = new MapInteraction(map, api, {
+      this.interaction = new MapInteraction(map, {
         onGuessChange: (guess) => this.updateGuessUi(guess),
         onMessage: toast,
       })
@@ -482,6 +484,21 @@ export class Game {
     this.finishRound(false, true)
   }
 
+  private flashWrongGuess(): void {
+    const flash = document.getElementById('wrong-flash')
+    if (!flash) return
+
+    if (this.flashTimerId !== null) window.clearTimeout(this.flashTimerId)
+    flash.classList.remove('active')
+    // Force a reflow so consecutive wrong guesses replay the animation.
+    void flash.offsetWidth
+    flash.classList.add('active')
+    this.flashTimerId = window.setTimeout(() => {
+      flash.classList.remove('active')
+      this.flashTimerId = null
+    }, 600)
+  }
+
   private handleConfirm(): void {
     if (this.roundOver || this.loading || !this.currentPlace || !this.interaction) return
 
@@ -496,6 +513,7 @@ export class Game {
       return
     }
 
+    this.flashWrongGuess()
     const distanceMeters = haversineMeters(guess.location, this.currentPlace.location)
 
     if (this.attempts < CONFIG.maxAttempts) {
@@ -690,7 +708,7 @@ export class Game {
     } else {
       info.innerHTML =
         '<span class="guess-kicker">Drop a pin</span>' +
-        '<span>Tap a restaurant on the map to choose your guess.</span>' +
+        '<span>Click the food place itself on the map to guess.</span>' +
         this.guessFeedbackHtml()
       button.disabled = true
     }
