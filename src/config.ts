@@ -13,11 +13,21 @@ export const CONFIG = {
 } as const
 
 export const HINT_LABELS = {
-  placePhoto: 'Photo of the place',
+  photo1: 'Photo 1',
+  photo2: 'Photo 2',
+  photo3: 'Photo 3',
   mrt: 'Nearby MRT',
-  foodPhoto: 'Another photo',
+  cost: 'Expected cost',
+  maskedAnswer: 'Blanked-out answer',
 } as const
 
 export type HintId = keyof typeof HINT_LABELS
 
-export const HINT_ORDER: HintId[] = ['placePhoto', 'mrt', 'foodPhoto']
+export const HINT_ORDER: HintId[] = [
+  'photo1',
+  'photo2',
+  'photo3',
+  'mrt',
+  'cost',
+  'maskedAnswer',
+]

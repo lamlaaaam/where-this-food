@@ -4,13 +4,15 @@ A browser game: guess Singapore food places from their Google reviews and drop a
 
 - **5 rounds**, 100 points per round, **500 max**
 - **5 real Google reviews** per round, chosen at random (star ratings are informational)
-- **3 optional hints** — a photo of the place, a nearby MRT station, and another photo
+- Overall **average rating** plus **5 real Google reviews** chosen at random
+- **6 optional hints** — 3 photos, nearby MRT, expected cost and a blanked-out answer
 - **3 guesses** per round
 - **30 seconds free**, then −5 points every 30 seconds
 - Each hint costs **−12 points**
 - Correct on the 1st / 2nd / 3rd guess scores **100% / 70% / 40%** of the remaining points
-- **Skip round** if you are stuck — reveals the answer and awards 0 points
-- Map starts fitted to the whole of Singapore; only the clues panel scrolls
+- Failed guesses show how far off you were, with flavour text by distance
+- **Skip Round** if you are stuck — reveals the answer and awards 0 points
+- Map starts zoomed out to all of Singapore with panning disabled; only the clues panel scrolls
 
 ## Stack
 
@@ -112,11 +114,11 @@ src/
 
 ## Notes
 
-- Place selection uses Nearby Search around Singapore, shuffles a set of busy candidates,
-  and keeps food places with 5 real reviews that do not name the place. Reviews and hint
-  photos are shuffled each round for replayability.
-- Google Places does not label photos as menus or food, so the paid photo hints are simply
-  “Photo of the place” and “Another photo” rather than making an unreliable claim.
+- Place selection picks 2 random centres from 7, shuffles busy candidates, and keeps a
+  rolling history across playthroughs so each run uses different places. Reviews, photos,
+  MRT stations, expected cost and masked letters are randomised each round.
+- Google Places does not label photos as menus or food, so the photo hints are simply
+  “Photo 1”, “Photo 2” and “Photo 3” rather than making an unreliable claim.
 - Clicking a restaurant POI on the map snaps the pin to it. Clicking empty map space
   snaps to the nearest restaurant within 120 m.
 - Photos come from Google Places and are displayed at runtime; they are not stored.

@@ -1,4 +1,5 @@
 import { CONFIG, type HintId } from '../config'
+import { formatDistance, haversineMeters } from '../data/geo'
 import { computeBreakdown, type ScoreBreakdown } from './scoring'
 import { buildHints } from './hints'
 import { DEMO_PLACES, pickDemoPlace } from '../data/demoPlaces'
@@ -18,6 +19,7 @@ export class Game {
   private totalScore = 0
   private roundScores: RoundScore[] = []
   private readonly usedPlaceIds = new Set<string>()
+  private readonly usedPlaceOrder: string[] = []
 
   private map: google.maps.Map | null = null
   private api: PlacesApi | null = null
@@ -115,7 +117,7 @@ export class Game {
             </li>
             <li>
               <span class="rule-icon">💡</span>
-              <div><strong>3 hints, −12 pts each</strong><p>Two photos and a nearby MRT station — use them wisely.</p></div>
+              <div><strong>6 hints, −12 pts each</strong><p>Photos, nearby MRT, expected cost and a masked answer — use them wisely.</p></div>
             </li>
             <li>
               <span class="rule-icon">📍</span>
@@ -158,7 +160,6 @@ export class Game {
     this.roundIndex = 0
     this.totalScore = 0
     this.roundScores = []
-    this.usedPlaceIds.clear()
     void this.startRound()
   }
 
@@ -180,6 +181,7 @@ export class Game {
       <section class="play">
         <div class="panel reviews-panel">
           <div class="place-cuisine" id="place-cuisine" hidden></div>
+          <div class="place-rating" id="place-rating" hidden></div>
           <div class="demo-notice" id="demo-notice" hidden></div>
           <div class="reviews" id="reviews">
             <div class="skeleton"></div>
@@ -202,8 +204,10 @@ export class Game {
               <span class="guess-kicker">Drop a pin</span>
               <span>Tap a restaurant on the map to choose your guess.</span>
             </div>
-            <button class="btn ghost" id="skip-round" type="button" disabled>Skip round</button>
-            <button class="btn primary" id="confirm-guess" type="button" disabled>Confirm guess</button>
+            <div class="map-actions">
+              <button class="btn ghost" id="skip-round" type="button" disabled>Skip Round</button>
+              <button class="btn primary" id="confirm-guess" type="button" disabled>Confirm Guess</button>
+            </div>
           </div>
         </div>
       </section>
@@ -256,9 +260,20 @@ export class Game {
     }
   }
 
+  private rememberPlace(placeId: string): void {
+    this.usedPlaceIds.add(placeId)
+    this.usedPlaceOrder.push(placeId)
+
+    // Keep a rolling history so later playthroughs still get fresh places.
+    while (this.usedPlaceOrder.length > 50) {
+      const oldest = this.usedPlaceOrder.shift()
+      if (oldest) this.usedPlaceIds.delete(oldest)
+    }
+  }
+
   private applyPlace(place: PlaceData): void {
     this.currentPlace = place
-    this.usedPlaceIds.add(place.placeId)
+    this.rememberPlace(place.placeId)
     this.hints = buildHints(place)
     this.loading = false
 
@@ -293,10 +308,15 @@ export class Game {
   }
 
   private loadDemoPlace(): void {
-    const place = pickDemoPlace(this.usedPlaceIds)
+    let place = pickDemoPlace(this.usedPlaceIds)
+    if (!place) {
+      // All bundled places have appeared — start a fresh random rotation.
+      for (const demo of DEMO_PLACES) this.usedPlaceIds.delete(demo.placeId)
+      place = pickDemoPlace(this.usedPlaceIds)
+    }
     if (!place) {
       this.loading = false
-      this.renderLoadError('No more demo places left. Restart the game to play again.')
+      this.renderLoadError('No demo places available right now.')
       return
     }
     this.applyPlace(place)
@@ -348,6 +368,18 @@ export class Game {
       const cuisine = describeCuisine(place.types)
       cuisineEl.hidden = false
       cuisineEl.innerHTML = `<span class="cuisine-label">Cuisine</span><span class="cuisine-value">${escapeHtml(cuisine)}</span>`
+    }
+
+    // Show the place's overall average rating from Google.
+    const ratingEl = document.getElementById('place-rating')
+    if (ratingEl && place.rating !== undefined) {
+      const rounded = Math.max(0, Math.min(5, Math.round(place.rating)))
+      const stars = '★'.repeat(rounded) + '☆'.repeat(5 - rounded)
+      ratingEl.hidden = false
+      ratingEl.innerHTML =
+        `<span class="rating-score">${place.rating.toFixed(1)}</span>` +
+        `<span class="rating-stars">${stars}</span>` +
+        `<span class="rating-label">Average rating</span>`
     }
 
     container.innerHTML = starReviews
@@ -443,23 +475,32 @@ export class Game {
       return
     }
 
+    const distanceMeters = haversineMeters(guess.location, this.currentPlace.location)
+
     if (this.attempts < CONFIG.maxAttempts) {
       this.attempts += 1
       this.interaction.clearGuess()
       this.updateAttempts()
       this.updateHud()
       const remaining = CONFIG.maxAttempts - this.attempts + 1
-      toast(`Not quite — try another spot. ${remaining} guess${remaining === 1 ? '' : 'es'} left.`)
+      toast(
+        `Not quite — ${formatDistance(distanceMeters)} off. ${missFlavour(distanceMeters)} ` +
+          `${remaining} guess${remaining === 1 ? '' : 'es'} left.`,
+      )
       return
     }
 
-    this.finishRound(false)
+    this.finishRound(false, false, guess)
   }
 
-  private finishRound(correct: boolean, skipped = false): void {
+  private finishRound(correct: boolean, skipped = false, guess?: Guess): void {
     const place = this.currentPlace
     if (!place) return
 
+    const missMeters =
+      !correct && !skipped && guess
+        ? haversineMeters(guess.location, place.location)
+        : undefined
     const elapsed = this.elapsedSeconds()
     const hintsUsed = this.hintsUsed()
     const breakdown = computeBreakdown({
@@ -498,7 +539,7 @@ export class Game {
       elapsedSeconds: Math.round(elapsed),
     })
 
-    this.showResult(correct, breakdown, place, score, skipped)
+    this.showResult(correct, breakdown, place, score, skipped, missMeters)
   }
 
   private showResult(
@@ -507,6 +548,7 @@ export class Game {
     place: PlaceData,
     score: number,
     skipped = false,
+    missMeters?: number,
   ): void {
     document.getElementById('result-modal')?.remove()
 
@@ -518,6 +560,10 @@ export class Game {
     const note = skipped
       ? 'No points awarded for a skipped round.'
       : 'No points this round — but now you know the spot.'
+    const distanceHtml =
+      missMeters !== undefined
+        ? `<p class="result-distance"><strong>${formatDistance(missMeters)} off.</strong> ${missFlavour(missMeters)}</p>`
+        : ''
 
     document.body.insertAdjacentHTML(
       'beforeend',
@@ -531,6 +577,7 @@ export class Game {
             <strong>${escapeHtml(place.name)}</strong>
           </p>
           <p class="result-address">${escapeHtml(place.address)}</p>
+          ${distanceHtml}
           ${
             correct
               ? `
@@ -692,6 +739,14 @@ export class Game {
     const element = document.getElementById(id)
     if (element) element.textContent = value
   }
+}
+
+function missFlavour(distanceMeters: number): string {
+  if (distanceMeters < 500) return 'So close you could smell the food.'
+  if (distanceMeters < 2_000) return 'Just around the corner.'
+  if (distanceMeters < 5_000) return 'A few MRT stops away.'
+  if (distanceMeters < 10_000) return 'Across town, but not hopeless.'
+  return 'Way off — better check the map next time.'
 }
 
 function nextFrame(): Promise<void> {

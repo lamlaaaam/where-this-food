@@ -22,8 +22,13 @@ export function createMap(element: HTMLElement): google.maps.Map {
     },
   })
 
-  // Let Google pick the zoom that fits the whole country in the current panel.
-  map.fitBounds(SINGAPORE_BOUNDS_LITERAL, 24)
+  // Fit the whole country, then zoom out one more level so the viewport is
+  // wider than Singapore and strict bounds stop all panning at the start.
+  map.fitBounds(SINGAPORE_BOUNDS_LITERAL, 0)
+  const fittedZoom = map.getZoom()
+  if (typeof fittedZoom === 'number') {
+    map.setZoom(Math.max(0, fittedZoom - 1))
+  }
 
   return map
 }
