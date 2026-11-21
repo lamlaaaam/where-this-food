@@ -16,6 +16,14 @@ export function nextSingaporeMidnight(now = Date.now()): number {
   return nextSgtMidnight - SGT_OFFSET_MS
 }
 
+/** Puzzle numbering: 2026-11-22 is puzzle #1, then one per SGT day. */
+export function puzzleNumber(date: string): number {
+  const start = Date.UTC(2026, 10, 22)
+  const current = Date.parse(`${date}T00:00:00Z`)
+  if (Number.isNaN(current)) return 1
+  return Math.max(1, Math.floor((current - start) / 86_400_000) + 1)
+}
+
 export function formatCountdown(milliseconds: number): string {
   const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000))
   const hours = Math.floor(totalSeconds / 3600)

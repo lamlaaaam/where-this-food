@@ -27,7 +27,7 @@ jobs:
 
       - name: Generate puzzle for tomorrow (SGT)
         env:
-          GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.PLACES_API_KEY }}
           PUZZLE_DATE_OFFSET_DAYS: '1'
         run: node scripts/generateDailyPuzzle.mjs
 

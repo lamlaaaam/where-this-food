@@ -7,7 +7,7 @@ import { MapInteraction } from '../map/pois'
 import { reviewsForDisplay } from '../places/reviews'
 import type { DailyPuzzle, Guess, Hint, PlaceData, RoundScore } from '../types'
 import { escapeHtml, formatClock, toast } from '../ui/utils'
-import { formatCountdown, nextSingaporeMidnight, singaporeDate } from './time'
+import { formatCountdown, nextSingaporeMidnight, puzzleNumber, singaporeDate } from './time'
 
 export class Game {
   private readonly root: HTMLElement
@@ -129,6 +129,9 @@ export class Game {
   private applyPuzzle(puzzle: DailyPuzzle): void {
     this.puzzleDate = puzzle.date
     this.dailyPlaces = puzzle.places
+
+    const puzzleHud = document.getElementById('hud-puzzle')
+    if (puzzleHud) puzzleHud.textContent = `#${puzzleNumber(puzzle.date)}`
   }
 
   private errorMessage(error: unknown): string {
@@ -245,6 +248,7 @@ export class Game {
             <span class="brand-text">Where This Food<small>Singapore edition</small></span>
           </div>
           <div class="hud">
+            <div class="hud-item"><span class="hud-label">Puzzle</span><span class="hud-value" id="hud-puzzle">#${puzzleNumber(this.countdownDate)}</span></div>
             <div class="hud-item"><span class="hud-label">Round</span><span class="hud-value" id="hud-round">—</span></div>
             <div class="hud-item"><span class="hud-label">Total</span><span class="hud-value" id="hud-total">0</span></div>
             <div class="hud-item"><span class="hud-label">Time</span><span class="hud-value" id="hud-time">0:00</span></div>
@@ -281,7 +285,9 @@ export class Game {
                 </div>`
               : ''
           }
-          <p class="eyebrow">${
+          <p class="eyebrow">Puzzle #${puzzleNumber(
+            this.puzzleDate,
+          )} · ${
             this.usingDefaultPuzzle ? 'Default puzzle' : 'Daily puzzle'
           } · ${escapeHtml(this.puzzleDate)} SGT</p>
           <h1>Where <em>This</em><br />Food?</h1>

@@ -2,7 +2,7 @@
 
 A browser game: guess Singapore food places from their Google reviews and drop a pin on the map.
 
-- **One shared puzzle per day** — everyone plays the same five places
+- **One shared puzzle per day** — everyone plays the same five places, with `Puzzle #1` on 22 Nov 2026 SGT and +1 each day
 - **5 rounds**, 100 points per round, **500 max**
 - Overall **average rating** plus **5 real Google reviews** per round, chosen at random
 - **6 optional hints** — 3 photos, nearby MRT, expected cost and a **Name hint**
@@ -25,11 +25,15 @@ A browser game: guess Singapore food places from their Google reviews and drop a
 ```bash
 npm install
 cp .env.example .env      # Windows: copy .env.example .env
-# put your key in .env
+# fill in VITE_GOOGLE_MAPS_API_KEY (browser key)
+# optionally fill in GOOGLE_MAPS_API_KEY (generator key) for local puzzle generation
 npm run dev
 ```
 
-The map key is read only from `.env`; nothing is stored in the browser. If the variable is missing in local development, the app shows setup instructions. A deployed build with no key shows a configuration error instead of prompting players.
+`VITE_GOOGLE_MAPS_API_KEY` is compiled into the browser bundle at build time, so it must be
+restricted to **Maps JavaScript API only** and to your HTTP referrers. `GOOGLE_MAPS_API_KEY` is
+read only by the puzzle generator and is never bundled. If the browser key is missing locally,
+the app shows setup instructions; a deployed build with no key shows a configuration error.
 
 ### Daily puzzle generation
 
@@ -50,24 +54,36 @@ the bundled default puzzle. If both files are unavailable, the app shows an erro
 To generate a puzzle locally:
 
 ```bash
-GOOGLE_MAPS_API_KEY=your_key npm run puzzle
+# Use the generator key, not the browser key:
+GOOGLE_MAPS_API_KEY=your_generator_key npm run puzzle
 # Generate the bundled fallback:
-GOOGLE_MAPS_API_KEY=your_key npm run puzzle:default
+GOOGLE_MAPS_API_KEY=your_generator_key npm run puzzle:default
 # Windows PowerShell:
-# $env:GOOGLE_MAPS_API_KEY='your_key'; npm run puzzle
+# $env:GOOGLE_MAPS_API_KEY='your_generator_key'; npm run puzzle
 ```
 
 ### Google Cloud setup
 
 1. Create a Google Cloud project and enable billing.
 2. Enable **Maps JavaScript API** and **Places API (New)**.
-3. Create a browser key restricted by **HTTP referrer**:
-   - `http://localhost:5173/*`
-   - `https://<your-github-username>.github.io/*`
-4. Store that same key in the GitHub Actions secret `VITE_GOOGLE_MAPS_API_KEY`. The generator
-   runs in headless Chrome from `http://localhost:5173`, so keep the localhost referrer in the
-   key restriction for both local and Actions generation.
-5. Optionally restrict the key to those two APIs.
+3. Create a **browser key**:
+   - Application restrictions → HTTP referrers:
+     - `http://localhost:5173/*`
+     - `https://<your-github-username>.github.io/*`
+   - API restrictions → **Maps JavaScript API only**.
+   - Store it as the GitHub Actions secret `VITE_GOOGLE_MAPS_API_KEY`.
+4. Create a separate **generator key**:
+   - Application restrictions → HTTP referrers `http://localhost:5173/*` (or None).
+   - API restrictions → **Maps JavaScript API + Places API (New)**. The generator uses the
+     JS Places library from headless Chrome.
+   - Store it as the GitHub Actions secret `PLACES_API_KEY`. `daily-puzzle.yml` passes it to
+     the script as `GOOGLE_MAPS_API_KEY`.
+5. Set hard quotas:
+   - Dynamic Maps / map loads: **300/day** (stays under the 10,000/month free cap).
+   - Places API requests: **30/day** for the generator key.
+   - Add Cloud Billing budget alerts at $5 and $20.
+6. After both workflows succeed with the new keys, revoke the old key that was previously used
+   for both roles.
 
 If the generator fails with a Places quota or permission error, fix the key/project in the
 Google Cloud console and re-run the **Generate daily puzzle** workflow manually. Until a fresh
@@ -83,8 +99,9 @@ npm run preview
 ## Deploy to GitHub Pages
 
 1. Push the repository to GitHub.
-2. Add the key as a repository secret named `VITE_GOOGLE_MAPS_API_KEY`
-   (Settings → Secrets and variables → Actions). Both workflows use this same secret.
+2. Add two repository secrets (Settings → Secrets and variables → Actions):
+   - `VITE_GOOGLE_MAPS_API_KEY` — browser key, used by `deploy.yml`.
+   - `PLACES_API_KEY` — generator key, used by `daily-puzzle.yml`.
 3. In Settings → Pages, set **Source** to **GitHub Actions**.
 4. Push to `main`. The workflow in `.github/workflows/deploy.yml` builds with the
    correct base path and deploys `dist/`.

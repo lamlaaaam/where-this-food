@@ -148,7 +148,8 @@ Missing photos disable those hints (no penalty).
 ## Deployment
 - `.github/workflows/deploy.yml` builds on push to `main`.
 - `.github/workflows/daily-puzzle.yml` generates and commits the next SGT day's puzzle.
-- Secret: `VITE_GOOGLE_MAPS_API_KEY`.
+- Secrets: `VITE_GOOGLE_MAPS_API_KEY` (browser key, Maps JavaScript only) and `PLACES_API_KEY`
+  (generator key, Maps JavaScript + Places API (New)).
 - `VITE_BASE_PATH=/<repo-name>/` for project pages.
 - GitHub Pages source: **GitHub Actions**.
 
