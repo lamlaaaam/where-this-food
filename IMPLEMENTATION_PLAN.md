@@ -58,7 +58,7 @@ src/
 3. **Round**: pick an answer place, render one review per star (1★–5★), start the timer,
    enable the map.
 4. **Guessing**: click the food place POI itself; empty-map clicks are rejected. Confirm a
-   guess; 3 attempts. Wrong guesses flash the screen red and show distance in the footer.
+   guess; 3 attempts. Wrong guesses flash the screen red with no distance text.
 5. **Result**: correct/incorrect, score breakdown, map reveal.
 6. **Summary** after 5 rounds: total /500, per-round rows, Play Again.
 
@@ -80,14 +80,11 @@ score = clamp(round((base − hintPenalty − timePenalty) × attemptMultiplier)
 The HUD shows the live potential score and updates every second and on hint use.
 
 ## Hints
-Cuisine type is free information in the clues panel (derived from `place.types` with generic
-types filtered out). The row is hidden when Google only supplies a broad type such as
-`restaurant`.
 
 | Hint | Source |
 | --- | --- |
 | Photo 1 / 2 / 3 | three random photos from `place.photos` |
-| Nearby MRT | randomly chosen from the 3 closest stations in `data/mrt.ts` |
+| Nearby MRT | closest station by straight-line distance in `data/mrt.ts` |
 | Expected cost | type-based SGD range with random jitter per round |
 | Name hint | ~40% of the place name's letters revealed at random |
 
@@ -114,8 +111,7 @@ Missing photos disable those hints (no penalty).
 - Initial view uses `fitBounds()` on the Singapore bounding box, then zooms out one extra
   level so strict bounds prevent panning until the player zooms in.
 - Correct/incorrect/skipped finish reveals the answer with a green marker and info window.
-- Failed guesses keep their distance and flavour text in the map footer; no toast or
-  result-modal distance popup is shown.
+- Wrong guesses flash the screen red; no distance, toast or result-modal popup is shown.
 - After three wrong guesses **or a skip**, the result card moves to the corner with a
   transparent overlay so the green answer pin and its info window remain visible.
 - Skipping a round records a 0-point result and is labelled as skipped in the summary.

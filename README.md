@@ -9,7 +9,7 @@ A browser game: guess Singapore food places from their Google reviews and drop a
 - **30 seconds free**, then −5 points every 30 seconds
 - Each hint costs **−12 points**
 - Correct on the 1st / 2nd / 3rd guess scores **100% / 70% / 40%** of the remaining points
-- Failed guesses show how far off you were, with flavour text by distance
+- Wrong guesses flash the screen red; no distance feedback is shown
 - **Skip Round** if you are stuck — reveals the answer and awards 0 points
 - Map starts zoomed out to all of Singapore with panning disabled; only the clues panel scrolls
 
@@ -121,13 +121,13 @@ src/
   playable place is used. A rolling place history keeps playthroughs different.
 - Google Places returns **at most five review texts** per place, so the game shuffles all
   five usable reviews instead of pretending it can fetch 50.
-- Photos, MRT stations, expected cost and the Name hint are randomised each round. Google
-  does not label photos as menus or food, so photo hints are simply numbered.
+- Photos, expected cost and the Name hint are randomised each round. The MRT hint shows the
+  closest station by straight-line distance. Google does not label photos as menus or food,
+  so photo hints are simply numbered.
 - The map instance is reused across rounds, so a full game triggers one billable map load.
 - Guessing costs no extra API calls: click the food place itself, and its Google place ID is
   used directly. Clicking empty map space asks for another click instead of searching nearby.
-- Wrong guesses flash the screen red. Distance appears only in the permanent map footer — no
-  toast or result-modal duplicate.
+- Wrong guesses flash the screen red; the footer only shows your current pin.
 - Running out of guesses **or skipping** keeps the map unobscured and leaves a green pin on
   the answer; the result card moves to the corner instead of covering the map.
 - In demo mode, click one of the orange place markers to guess.

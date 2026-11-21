@@ -1,9 +1,8 @@
 import { CONFIG, type HintId } from '../config'
-import { formatDistance, haversineMeters } from '../data/geo'
 import { computeBreakdown, type ScoreBreakdown } from './scoring'
 import { buildHints } from './hints'
 import { DEMO_PLACES, pickDemoPlace } from '../data/demoPlaces'
-import { describeCuisine, loadGoogleMaps, PlacesApi, PlacesError } from '../places/service'
+import { loadGoogleMaps, PlacesApi, PlacesError } from '../places/service'
 import { createMap } from '../map/init'
 import { MapInteraction } from '../map/pois'
 import { reviewsForDisplay } from '../places/reviews'
@@ -28,7 +27,6 @@ export class Game {
 
   private currentPlace: PlaceData | null = null
   private hints: Hint[] = []
-  private lastMissMeters: number | null = null
   private attempts = 1
   private startedAt = 0
   private timerId: number | null = null
@@ -174,7 +172,6 @@ export class Game {
     this.attempts = 1
     this.currentPlace = null
     this.hints = []
-    this.lastMissMeters = null
     this.startedAt = 0
 
     this.setPlayingLayout(true)
@@ -182,7 +179,6 @@ export class Game {
     screen.innerHTML = `
       <section class="play">
         <div class="panel reviews-panel">
-          <div class="place-cuisine" id="place-cuisine" hidden></div>
           <div class="place-rating" id="place-rating" hidden></div>
           <div class="demo-notice" id="demo-notice" hidden></div>
           <div class="reviews" id="reviews">
@@ -205,7 +201,6 @@ export class Game {
             <div class="guess-info" id="guess-info">
               <span class="guess-kicker">Drop a pin</span>
               <span>Click the food place itself on the map to guess.</span>
-              <span class="guess-feedback" id="guess-feedback" aria-live="polite">&nbsp;</span>
             </div>
             <div class="map-actions">
               <button class="btn ghost" id="skip-round" type="button" disabled>Skip Round</button>
@@ -382,17 +377,6 @@ export class Game {
 
     const starReviews = reviewsForDisplay(place.reviews, place.name)
 
-    // Show cuisine type only when Google gives us something more specific than
-    // the generic "restaurant" category.
-    const cuisineEl = document.getElementById('place-cuisine')
-    if (cuisineEl) {
-      const cuisine = describeCuisine(place.types)
-      cuisineEl.hidden = cuisine.length === 0
-      if (cuisine) {
-        cuisineEl.innerHTML = `<span class="cuisine-label">Cuisine</span><span class="cuisine-value">${escapeHtml(cuisine)}</span>`
-      }
-    }
-
     // Show the place's overall average rating from Google.
     const ratingEl = document.getElementById('place-rating')
     if (ratingEl && place.rating !== undefined) {
@@ -514,18 +498,15 @@ export class Game {
     }
 
     this.flashWrongGuess()
-    const distanceMeters = haversineMeters(guess.location, this.currentPlace.location)
 
     if (this.attempts < CONFIG.maxAttempts) {
       this.attempts += 1
-      this.lastMissMeters = distanceMeters
       this.interaction.clearGuess()
       this.updateAttempts()
       this.updateHud()
       return
     }
 
-    this.lastMissMeters = distanceMeters
     this.updateGuessUi(guess)
     this.finishRound(false)
   }
@@ -702,27 +683,14 @@ export class Game {
 
     if (guess) {
       info.innerHTML =
-        `<span class="guess-kicker">Your pin</span><strong>${escapeHtml(guess.name)}</strong>` +
-        this.guessFeedbackHtml()
+        `<span class="guess-kicker">Your pin</span><strong>${escapeHtml(guess.name)}</strong>`
       button.disabled = this.roundOver
     } else {
       info.innerHTML =
         '<span class="guess-kicker">Drop a pin</span>' +
-        '<span>Click the food place itself on the map to guess.</span>' +
-        this.guessFeedbackHtml()
+        '<span>Click the food place itself on the map to guess.</span>'
       button.disabled = true
     }
-  }
-
-  private guessFeedbackHtml(): string {
-    if (this.lastMissMeters === null) {
-      return '<span class="guess-feedback" aria-hidden="true">&nbsp;</span>'
-    }
-
-    return (
-      `<span class="guess-feedback">Last guess: ${formatDistance(this.lastMissMeters)} off — ` +
-      `${missFlavour(this.lastMissMeters)}</span>`
-    )
   }
 
   private updateHud(): void {
@@ -781,13 +749,6 @@ export class Game {
     const element = document.getElementById(id)
     if (element) element.textContent = value
   }
-}
-
-function missFlavour(distanceMeters: number): string {
-  if (distanceMeters < 500) return 'So close you could smell the food.'
-  if (distanceMeters < 2_000) return 'Just around the corner.'
-  if (distanceMeters < 10_000) return 'Across town, but not hopeless.'
-  return 'Way off — better check the map next time.'
 }
 
 function nextFrame(): Promise<void> {

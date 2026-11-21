@@ -56,15 +56,16 @@ function randomInt(min: number, max: number): number {
 }
 
 function pickNearbyMrt(location: { lat: number; lng: number }): NearbyMrt | null {
-  const closest = MRT_STATIONS.map((point) => ({
-    point,
-    distanceMeters: haversineMeters(location, point),
-  }))
-    .sort((a, b) => a.distanceMeters - b.distanceMeters)
-    .slice(0, 3)
+  let closest: NearbyMrt | null = null
 
-  if (closest.length === 0) return null
-  return closest[Math.floor(Math.random() * closest.length)]
+  for (const point of MRT_STATIONS) {
+    const distanceMeters = haversineMeters(location, point)
+    if (!closest || distanceMeters < closest.distanceMeters) {
+      closest = { point, distanceMeters }
+    }
+  }
+
+  return closest
 }
 
 function expectedCost(place: PlaceData): { low: number; high: number } {

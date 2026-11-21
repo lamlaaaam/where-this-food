@@ -194,17 +194,6 @@ const NON_FOOD_TYPES = new Set([
   'veterinary_care',
 ])
 
-const GENERIC_TYPES = new Set([
-  'food',
-  'point_of_interest',
-  'establishment',
-  'store',
-  'restaurant',
-  'meal_takeaway',
-  'meal_delivery',
-  'night_club',
-])
-
 export class PlacesError extends Error {
   constructor(
     message: string,
@@ -348,23 +337,6 @@ export function isSingaporePlace(place: Pick<PlaceData, 'location' | 'countryCod
   return (
     isInSingapore(place.location) && (country === 'SG' || country === 'SINGAPORE')
   )
-}
-
-export function describeCuisine(types: string[]): string {
-  const cuisines = types
-    .filter((type) => !GENERIC_TYPES.has(type))
-    .map(humanizeType)
-    .filter(Boolean)
-    .slice(0, 3)
-
-  return cuisines.join(' · ')
-}
-
-function humanizeType(type: string): string {
-  return type
-    .replace(/_restaurant$/, '')
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
 function placeCountryCode(place: google.maps.places.Place): string | undefined {
