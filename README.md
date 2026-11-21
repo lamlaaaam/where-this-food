@@ -2,6 +2,7 @@
 
 A browser game: guess Singapore food places from their Google reviews and drop a pin on the map.
 
+- **One shared puzzle per day** — everyone plays the same five places
 - **5 rounds**, 100 points per round, **500 max**
 - Overall **average rating** plus **5 real Google reviews** per round, chosen at random
 - **6 optional hints** — 3 photos, nearby MRT, expected cost and a **Name hint**
@@ -28,32 +29,45 @@ cp .env.example .env      # Windows: copy .env.example .env
 npm run dev
 ```
 
-The key is read only from `.env`; nothing is stored in the browser. If the variable is missing, the app shows setup instructions instead of the menu.
+The map key is read only from `.env`; nothing is stored in the browser. If the variable is missing, the app shows setup instructions instead of the menu.
 
-### Demo mode (no billing required)
+### Daily puzzle generation
 
-The **Maps Demo Key** from Google lets you try the game without a billing account, but it
-does **not** include Places API (New) reviews or photos. The game detects this and
-automatically falls back to **bundled demo places** — you can still play all 5 rounds with
-real reviews, photos, nearby-MRT hints, and map guessing. A notice appears at the top
-of the clues panel when demo mode is active.
+The Google Places work happens once a day in GitHub Actions, not in every player's browser.
+`.github/workflows/daily-puzzle.yml` runs `scripts/generateDailyPuzzle.mjs` at 11:50 PM SGT,
+writes tomorrow's puzzle to `public/daily-puzzle.json`, and commits it. The deploy workflow
+then publishes the updated static site. The game resets at **12:00 AM SGT**, and a countdown
+to that reset is shown in the top bar, menu, and summary.
 
-### Google Cloud setup (full experience)
+If the dated puzzle is missing or stale, the app loads `public/daily-puzzle-default.json`
+instead and shows a prominent warning that daily puzzle generation failed and you are playing
+the bundled default puzzle. If both files are unavailable, the app shows an error screen.
+
+To generate a puzzle locally:
+
+```bash
+GOOGLE_MAPS_API_KEY=your_key npm run puzzle
+# Generate the bundled fallback:
+GOOGLE_MAPS_API_KEY=your_key npm run puzzle:default
+# Windows PowerShell:
+# $env:GOOGLE_MAPS_API_KEY='your_key'; npm run puzzle
+```
+
+### Google Cloud setup
 
 1. Create a Google Cloud project and enable billing.
 2. Enable **Maps JavaScript API** and **Places API (New)**.
-3. Create an API key and restrict it by **HTTP referrer**:
+3. Create a browser key restricted by **HTTP referrer**:
    - `http://localhost:5173/*`
    - `https://<your-github-username>.github.io/*`
-4. Optionally restrict the key to those two APIs.
+4. Store that same key in the GitHub Actions secret `VITE_GOOGLE_MAPS_API_KEY`. The generator
+   runs in headless Chrome from `http://localhost:5173`, so keep the localhost referrer in the
+   key restriction for both local and Actions generation.
+5. Optionally restrict the key to those two APIs.
 
-If you see **“Google Places quota exceeded for this key”**, the exhausted metric is likely
-`SearchNearbyRequest` (reviews and photos are fetched together in one nearby search) or
-`GetPlaceRequest` / Places Photos. In the Google Cloud console for the project shown in the
-error, go to **APIs & Services → Quotas**, search for that metric, and request an increase for
-the **per day** limit. Also confirm billing is active and that you are using the intended
-project/key. The game automatically switches to bundled demo places until the quota resets,
-so gameplay continues without interruptions.
+If the generator fails with a Places quota or permission error, fix the key/project in the
+Google Cloud console and re-run the **Generate daily puzzle** workflow manually. Until a fresh
+dated puzzle is published, players see the default-puzzle warning.
 
 ## Build
 
@@ -66,13 +80,13 @@ npm run preview
 
 1. Push the repository to GitHub.
 2. Add the key as a repository secret named `VITE_GOOGLE_MAPS_API_KEY`
-   (Settings → Secrets and variables → Actions).
+   (Settings → Secrets and variables → Actions). Both workflows use this same secret.
 3. In Settings → Pages, set **Source** to **GitHub Actions**.
 4. Push to `main`. The workflow in `.github/workflows/deploy.yml` builds with the
    correct base path and deploys `dist/`.
 
-The game runs entirely in the browser. Place selection and details are fetched live
-from Google Places, so the key must allow the GitHub Pages referrer.
+The browser only loads Google Maps, `daily-puzzle.json` (or the bundled default). All Places
+calls happen in the scheduled generator, so player traffic does not consume Places quota.
 
 ## How the score is calculated
 
@@ -96,13 +110,13 @@ src/
     game.ts              screen flow, rounds, hints, scoring UI
     scoring.ts           score formula
     hints.ts             hint content builder
+    time.ts              SGT date and next-puzzle countdown helpers
   map/
     init.ts              map creation
     pois.ts              POI click-to-guess, answer reveal
     style.ts             dark map style
   places/
-    service.ts           Google Maps loader + Places wrappers
-    selection.ts         pick an answer place with enough reviews
+    service.ts           Google Maps loader
     reviews.ts           review filtering and random selection
   data/
     mrt.ts               MRT station coordinates
@@ -114,11 +128,12 @@ src/
 
 ## Notes
 
-- Each round picks a random coordinate inside a Singapore outline (not just the bounding
+- The generator picks a random coordinate inside a Singapore outline (not just the bounding
   box, which includes Johor), takes the 10 nearest food places, and requires Google's
-  `SG` country component. Reviews and photos are returned in the same nearby search and are
-  never cached, so there are no per-candidate detail calls. Only the highest-review-count
-  playable place is used. A rolling place history keeps playthroughs different.
+  `SG` country component. It stores five playable places in `public/daily-puzzle.json`.
+- The workflow runs before midnight SGT and writes tomorrow's date, so the new puzzle is ready
+  at the 12:00 AM SGT reset. A missing/stale file falls back to `daily-puzzle-default.json`
+  with a loud warning; players are never silently switched.
 - Google Places returns **at most five review texts** per place, so the game shuffles all
   five usable reviews instead of pretending it can fetch 50.
 - Photos, expected cost and the Name hint are randomised each round. The MRT hint shows the
@@ -126,9 +141,10 @@ src/
   so photo hints are simply numbered.
 - The map instance is reused across rounds, so a full game triggers one billable map load.
 - Guessing costs no extra API calls: click the food place itself, and its Google place ID is
-  used directly. Clicking empty map space asks for another click instead of searching nearby.
+  used directly. Clicking empty map space asks for another click.
 - Wrong guesses flash the screen red; the footer only shows your current pin.
 - Running out of guesses **or skipping** keeps the map unobscured and leaves a green pin on
   the answer; the result card moves to the corner instead of covering the map.
-- In demo mode, click one of the orange place markers to guess.
-- Photos come from Google Places and are displayed at runtime; they are not stored.
+- The summary offers no replay; a new puzzle arrives the next day.
+- Photo URLs in the daily JSON come from Places and may expire. If a photo hint fails to load,
+  no alternative is provided.

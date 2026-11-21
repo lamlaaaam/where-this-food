@@ -7,13 +7,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "puzzle": "node scripts/generateDailyPuzzle.mjs",
+    "puzzle:default": "node scripts/generateDailyPuzzle.mjs --default"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.8"
   },
   "devDependencies": {
     "@types/google.maps": "^3.58.1",
+    "puppeteer-core": "^25.18.1",
     "typescript": "^5.6.3",
     "vite": "^8.3.8"
   }

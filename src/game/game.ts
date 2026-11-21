@@ -1,14 +1,13 @@
 import { CONFIG, type HintId } from '../config'
 import { computeBreakdown, type ScoreBreakdown } from './scoring'
 import { buildHints } from './hints'
-import { DEMO_PLACES, pickDemoPlace } from '../data/demoPlaces'
-import { loadGoogleMaps, PlacesApi, PlacesError } from '../places/service'
+import { loadGoogleMaps } from '../places/service'
 import { createMap } from '../map/init'
 import { MapInteraction } from '../map/pois'
 import { reviewsForDisplay } from '../places/reviews'
-import { selectAnswerPlace } from '../places/selection'
-import type { Guess, Hint, PlaceData, RoundScore } from '../types'
+import type { DailyPuzzle, Guess, Hint, PlaceData, RoundScore } from '../types'
 import { escapeHtml, formatClock, toast } from '../ui/utils'
+import { formatCountdown, nextSingaporeMidnight, singaporeDate } from './time'
 
 export class Game {
   private readonly root: HTMLElement
@@ -17,12 +16,15 @@ export class Game {
   private roundIndex = 0
   private totalScore = 0
   private roundScores: RoundScore[] = []
-  private readonly usedPlaceIds = new Set<string>()
-  private readonly usedPlaceOrder: string[] = []
+  private dailyPlaces: PlaceData[] = []
+  private puzzleDate = ''
+  private usingDefaultPuzzle = false
+  private puzzleFailureReason = ''
+  private countdownTimerId: number | null = null
+  private countdownDate = singaporeDate()
 
   private map: google.maps.Map | null = null
   private mapElement: HTMLElement | null = null
-  private api: PlacesApi | null = null
   private interaction: MapInteraction | null = null
 
   private currentPlace: PlaceData | null = null
@@ -32,8 +34,6 @@ export class Game {
   private timerId: number | null = null
   private roundOver = false
   private loading = false
-  private demoMode = false
-  private demoReason = ''
   private flashTimerId: number | null = null
 
   constructor(root: HTMLElement) {
@@ -41,18 +41,150 @@ export class Game {
     window.addEventListener('resize', this.handleResize)
   }
 
-  boot(): void {
+  async boot(): Promise<void> {
     this.apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
     if (!this.apiKey) {
       this.renderSetup()
       return
     }
+
+    this.countdownDate = singaporeDate()
     this.renderShell()
+    this.startCountdown()
+
+    try {
+      await this.loadPuzzleWithFallback()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      this.renderPuzzleError(message)
+      return
+    }
+    this.renderPuzzleWarning()
     this.renderMenu()
   }
 
   private readonly handleResize = (): void => {
     if (this.map) google.maps.event.trigger(this.map, 'resize')
+  }
+
+  private async loadPuzzleWithFallback(): Promise<void> {
+    let dailyError = ''
+    try {
+      await this.loadDailyPuzzle()
+      return
+    } catch (error) {
+      dailyError = this.errorMessage(error)
+    }
+
+    try {
+      await this.loadDefaultPuzzle()
+      this.usingDefaultPuzzle = true
+      this.puzzleFailureReason = dailyError
+    } catch (error) {
+      throw new Error(
+        `${dailyError} A default puzzle is also unavailable: ${this.errorMessage(error)}`,
+      )
+    }
+  }
+
+  private async loadDailyPuzzle(): Promise<void> {
+    const url = `${import.meta.env.BASE_URL}daily-puzzle.json`
+    const puzzle = await this.fetchPuzzle(url)
+
+    if (puzzle.source === 'default') {
+      throw new Error('The daily puzzle file is a default puzzle.')
+    }
+    const today = singaporeDate()
+    if (puzzle.date !== today) {
+      throw new Error(`Today's puzzle is not available yet (expected ${today} SGT).`)
+    }
+    this.applyPuzzle(puzzle)
+  }
+
+  private async loadDefaultPuzzle(): Promise<void> {
+    const url = `${import.meta.env.BASE_URL}daily-puzzle-default.json`
+    const puzzle = await this.fetchPuzzle(url)
+    this.applyPuzzle(puzzle)
+  }
+
+  private async fetchPuzzle(url: string): Promise<DailyPuzzle> {
+    const response = await fetch(url, { cache: 'no-store' })
+    if (!response.ok) {
+      throw new Error(`Could not load ${url.split('/').pop()} (HTTP ${response.status}).`)
+    }
+
+    let puzzle: DailyPuzzle
+    try {
+      puzzle = (await response.json()) as DailyPuzzle
+    } catch {
+      throw new Error(`${url.split('/').pop()} is not valid JSON.`)
+    }
+
+    if (!puzzle?.date || !Array.isArray(puzzle.places) || puzzle.places.length < CONFIG.totalRounds) {
+      throw new Error(`${url.split('/').pop()} is incomplete.`)
+    }
+    return puzzle
+  }
+
+  private applyPuzzle(puzzle: DailyPuzzle): void {
+    this.puzzleDate = puzzle.date
+    this.dailyPlaces = puzzle.places
+  }
+
+  private errorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error)
+  }
+
+  private startCountdown(): void {
+    if (this.countdownTimerId !== null) return
+    this.updateCountdown()
+    this.countdownTimerId = window.setInterval(() => this.updateCountdown(), 1000)
+  }
+
+  private updateCountdown(): void {
+    const now = Date.now()
+    const remaining = nextSingaporeMidnight(now) - now
+    const label = formatCountdown(remaining)
+
+    document.querySelectorAll<HTMLElement>('[data-countdown]').forEach((element) => {
+      element.textContent = label
+    })
+
+    const today = singaporeDate(now)
+    if (today !== this.countdownDate) {
+      this.countdownDate = today
+      if (!this.isActiveRound()) window.location.reload()
+    }
+  }
+
+  private isActiveRound(): boolean {
+    return Boolean(document.querySelector('.play') && this.currentPlace && !this.roundOver)
+  }
+
+  private renderPuzzleWarning(): void {
+    const warning = document.getElementById('puzzle-warning')
+    const detail = document.getElementById('puzzle-warning-detail')
+    if (!warning) return
+
+    warning.hidden = !this.usingDefaultPuzzle
+    if (detail) {
+      detail.textContent = this.puzzleFailureReason
+        ? `${this.puzzleFailureReason} You are playing the default puzzle generated on ${this.puzzleDate}.`
+        : `You are playing the default puzzle generated on ${this.puzzleDate}.`
+    }
+  }
+
+  private renderPuzzleError(message: string): void {
+    this.root.innerHTML = `
+      <div class="setup">
+        <div class="setup-card">
+          <span class="brand-mark large">WTF</span>
+          <h1>Today's puzzle is unavailable</h1>
+          <p class="setup-error">${escapeHtml(message)}</p>
+          <p class="fineprint">The daily puzzle is generated once a day. Please check back later.</p>
+        </div>
+      </div>
+    `
   }
 
   private renderSetup(error?: string): void {
@@ -91,8 +223,16 @@ export class Game {
             <div class="hud-item"><span class="hud-label">Total</span><span class="hud-value" id="hud-total">0</span></div>
             <div class="hud-item"><span class="hud-label">Time</span><span class="hud-value" id="hud-time">0:00</span></div>
             <div class="hud-item accent"><span class="hud-label">Points for this round</span><span class="hud-value" id="hud-potential">—</span></div>
+            <div class="hud-item countdown"><span class="hud-label">Next puzzle · SGT</span><span class="hud-value" data-countdown>--:--:--</span></div>
           </div>
         </header>
+        <div class="puzzle-warning" id="puzzle-warning" hidden>
+          <span class="puzzle-warning-icon" aria-hidden="true">⚠️</span>
+          <div>
+            <strong>Daily puzzle generation failed — default puzzle in use</strong>
+            <span id="puzzle-warning-detail"></span>
+          </div>
+        </div>
         <main id="screen" class="screen"></main>
         <div class="wrong-flash" id="wrong-flash" aria-hidden="true"></div>
       </div>
@@ -107,7 +247,17 @@ export class Game {
       <section class="menu">
         <div class="menu-glow"></div>
         <div class="menu-card">
-          <p class="eyebrow">Singapore food guessing game</p>
+          ${
+            this.usingDefaultPuzzle
+              ? `<div class="menu-warning">
+                  <strong>⚠️ Daily puzzle generation failed</strong>
+                  <span>You are playing a default generated puzzle from ${escapeHtml(this.puzzleDate)}. Today's shared puzzle could not be loaded.</span>
+                </div>`
+              : ''
+          }
+          <p class="eyebrow">${
+            this.usingDefaultPuzzle ? 'Default puzzle' : 'Daily puzzle'
+          } · ${escapeHtml(this.puzzleDate)} SGT</p>
           <h1>Where <em>This</em><br />Food?</h1>
           <p class="lede">
             Five places. Five reviews each. Drop a pin and prove you know your island.
@@ -131,7 +281,7 @@ export class Game {
             </li>
           </ul>
           <button class="btn primary large" id="start-game" type="button">Start game <span>→</span></button>
-          <p class="fineprint">Max 100 points per round · 500 total</p>
+          <p class="fineprint">Max 100 points per round · 500 total · New puzzle at 12:00 AM SGT in <span data-countdown>--:--:--</span></p>
         </div>
       </section>
     `
@@ -142,6 +292,7 @@ export class Game {
     this.setText('hud-potential', '—')
 
     document.getElementById('start-game')?.addEventListener('click', () => this.startGame())
+    this.updateCountdown()
   }
 
   private async startGame(): Promise<void> {
@@ -154,7 +305,7 @@ export class Game {
       await loadGoogleMaps(this.apiKey)
     } catch {
       this.renderSetup(
-        'Could not load Google Maps. Check that the key is valid and that the Maps JavaScript API and Places API (New) are enabled.',
+        'Could not load Google Maps. Check that the key is valid and that the Maps JavaScript API is enabled.',
       )
       return
     }
@@ -180,7 +331,6 @@ export class Game {
       <section class="play">
         <div class="panel reviews-panel">
           <div class="place-rating" id="place-rating" hidden></div>
-          <div class="demo-notice" id="demo-notice" hidden></div>
           <div class="reviews" id="reviews">
             <div class="skeleton"></div>
             <div class="skeleton"></div>
@@ -240,8 +390,6 @@ export class Game {
       this.map = map
     }
 
-    const api = this.api ?? new PlacesApi()
-    this.api = api
     if (!this.interaction) {
       this.interaction = new MapInteraction(map, {
         onGuessChange: (guess) => this.updateGuessUi(guess),
@@ -249,46 +397,22 @@ export class Game {
       })
     }
     this.interaction.resetForRound()
-    if (this.demoMode) this.interaction.setDemoPlaces(DEMO_PLACES)
     this.interaction.setEnabled(false)
 
-    void this.loadPlace()
+    this.loadRoundPlace()
   }
 
-  private async loadPlace(): Promise<void> {
-    if (this.demoMode) {
-      this.renderDemoNotice(this.demoReason)
-      this.loadDemoPlace()
+  private loadRoundPlace(): void {
+    const place = this.dailyPlaces[this.roundIndex]
+    if (!place) {
+      this.renderPuzzleError("Today's puzzle is missing a round.")
       return
     }
-
-    if (!this.api) return
-
-    this.loading = true
-    this.renderReviewsLoading()
-
-    try {
-      const place = await selectAnswerPlace(this.api, this.usedPlaceIds)
-      this.applyPlace(place)
-    } catch (error) {
-      this.enterDemoMode(error)
-    }
-  }
-
-  private rememberPlace(placeId: string): void {
-    this.usedPlaceIds.add(placeId)
-    this.usedPlaceOrder.push(placeId)
-
-    // Keep a rolling history so later playthroughs still get fresh places.
-    while (this.usedPlaceOrder.length > 50) {
-      const oldest = this.usedPlaceOrder.shift()
-      if (oldest) this.usedPlaceIds.delete(oldest)
-    }
+    this.applyPlace(place)
   }
 
   private applyPlace(place: PlaceData): void {
     this.currentPlace = place
-    this.rememberPlace(place.placeId)
     this.hints = buildHints(place)
     this.loading = false
 
@@ -301,73 +425,6 @@ export class Game {
     this.startedAt = Date.now()
     this.startTimer()
     this.updateHud()
-  }
-
-  private enterDemoMode(error: unknown): void {
-    this.demoMode = true
-    console.error('[Game] Falling back to demo mode:', error)
-
-    const detail =
-      error instanceof PlacesError || error instanceof Error
-        ? error.message
-        : typeof error === 'string'
-          ? error
-          : ''
-    this.demoReason = detail
-      ? `${detail} Switched to bundled demo places so you can keep playing.`
-      : 'Google Places is unavailable. Switched to bundled demo places so you can keep playing.'
-
-    this.interaction?.setDemoPlaces(DEMO_PLACES)
-    this.renderDemoNotice(this.demoReason)
-    this.loadDemoPlace()
-  }
-
-  private loadDemoPlace(): void {
-    let place = pickDemoPlace(this.usedPlaceIds)
-    if (!place) {
-      // All bundled places have appeared — start a fresh random rotation.
-      for (const demo of DEMO_PLACES) this.usedPlaceIds.delete(demo.placeId)
-      place = pickDemoPlace(this.usedPlaceIds)
-    }
-    if (!place) {
-      this.loading = false
-      this.renderLoadError('No demo places available right now.')
-      return
-    }
-    this.applyPlace(place)
-  }
-
-  private renderDemoNotice(message: string): void {
-    const element = document.getElementById('demo-notice')
-    if (!element) return
-    element.hidden = false
-    element.innerHTML = `<strong>Demo mode</strong><span>${escapeHtml(message)}</span>`
-  }
-
-  private renderReviewsLoading(): void {
-    const container = document.getElementById('reviews')
-    if (!container) return
-    container.innerHTML = `
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
-    `
-  }
-
-  private renderLoadError(message: string): void {
-    const container = document.getElementById('reviews')
-    if (!container) return
-    container.innerHTML = `
-      <div class="load-error">
-        <p>${escapeHtml(message)}</p>
-        <button class="btn ghost" id="retry-load" type="button">Try another place</button>
-      </div>
-    `
-    document.getElementById('retry-load')?.addEventListener('click', () => {
-      void this.loadPlace()
-    })
   }
 
   private renderReviews(): void {
@@ -630,7 +687,7 @@ export class Game {
           ? 'Serious foodie energy. Very impressive.'
           : this.totalScore >= 200
             ? 'Solid run — a few more laps around Singapore and you are unstoppable.'
-            : 'Every great food journey starts somewhere. Try again?'
+            : 'Every great food journey starts somewhere. Come back tomorrow!'
 
     screen.innerHTML = `
       <section class="summary">
@@ -652,7 +709,8 @@ export class Game {
               )
               .join('')}
           </div>
-          <button class="btn primary large" id="play-again" type="button">Play again <span>↻</span></button>
+          <button class="btn primary large" type="button" disabled>Come back tomorrow</button>
+          <p class="fineprint">Next puzzle in <span data-countdown>--:--:--</span> (SGT)</p>
         </div>
       </section>
     `
@@ -660,8 +718,7 @@ export class Game {
     this.setText('hud-round', `${CONFIG.totalRounds} / ${CONFIG.totalRounds}`)
     this.setText('hud-total', String(this.totalScore))
     this.setText('hud-potential', '—')
-
-    document.getElementById('play-again')?.addEventListener('click', () => this.startGame())
+    this.updateCountdown()
   }
 
   private updateAttempts(): void {

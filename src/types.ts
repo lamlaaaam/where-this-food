@@ -21,6 +21,13 @@ export interface PlaceData {
   reviews: ReviewData[]
 }
 
+export interface DailyPuzzle {
+  date: string
+  places: PlaceData[]
+  source?: 'daily' | 'default'
+  seed?: string
+}
+
 export interface Guess {
   placeId: string
   name: string
