@@ -1005,21 +1005,6 @@ input {
   color: var(--accent);
 }
 
-.result-distance {
-  margin: -6px 0 18px;
-  padding: 12px 14px;
-  border: 1px solid rgba(255, 122, 26, 0.3);
-  border-radius: 13px;
-  background: var(--accent-soft);
-  color: var(--muted-strong);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.result-distance strong {
-  color: #ffb15c;
-}
-
 .result-note {
   margin: 0 0 20px;
   padding: 14px;

@@ -113,8 +113,9 @@ src/
 
 ## Notes
 
-- Each round picks a random coordinate in Singapore, takes the 10 nearest food places,
-  and uses the one with the most reviews that can supply five non-spoiling review texts.
+- Each round picks a random coordinate inside a Singapore outline (not just the bounding
+  box, which includes Johor), takes the 10 nearest food places, and requires Google's
+  `SG` country component. Only the highest-review-count playable place is used.
   A rolling place history keeps playthroughs different.
 - Google Places returns **at most five review texts** per place, so the game shuffles all
   five usable reviews instead of pretending it can fetch 50.
@@ -123,8 +124,10 @@ src/
 - Nearby searches and review-free place summaries (used for map snapping) are deduplicated
   by a **session-only, in-memory cache**. It needs no server, so it works on GitHub Pages;
   nothing is written to browser storage, no review text is cached, and reloading starts fresh.
-- Running out of guesses keeps the map unobscured and leaves a green pin on the answer; the
-  result card moves to the corner instead of covering the map.
+- Wrong-guess distance appears only in the permanent map footer — no toast or result-modal
+  duplicate.
+- Running out of guesses **or skipping** keeps the map unobscured and leaves a green pin on
+  the answer; the result card moves to the corner instead of covering the map.
 - Clicking a restaurant POI on the map snaps the pin to it. Clicking empty map space
   snaps to the nearest restaurant within 120 m.
 - Photos come from Google Places and are displayed at runtime; they are not stored.

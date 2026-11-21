@@ -489,27 +489,18 @@ export class Game {
       this.interaction.clearGuess()
       this.updateAttempts()
       this.updateHud()
-      const remaining = CONFIG.maxAttempts - this.attempts + 1
-      toast(
-        `Not quite — ${formatDistance(distanceMeters)} off. ${missFlavour(distanceMeters)} ` +
-          `${remaining} guess${remaining === 1 ? '' : 'es'} left.`,
-      )
       return
     }
 
     this.lastMissMeters = distanceMeters
     this.updateGuessUi(guess)
-    this.finishRound(false, false, guess)
+    this.finishRound(false)
   }
 
-  private finishRound(correct: boolean, skipped = false, guess?: Guess): void {
+  private finishRound(correct: boolean, skipped = false): void {
     const place = this.currentPlace
     if (!place) return
 
-    const missMeters =
-      !correct && !skipped && guess
-        ? haversineMeters(guess.location, place.location)
-        : undefined
     const elapsed = this.elapsedSeconds()
     const hintsUsed = this.hintsUsed()
     const breakdown = computeBreakdown({
@@ -548,7 +539,7 @@ export class Game {
       elapsedSeconds: Math.round(elapsed),
     })
 
-    this.showResult(correct, breakdown, place, score, skipped, missMeters)
+    this.showResult(correct, breakdown, place, score, skipped)
   }
 
   private showResult(
@@ -557,24 +548,18 @@ export class Game {
     place: PlaceData,
     score: number,
     skipped = false,
-    missMeters?: number,
   ): void {
     document.getElementById('result-modal')?.remove()
 
     const isLast = this.roundIndex === CONFIG.totalRounds - 1
     const multiplier = Math.round(breakdown.attemptMultiplier * 100)
-    const mapVisible = !correct && !skipped
+    const mapVisible = !correct
     const title = skipped ? 'Round skipped' : correct ? 'Nailed it!' : 'Out of guesses'
     const badge = skipped ? '→' : correct ? '✓' : '✕'
     const lead = skipped ? 'You skipped. The answer was' : correct ? 'You found' : 'The answer was'
     const note = skipped
-      ? 'No points awarded for a skipped round.'
+      ? 'No points awarded. The green pin on the map shows the answer.'
       : 'No points this round. The green pin on the map shows the answer.'
-    const distanceHtml =
-      missMeters !== undefined
-        ? `<p class="result-distance"><strong>${formatDistance(missMeters)} off.</strong> ${missFlavour(missMeters)}</p>`
-        : ''
-
     document.body.insertAdjacentHTML(
       'beforeend',
       `
@@ -587,7 +572,6 @@ export class Game {
             <strong>${escapeHtml(place.name)}</strong>
           </p>
           <p class="result-address">${escapeHtml(place.address)}</p>
-          ${distanceHtml}
           ${
             correct
               ? `
@@ -769,7 +753,6 @@ export class Game {
 function missFlavour(distanceMeters: number): string {
   if (distanceMeters < 500) return 'So close you could smell the food.'
   if (distanceMeters < 2_000) return 'Just around the corner.'
-  if (distanceMeters < 5_000) return 'A few MRT stops away.'
   if (distanceMeters < 10_000) return 'Across town, but not hopeless.'
   return 'Way off — better check the map next time.'
 }

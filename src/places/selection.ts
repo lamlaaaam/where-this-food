@@ -1,8 +1,8 @@
 import { CONFIG } from '../config'
-import { isInSingapore, randomPointInSingapore } from '../data/geo'
+import { randomPointInSingapore } from '../data/geo'
 import type { PlaceData } from '../types'
 import { usableReviews } from './reviews'
-import { isFoodPlace, PlacesApi } from './service'
+import { isFoodPlace, isSingaporePlace, PlacesApi } from './service'
 
 const COORDINATE_ATTEMPTS = 8
 const LOCAL_RADIUS_METERS = 12_000
@@ -49,7 +49,7 @@ export async function selectAnswerPlace(
           Boolean(place.placeId) &&
           !usedPlaceIds.has(place.placeId) &&
           isFoodPlace(place.types) &&
-          isInSingapore(place.location),
+          isSingaporePlace(place),
       )
       .sort((a, b) => (b.userRatingsTotal ?? 0) - (a.userRatingsTotal ?? 0))
       .slice(0, CONFIG.maxCandidatesToInspect)
@@ -60,8 +60,8 @@ export async function selectAnswerPlace(
       inspected += 1
       try {
         const place = await api.details(candidate.placeId)
-        if (!isFoodPlace(place.types)) {
-          console.warn('[Places] Skipping non-food detail result:', place.name, place.types)
+        if (!isFoodPlace(place.types) || !isSingaporePlace(place)) {
+          console.warn('[Places] Skipping ineligible detail result:', place.name, place.types)
           continue
         }
 

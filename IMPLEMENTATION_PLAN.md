@@ -95,11 +95,13 @@ Google does not label photos as menus or food, so the photo hints use neutral nu
 Missing photos disable those hints (no penalty).
 
 ## Place selection
-- Pick a uniform random coordinate inside the Singapore bounding box.
+- Pick a uniform random coordinate inside a rough Singapore mainland/Sentosa polygon, so
+  northern bounding-box points in Johor are never generated.
 - `Place.searchNearby()` with `rankPreference: DISTANCE` returns the 10 nearest food places;
   start with a 12 km radius and widen to 25 km for sparse random points.
-- Request `userRatingCount` on this search only, then sort candidates by review count and
-  take the highest-ranked playable place.
+- Request `userRatingCount` and `addressComponents` on this search only. Keep only places
+  whose Google country component is `SG`, then sort by review count and take the
+  highest-ranked playable place.
 - Fetch details; require 5 usable reviews that do not name the place. Google Places returns
   at most 5 review texts per place, so a 50-review pool is not available from this API.
 - Shuffle the usable reviews before showing them; stars are informational only.
@@ -107,15 +109,15 @@ Missing photos disable those hints (no penalty).
 
 ## Map interaction
 - `clickableIcons: true`; the `click` event's `placeId` is used to fetch the POI.
-- Non-food POIs and places outside Singapore are rejected with a toast.
+- Non-food POIs and places without Google's `SG` country component are rejected with a toast.
 - Empty click: `Place.searchNearby()` with `rankPreference: DISTANCE` and a 120 m snap radius.
 - Initial view uses `fitBounds()` on the Singapore bounding box, then zooms out one extra
   level so strict bounds prevent panning until the player zooms in.
 - Correct/incorrect/skipped finish reveals the answer with a green marker and info window.
-- Failed guesses keep their distance and flavour text in the map footer instead of only in
-  a disappearing toast.
-- After three wrong guesses, the result card moves to the corner with a transparent overlay
-  so the green answer pin and its info window remain visible on the map.
+- Failed guesses keep their distance and flavour text in the map footer; no toast or
+  result-modal distance popup is shown.
+- After three wrong guesses **or a skip**, the result card moves to the corner with a
+  transparent overlay so the green answer pin and its info window remain visible.
 - Skipping a round records a 0-point result and is labelled as skipped in the summary.
 
 ## Caching

@@ -15,6 +15,7 @@ export interface PlaceData {
   location: google.maps.LatLngLiteral
   rating?: number
   userRatingsTotal?: number
+  countryCode?: string
   types: string[]
   photos: string[]
   reviews: ReviewData[]

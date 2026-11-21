@@ -10,6 +10,7 @@ const DETAIL_FIELDS = [
   'id',
   'displayName',
   'formattedAddress',
+  'addressComponents',
   'location',
   'photos',
   'reviews',
@@ -25,6 +26,7 @@ const DETAIL_META_FIELDS = [
   'id',
   'displayName',
   'formattedAddress',
+  'addressComponents',
   'location',
   'types',
   'primaryType',
@@ -35,7 +37,14 @@ const DETAIL_META_FIELDS = [
 // Keep searches on the cheaper Pro SKU; rating/ratings are fetched for the
 // chosen place only. `primaryType` is needed to reject hotels that also carry
 // a `restaurant` type because they contain a restaurant.
-const SEARCH_FIELDS = ['id', 'displayName', 'location', 'types', 'primaryType']
+const SEARCH_FIELDS = [
+  'id',
+  'displayName',
+  'addressComponents',
+  'location',
+  'types',
+  'primaryType',
+]
 
 // `userRatingCount` lets place selection compare review counts without paying
 // for full review details on every nearby candidate. It is a pricier Nearby
@@ -416,6 +425,17 @@ export function isFoodPlace(types: string[] | undefined): boolean {
   return placeTypes.some((type) => FOOD_TYPES.has(type) || type.endsWith('_restaurant'))
 }
 
+/**
+ * A bounding box alone is not enough: northern boxes include Johor. Require
+ * Google's country component as well, falling back to the local demo places.
+ */
+export function isSingaporePlace(place: Pick<PlaceData, 'location' | 'countryCode'>): boolean {
+  const country = place.countryCode?.trim().toUpperCase()
+  return (
+    isInSingapore(place.location) && (country === 'SG' || country === 'SINGAPORE')
+  )
+}
+
 export function describeCuisine(types: string[]): string {
   const cuisines = types
     .filter((type) => !GENERIC_TYPES.has(type))
@@ -431,6 +451,13 @@ function humanizeType(type: string): string {
     .replace(/_restaurant$/, '')
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (character) => character.toUpperCase())
+}
+
+function placeCountryCode(place: google.maps.places.Place): string | undefined {
+  return (
+    place.addressComponents?.find((component) => component.types.includes('country'))
+      ?.shortText ?? undefined
+  )
 }
 
 function toPlaceData(place: google.maps.places.Place): PlaceData {
@@ -469,6 +496,7 @@ function toPlaceData(place: google.maps.places.Place): PlaceData {
     location: { lat: location.lat(), lng: location.lng() },
     rating: place.rating ?? undefined,
     userRatingsTotal: place.userRatingCount ?? undefined,
+    countryCode: placeCountryCode(place),
     types,
     photos,
     reviews,
@@ -508,7 +536,7 @@ export class PlacesApi {
       return (response.places ?? [])
         .map(toPlaceDataSafe)
         .filter((place): place is PlaceData => Boolean(place))
-        .filter((place) => isFoodPlace(place.types) && isInSingapore(place.location))
+        .filter((place) => isFoodPlace(place.types) && isSingaporePlace(place))
     })
   }
 
@@ -536,7 +564,7 @@ export class PlacesApi {
       return (response.places ?? [])
         .map(toPlaceDataSafe)
         .filter((place): place is PlaceData => Boolean(place))
-        .filter((place) => isFoodPlace(place.types) && isInSingapore(place.location))
+        .filter((place) => isFoodPlace(place.types) && isSingaporePlace(place))
     }).then((places) =>
       // Re-check the radius on cache hits: the key rounds the click coordinate.
       places.filter((place) => haversineMeters(location, place.location) <= radiusMeters),

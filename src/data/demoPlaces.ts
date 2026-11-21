@@ -60,6 +60,7 @@ function makePlace(input: {
     location: { lat: input.lat, lng: input.lng },
     rating: 4.3,
     userRatingsTotal: 1200,
+    countryCode: 'SG',
     types: input.types,
     photos: [
       photo('Photo of the place', input.color, '🏬'),

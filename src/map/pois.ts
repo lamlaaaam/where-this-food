@@ -1,7 +1,7 @@
 import { CONFIG } from '../config'
-import { haversineMeters, isInSingapore } from '../data/geo'
+import { haversineMeters } from '../data/geo'
 import type { Guess, PlaceData } from '../types'
-import { isFoodPlace, type PlacesApi } from '../places/service'
+import { isFoodPlace, isSingaporePlace, type PlacesApi } from '../places/service'
 import { escapeHtml } from '../ui/utils'
 
 interface MapInteractionCallbacks {
@@ -136,7 +136,7 @@ export class MapInteraction {
         const location = details.location
         if (!details.placeId) return
 
-        if (!isInSingapore(location)) {
+        if (!isSingaporePlace(details)) {
           this.callbacks.onMessage('This round is Singapore only — pick a local food place.')
           return
         }
@@ -162,7 +162,7 @@ export class MapInteraction {
       )
       if (token !== this.requestToken) return
 
-      const nearest = results.find((place) => isInSingapore(place.location))
+      const nearest = results.find((place) => isSingaporePlace(place))
       if (!nearest?.placeId) {
         this.callbacks.onMessage('No food place nearby — tap a restaurant on the map.')
         return
