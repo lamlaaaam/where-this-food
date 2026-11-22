@@ -76,8 +76,8 @@
       "countryCode": "SG",
       "types": [
         "restaurant",
-        "point_of_interest",
         "food",
+        "point_of_interest",
         "establishment"
       ],
       "photos": [
@@ -264,8 +264,8 @@
       "types": [
         "fast_food_restaurant",
         "restaurant",
-        "point_of_interest",
         "food",
+        "point_of_interest",
         "establishment"
       ],
       "photos": [
