@@ -1,10 +1,17 @@
 import { CONFIG, type HintId } from '../config'
-import { computeBreakdown, type ScoreBreakdown } from './scoring'
+import {
+  bestAttempt,
+  computeRoundBreakdown,
+  scoreAttempt,
+  type AttemptScore,
+  type RoundBreakdown,
+} from './scoring'
 import { buildHints } from './hints'
 import { loadGoogleMaps } from '../places/service'
 import { createMap } from '../map/init'
 import { MapInteraction } from '../map/pois'
 import { reviewsForDisplay } from '../places/reviews'
+import { formatDistance, haversineMeters } from '../data/geo'
 import type { DailyPuzzle, Guess, Hint, PlaceData, RoundScore } from '../types'
 import { escapeHtml, formatClock, toast } from '../ui/utils'
 import { formatCountdown, nextSingaporeMidnight, puzzleNumber, singaporeDate } from './time'
@@ -30,7 +37,8 @@ export class Game {
   private currentPlace: PlaceData | null = null
   private hints: Hint[] = []
   private attempts = 1
-  private startedAt = 0
+  private attemptStartedAt = 0
+  private attemptScores: AttemptScore[] = []
   private timerId: number | null = null
   private roundOver = false
   private loading = false
@@ -252,7 +260,7 @@ export class Game {
             <div class="hud-item"><span class="hud-label">Round</span><span class="hud-value" id="hud-round">—</span></div>
             <div class="hud-item"><span class="hud-label">Total</span><span class="hud-value" id="hud-total">0</span></div>
             <div class="hud-item"><span class="hud-label">Time</span><span class="hud-value" id="hud-time">0:00</span></div>
-            <div class="hud-item accent"><span class="hud-label"><span class="hud-label-wide">Points for this round</span><span class="hud-label-mobile">Round points</span></span><span class="hud-value" id="hud-potential">—</span></div>
+            <div class="hud-item accent"><span class="hud-label"><span class="hud-label-wide">Best attempt</span><span class="hud-label-mobile">Best</span></span><span class="hud-value" id="hud-potential">—</span></div>
             <div class="hud-item countdown"><span class="hud-label">Next puzzle · SGT</span><span class="hud-value" data-countdown>--:--:--</span></div>
           </div>
         </header>
@@ -300,20 +308,19 @@ export class Game {
               <div><strong>5 rounds</strong><p>Each round hides a Singapore food place behind its Google reviews.</p></div>
             </li>
             <li>
-              <span class="rule-icon">💡</span>
-              <div><strong>6 hints, −12 pts each</strong><p>Photos, nearby MRT, expected cost and a name hint — use them wisely.</p></div>
-            </li>
-            <li>
               <span class="rule-icon">📍</span>
-              <div><strong>3 guesses</strong><p>Click the food place itself on the map. First try scores best.</p></div>
+              <div><strong>3 attempts</strong><p>Your best attempt is used for the round.</p></div>
             </li>
             <li>
-              <span class="rule-icon">⏱️</span>
-              <div><strong>30 seconds free</strong><p>Answer fast for full points. After 30s, lose 5 pts every 30s.</p></div>
+              <span class="rule-icon">🎯</span>
+              <div><strong>Distance + speed</strong><p>Closer pins and faster answers score more. Up to 88 points per attempt.</p></div>
+            </li>
+            <li>
+              <span class="rule-icon">💡</span>
+              <div><strong>Hints are free · unused hints earn points</strong><p>Every hint you leave unused adds +${CONFIG.unusedHintBonus} to your round score.</p></div>
             </li>
           </ul>
           <button class="btn primary large" id="start-game" type="button">Start game <span>→</span></button>
-          <p class="fineprint">Max 100 points per round · 500 total · New puzzle at 12:00 AM SGT in <span data-countdown>--:--:--</span></p>
         </div>
       </section>
     `
@@ -353,9 +360,10 @@ export class Game {
     this.roundOver = false
     this.loading = true
     this.attempts = 1
+    this.attemptScores = []
     this.currentPlace = null
     this.hints = []
-    this.startedAt = 0
+    this.attemptStartedAt = 0
 
     this.setPlayingLayout(true)
     const screen = this.screen()
@@ -370,7 +378,7 @@ export class Game {
           </div>
           <div class="panel-head hints-head">
             <h2>Hints</h2>
-            <span class="hint-note">−${CONFIG.hintCost} pts each</span>
+            <span class="hint-note">+${CONFIG.unusedHintBonus} per unused hint</span>
           </div>
           <div class="hints" id="hints"></div>
         </div>
@@ -378,11 +386,12 @@ export class Game {
           <div class="map-wrap">
             <div class="map" id="map"></div>
             <div class="attempts" id="attempts"></div>
+            <div class="attempt-score" id="attempt-score" hidden></div>
           </div>
           <div class="map-footer">
             <div class="guess-info" id="guess-info">
               <span class="guess-kicker">Drop a pin</span>
-              <span>Click the food place itself on the map to guess.</span>
+              <span>Tap anywhere on the map to guess.</span>
             </div>
             <div class="map-actions">
               <button class="btn ghost" id="skip-round" type="button" disabled>Skip Round</button>
@@ -425,7 +434,6 @@ export class Game {
     if (!this.interaction) {
       this.interaction = new MapInteraction(map, {
         onGuessChange: (guess) => this.updateGuessUi(guess),
-        onMessage: toast,
       })
     }
     this.interaction.resetForRound()
@@ -446,6 +454,10 @@ export class Game {
   private applyPlace(place: PlaceData): void {
     this.currentPlace = place
     this.hints = buildHints(place)
+    this.attempts = 1
+    this.attemptScores = []
+    this.attemptStartedAt = Date.now()
+    this.hideAttemptScore()
     this.loading = false
 
     const skip = document.getElementById('skip-round') as HTMLButtonElement | null
@@ -454,7 +466,6 @@ export class Game {
     this.renderReviews()
     this.renderHints()
     this.interaction?.setEnabled(true)
-    this.startedAt = Date.now()
     this.startTimer()
     this.updateHud()
   }
@@ -512,7 +523,7 @@ export class Game {
         if (hint.unlocked) {
           action = '<span class="hint-tag">Revealed</span>'
         } else if (hint.available) {
-          action = `<button class="hint-btn" type="button" data-hint="${hint.id}">Reveal <span>−${CONFIG.hintCost}</span></button>`
+          action = `<button class="hint-btn" type="button" data-hint="${hint.id}">Reveal</button>`
         } else {
           action = '<span class="hint-tag muted">Not available</span>'
         }
@@ -554,7 +565,7 @@ export class Game {
 
   private skipRound(): void {
     if (this.roundOver || this.loading || !this.currentPlace) return
-    this.finishRound(false, true)
+    this.finishRound(true)
   }
 
   private flashWrongGuess(): void {
@@ -577,41 +588,69 @@ export class Game {
 
     const guess = this.interaction.getGuess()
     if (!guess) {
-      toast('Pick a place on the map first.')
+      toast('Drop a pin on the map first.')
       return
     }
 
-    if (guess.placeId === this.currentPlace.placeId) {
-      this.finishRound(true)
-      return
-    }
+    const attempt = scoreAttempt({
+      attempt: this.attempts,
+      distanceMeters: haversineMeters(guess.location, this.currentPlace.location),
+      elapsedSeconds: this.elapsedSeconds(),
+    })
+    this.attemptScores.push(attempt)
+    this.showAttemptScore(attempt)
 
-    this.flashWrongGuess()
+    if (attempt.distanceMeters > CONFIG.perfectDistanceMeters) this.flashWrongGuess()
 
     if (this.attempts < CONFIG.maxAttempts) {
       this.attempts += 1
+      this.attemptStartedAt = Date.now()
       this.interaction.clearGuess()
       this.updateAttempts()
+      this.showAttemptFeedback(attempt)
       this.updateHud()
       return
     }
 
-    this.updateGuessUi(guess)
-    this.finishRound(false)
+    this.finishRound()
   }
 
-  private finishRound(correct: boolean, skipped = false): void {
+  private showAttemptScore(attempt: AttemptScore): void {
+    const element = document.getElementById('attempt-score')
+    if (!element) return
+
+    element.hidden = false
+    element.innerHTML =
+      `<span class="attempt-score-kicker">Attempt ${attempt.attempt}</span>` +
+      `<strong>${attempt.score} pts</strong>` +
+      `<span>${formatDistance(attempt.distanceMeters)} · ${attempt.distanceScore} distance + ${attempt.speedScore} speed</span>`
+  }
+
+  private hideAttemptScore(): void {
+    const element = document.getElementById('attempt-score')
+    if (element) element.hidden = true
+  }
+
+  private showAttemptFeedback(attempt: AttemptScore): void {
+    const info = document.getElementById('guess-info')
+    if (!info) return
+
+    const best = bestAttempt(this.attemptScores)
+    info.innerHTML =
+      `<span class="guess-kicker">Attempt ${attempt.attempt} scored ${attempt.score}</span>` +
+      `<span>${formatDistance(attempt.distanceMeters)} away · best ${best?.score ?? 0}. Drop another pin for attempt ${this.attempts}.</span>`
+  }
+
+  private finishRound(skipped = false): void {
     const place = this.currentPlace
     if (!place) return
 
-    const elapsed = this.elapsedSeconds()
     const hintsUsed = this.hintsUsed()
-    const breakdown = computeBreakdown({
-      elapsedSeconds: elapsed,
-      hintsUsed,
-      attemptIndex: this.attempts - 1,
-    })
-    const score = correct ? breakdown.score : 0
+    const unusedHints = this.unusedHints()
+    const breakdown = skipped
+      ? null
+      : computeRoundBreakdown(this.attemptScores, unusedHints)
+    const score = breakdown?.score ?? 0
 
     this.stopTimer()
     this.roundOver = true
@@ -624,50 +663,53 @@ export class Game {
     const skip = document.getElementById('skip-round') as HTMLButtonElement | null
     if (skip) skip.disabled = true
 
-    if (correct) {
-      this.totalScore += score
-      this.setText('hud-total', String(this.totalScore))
-    }
-    this.setText('hud-potential', String(score))
-    this.setText('hud-time', formatClock(elapsed))
+    this.totalScore += score
+    this.setText('hud-total', String(this.totalScore))
+    this.setText('hud-potential', String(breakdown?.best.score ?? 0))
+    this.setText('hud-time', formatClock(this.elapsedSeconds()))
 
     this.roundScores.push({
       round: this.roundIndex + 1,
       score,
       placeName: place.name,
-      correct,
       skipped,
-      attempts: this.attempts,
+      attempts: skipped ? 0 : this.attemptScores.length,
       hintsUsed,
-      elapsedSeconds: Math.round(elapsed),
+      unusedHints,
+      bestDistanceMeters: breakdown?.best.distanceMeters ?? null,
+      bestAttemptSeconds: Math.round(breakdown?.best.elapsedSeconds ?? 0),
+      distanceScore: breakdown?.best.distanceScore ?? 0,
+      speedScore: breakdown?.best.speedScore ?? 0,
+      hintBonus: breakdown?.hintBonus ?? 0,
     })
 
-    this.showResult(correct, breakdown, place, score, skipped)
+    this.showResult(breakdown, place, skipped)
   }
 
-  private showResult(
-    correct: boolean,
-    breakdown: ScoreBreakdown,
-    place: PlaceData,
-    score: number,
-    skipped = false,
-  ): void {
+  private showResult(breakdown: RoundBreakdown | null, place: PlaceData, skipped: boolean): void {
     document.getElementById('result-modal')?.remove()
 
     const isLast = this.roundIndex === CONFIG.totalRounds - 1
-    const multiplier = Math.round(breakdown.attemptMultiplier * 100)
-    const mapVisible = !correct
-    const title = skipped ? 'Round skipped' : correct ? 'Nailed it!' : 'Out of guesses'
-    const badge = skipped ? '→' : correct ? '✓' : '✕'
-    const lead = skipped ? 'You skipped. The answer was' : correct ? 'You found' : 'The answer was'
+    const perfect =
+      breakdown !== null && breakdown.best.distanceMeters <= CONFIG.perfectDistanceMeters
+    const good = breakdown !== null && breakdown.score >= 50
+    const title = skipped
+      ? 'Round skipped'
+      : perfect
+        ? 'Pin-perfect!'
+        : good
+          ? 'Strong round'
+          : 'Round complete'
+    const badge = skipped ? '→' : perfect ? '✓' : '📍'
+    const lead = skipped ? 'You skipped. The answer was' : 'The answer was'
     const note = skipped
-      ? 'No points awarded. The green pin on the map shows the answer.'
-      : 'No points this round. The green pin on the map shows the answer.'
+      ? 'Skipping scores 0 and forfeits the unused-hint bonus. The green pin shows the answer.'
+      : 'No attempts were recorded. The green pin shows the answer.'
     document.body.insertAdjacentHTML(
       'beforeend',
       `
-      <div class="modal-backdrop ${mapVisible ? 'map-visible' : ''}" id="result-modal">
-        <div class="modal ${correct ? 'good' : 'bad'}">
+      <div class="modal-backdrop map-visible" id="result-modal">
+        <div class="modal ${good || perfect ? 'good' : 'bad'}">
           <div class="result-badge">${badge}</div>
           <h2>${title}</h2>
           <p class="result-place">
@@ -676,14 +718,14 @@ export class Game {
           </p>
           <p class="result-address">${escapeHtml(place.address)}</p>
           ${
-            correct
+            breakdown
               ? `
                 <div class="breakdown">
-                  <div><span>Base</span><span>${breakdown.base}</span></div>
-                  <div><span>Hints × ${this.hintsUsed()}</span><span>−${breakdown.hintPenalty}</span></div>
-                  <div><span>Time</span><span>−${breakdown.timePenalty}</span></div>
-                  <div><span>Attempt ${this.attempts}</span><span>×${multiplier}%</span></div>
-                  <div class="total"><span>Round score</span><span>${score}</span></div>
+                  <div><span>Best attempt</span><span>${breakdown.best.attempt} of ${this.attemptScores.length}</span></div>
+                  <div><span>Distance</span><span>${formatDistance(breakdown.best.distanceMeters)} · ${breakdown.best.distanceScore} pts</span></div>
+                  <div><span>Speed</span><span>${formatClock(breakdown.best.elapsedSeconds)} · ${breakdown.best.speedScore} pts</span></div>
+                  <div><span>Unused hints</span><span>${breakdown.unusedHints} × ${CONFIG.unusedHintBonus} = +${breakdown.hintBonus}</span></div>
+                  <div class="total"><span>Round score</span><span>${breakdown.score} / ${CONFIG.maxRoundScore}</span></div>
                 </div>
               `
               : `<p class="result-note">${note}</p>`
@@ -731,10 +773,14 @@ export class Game {
             ${this.roundScores
               .map(
                 (round) => `
-                  <div class="round-row ${round.correct ? 'good' : 'bad'}">
+                  <div class="round-row ${!round.skipped && round.score >= 50 ? 'good' : 'bad'}">
                     <span class="round-num">R${round.round}</span>
                     <span class="round-name">${escapeHtml(round.placeName)}</span>
-                    <span class="round-meta">${round.skipped ? 'Skipped' : `${round.hintsUsed} hint${round.hintsUsed === 1 ? '' : 's'} · ${round.attempts} ${round.attempts === 1 ? 'try' : 'tries'}`}</span>
+                    <span class="round-meta">${
+                      round.skipped
+                        ? 'Skipped'
+                        : `${formatDistance(round.bestDistanceMeters ?? 0)} · ${round.hintsUsed} hint${round.hintsUsed === 1 ? '' : 's'} · ${round.attempts} ${round.attempts === 1 ? 'try' : 'tries'}`
+                    }</span>
                     <span class="round-score">${round.score}</span>
                   </div>
                 `,
@@ -777,7 +823,7 @@ export class Game {
     } else {
       info.innerHTML =
         '<span class="guess-kicker">Drop a pin</span>' +
-        '<span>Click the food place itself on the map to guess.</span>'
+        '<span>Tap anywhere on the map to guess.</span>'
       button.disabled = true
     }
   }
@@ -792,12 +838,7 @@ export class Game {
     if (this.roundOver) return
 
     if (this.currentPlace) {
-      const score = computeBreakdown({
-        elapsedSeconds: elapsed,
-        hintsUsed: this.hintsUsed(),
-        attemptIndex: this.attempts - 1,
-      }).score
-      this.setText('hud-potential', String(score))
+      this.setText('hud-potential', String(bestAttempt(this.attemptScores)?.score ?? 0))
     } else {
       this.setText('hud-potential', '—')
     }
@@ -816,12 +857,16 @@ export class Game {
   }
 
   private elapsedSeconds(): number {
-    if (this.startedAt === 0) return 0
-    return (Date.now() - this.startedAt) / 1000
+    if (this.attemptStartedAt === 0) return 0
+    return (Date.now() - this.attemptStartedAt) / 1000
   }
 
   private hintsUsed(): number {
     return this.hints.filter((hint) => hint.unlocked).length
+  }
+
+  private unusedHints(): number {
+    return this.hints.filter((hint) => hint.available && !hint.unlocked).length
   }
 
   private screen(): HTMLElement {

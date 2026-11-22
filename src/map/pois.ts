@@ -4,7 +4,6 @@ import { escapeHtml } from '../ui/utils'
 
 interface MapInteractionCallbacks {
   onGuessChange: (guess: Guess | null) => void
-  onMessage: (message: string) => void
 }
 
 export class MapInteraction {
@@ -82,20 +81,17 @@ export class MapInteraction {
   private handleMapClick(event: google.maps.MapMouseEvent): void {
     if (!this.enabled) return
 
-    const iconEvent = event as google.maps.IconMouseEvent
-    if (!iconEvent.placeId) {
-      this.callbacks.onMessage('Click the food place itself on the map to guess.')
-      return
-    }
-    iconEvent.stop()
-
     const latLng = event.latLng
     if (!latLng) return
 
-    // No API call: the clicked POI already gives us the place ID.
+    // A pin can be dropped anywhere; clicking a POI is optional. Stopping the
+    // icon event prevents Google's own info window from covering the map.
+    const iconEvent = event as google.maps.IconMouseEvent
+    if (iconEvent.placeId) iconEvent.stop()
+
     this.setGuess({
-      placeId: iconEvent.placeId,
-      name: 'Selected food place',
+      placeId: iconEvent.placeId ?? '',
+      name: 'Dropped pin',
       location: { lat: latLng.lat(), lng: latLng.lng() },
     })
   }

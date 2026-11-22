@@ -1,40 +1,69 @@
 import { CONFIG } from '../config'
 
-export interface ScoreInput {
+export interface AttemptInput {
+  attempt: number
+  distanceMeters: number
   elapsedSeconds: number
-  hintsUsed: number
-  /** 0-based attempt index the guess is being made on. */
-  attemptIndex: number
 }
 
-export interface ScoreBreakdown {
-  base: number
-  hintPenalty: number
-  timePenalty: number
-  attemptMultiplier: number
+export interface AttemptScore {
+  attempt: number
+  distanceMeters: number
+  elapsedSeconds: number
+  distanceScore: number
+  speedScore: number
   score: number
 }
 
-const ATTEMPT_MULTIPLIERS = [1, 0.7, 0.4]
-
-export function computeBreakdown(input: ScoreInput): ScoreBreakdown {
-  const { elapsedSeconds, hintsUsed, attemptIndex } = input
-  const base = CONFIG.maxRoundScore
-  const hintPenalty = hintsUsed * CONFIG.hintCost
-  const timePenalty =
-    elapsedSeconds <= CONFIG.freeTimeSeconds
-      ? 0
-      : CONFIG.timePenaltyPerBlock *
-        Math.ceil((elapsedSeconds - CONFIG.freeTimeSeconds) / CONFIG.timeBlockSeconds)
-  const attemptMultiplier =
-    ATTEMPT_MULTIPLIERS[Math.min(Math.max(attemptIndex, 0), ATTEMPT_MULTIPLIERS.length - 1)]
-
-  const raw = (base - hintPenalty - timePenalty) * attemptMultiplier
-  const score = Math.max(0, Math.min(base, Math.round(raw)))
-
-  return { base, hintPenalty, timePenalty, attemptMultiplier, score }
+export interface RoundBreakdown {
+  best: AttemptScore
+  unusedHints: number
+  hintBonus: number
+  score: number
 }
 
-export function computeScore(input: ScoreInput): number {
-  return computeBreakdown(input).score
+/**
+ * Distance uses a smooth exponential decay, similar to GeoGuessr. A pin within
+ * ~100 m is worth almost the full 70 points; 1 km is about 42; 5 km is about 6.
+ */
+export function scoreAttempt(input: AttemptInput): AttemptScore {
+  const distanceMeters = Math.max(0, input.distanceMeters)
+  const elapsedSeconds = Math.max(0, input.elapsedSeconds)
+  const distanceScore = Math.round(
+    CONFIG.maxDistanceScore * Math.exp(-distanceMeters / CONFIG.distanceDecayMeters),
+  )
+  const speedRatio = Math.max(0, 1 - elapsedSeconds / CONFIG.speedWindowSeconds)
+  const speedScore = Math.round(CONFIG.maxSpeedScore * speedRatio)
+
+  return {
+    attempt: input.attempt,
+    distanceMeters,
+    elapsedSeconds,
+    distanceScore,
+    speedScore,
+    score: Math.min(CONFIG.maxRoundScore, distanceScore + speedScore),
+  }
+}
+
+export function bestAttempt(attempts: readonly AttemptScore[]): AttemptScore | null {
+  return attempts.reduce<AttemptScore | null>(
+    (best, attempt) => (!best || attempt.score > best.score ? attempt : best),
+    null,
+  )
+}
+
+export function computeRoundBreakdown(
+  attempts: readonly AttemptScore[],
+  unusedHints: number,
+): RoundBreakdown | null {
+  const best = bestAttempt(attempts)
+  if (!best) return null
+
+  const hintBonus = Math.max(0, unusedHints) * CONFIG.unusedHintBonus
+  return {
+    best,
+    unusedHints: Math.max(0, unusedHints),
+    hintBonus,
+    score: Math.min(CONFIG.maxRoundScore, best.score + hintBonus),
+  }
 }

@@ -46,9 +46,13 @@ export interface RoundScore {
   round: number
   score: number
   placeName: string
-  correct: boolean
   skipped?: boolean
   attempts: number
   hintsUsed: number
-  elapsedSeconds: number
+  unusedHints: number
+  bestDistanceMeters: number | null
+  bestAttemptSeconds: number
+  distanceScore: number
+  speedScore: number
+  hintBonus: number
 }

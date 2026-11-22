@@ -842,6 +842,52 @@ input {
   background: var(--accent);
 }
 
+.attempt-score {
+  position: absolute;
+  top: 54px;
+  left: 12px;
+  z-index: 5;
+  display: grid;
+  max-width: min(260px, calc(100% - 90px));
+  grid-template-columns: auto auto;
+  gap: 1px 9px;
+  padding: 8px 11px;
+  border: 1px solid rgba(255, 122, 26, 0.38);
+  border-radius: 12px;
+  background: rgba(11, 15, 20, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  color: var(--muted-strong);
+  font-size: 11px;
+  line-height: 1.35;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+}
+
+.attempt-score[hidden] {
+  display: none;
+}
+
+.attempt-score-kicker {
+  align-self: center;
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.attempt-score strong {
+  color: #ffb15c;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.attempt-score > span:last-child {
+  grid-column: 1 / -1;
+}
+
 .map-footer {
   display: flex;
   align-items: center;
