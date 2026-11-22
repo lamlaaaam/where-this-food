@@ -842,15 +842,42 @@ input {
   background: var(--accent);
 }
 
+.attempt-scores {
+  position: absolute;
+  top: 54px;
+  left: 12px;
+  z-index: 5;
+  display: grid;
+  gap: 6px;
+  max-width: min(260px, calc(100% - 90px));
+  pointer-events: none;
+}
+
 .attempt-score {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1px 9px;
+  padding: 8px 11px;
+  border: 1px solid rgba(255, 122, 26, 0.38);
+  border-radius: 12px;
+  background: rgba(11, 15, 20, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  color: var(--muted-strong);
+  font-size: 11px;
+  line-height: 1.35;
+  backdrop-filter: blur(10px);
+  animation: attempt-card-in 0.25s ease-out both;
+}
+
+.attempt-popup {
   position: absolute;
   top: 50%;
   left: 50%;
-  z-index: 5;
+  z-index: 6;
   display: grid;
-  max-width: min(280px, calc(100% - 32px));
   grid-template-columns: auto auto;
   gap: 1px 9px;
+  max-width: min(280px, calc(100% - 32px));
   padding: 12px 16px;
   border: 1px solid rgba(255, 122, 26, 0.55);
   border-radius: 14px;
@@ -862,22 +889,10 @@ input {
   pointer-events: none;
   backdrop-filter: blur(10px);
   transform: translate(-50%, -50%) scale(1.25);
-  transition:
-    top 0.45s cubic-bezier(0.2, 0.9, 0.25, 1),
-    left 0.45s cubic-bezier(0.2, 0.9, 0.25, 1),
-    transform 0.45s cubic-bezier(0.2, 0.9, 0.25, 1),
-    padding 0.45s ease;
   animation: attempt-pop 0.3s ease-out both;
 }
 
-.attempt-score.side {
-  top: 54px;
-  left: 12px;
-  padding: 8px 11px;
-  transform: translate(0, 0) scale(1);
-}
-
-.attempt-score[hidden] {
+.attempt-popup[hidden] {
   display: none;
 }
 
@@ -890,6 +905,17 @@ input {
   }
 }
 
+@keyframes attempt-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .attempt-score-kicker {
   align-self: center;
   color: var(--accent);
@@ -899,7 +925,8 @@ input {
   text-transform: uppercase;
 }
 
-.attempt-score strong {
+.attempt-score strong,
+.attempt-popup strong {
   color: #ffb15c;
   font-size: 18px;
   font-variant-numeric: tabular-nums;
@@ -907,14 +934,15 @@ input {
   line-height: 1;
 }
 
-.attempt-score > span:last-child {
+.attempt-score > span:last-child,
+.attempt-popup > span:last-child {
   grid-column: 1 / -1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .attempt-score {
+  .attempt-score,
+  .attempt-popup {
     animation: none;
-    transition: none;
   }
 }
 

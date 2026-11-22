@@ -385,7 +385,8 @@ export class Game {
           <div class="map-wrap">
             <div class="map" id="map"></div>
             <div class="attempts" id="attempts"></div>
-            <div class="attempt-score" id="attempt-score" hidden></div>
+            <div class="attempt-scores" id="attempt-scores"></div>
+            <div class="attempt-popup" id="attempt-popup" hidden></div>
           </div>
           <div class="map-footer">
             <div class="guess-info" id="guess-info">
@@ -596,25 +597,36 @@ export class Game {
     this.finishRound()
   }
 
+  private attemptScoreMarkup(attempt: AttemptScore): string {
+    return (
+      `<span class="attempt-score-kicker">Attempt ${attempt.attempt}</span>` +
+      `<strong>${attempt.score} pts</strong>` +
+      `<span>${formatDistance(attempt.distanceMeters)} · ${attempt.distanceScore} distance + ${attempt.speedScore} speed</span>`
+    )
+  }
+
   private showAttemptScore(attempt: AttemptScore): void {
-    const element = document.getElementById('attempt-score')
-    if (!element) return
+    const popup = document.getElementById('attempt-popup')
+    if (!popup) return
 
     if (this.attemptScoreTimerId !== null) {
       window.clearTimeout(this.attemptScoreTimerId)
       this.attemptScoreTimerId = null
     }
 
-    element.hidden = false
-    element.classList.remove('side')
-    element.innerHTML =
-      `<span class="attempt-score-kicker">Attempt ${attempt.attempt}</span>` +
-      `<strong>${attempt.score} pts</strong>` +
-      `<span>${formatDistance(attempt.distanceMeters)} · ${attempt.distanceScore} distance + ${attempt.speedScore} speed</span>`
+    popup.innerHTML = this.attemptScoreMarkup(attempt)
+    popup.hidden = false
 
-    // Pop up in the middle of the map, then settle into the corner.
+    // Pop up in the middle of the map, then add it to the list in the corner.
     this.attemptScoreTimerId = window.setTimeout(() => {
-      element.classList.add('side')
+      const list = document.getElementById('attempt-scores')
+      if (list) {
+        const card = document.createElement('div')
+        card.className = 'attempt-score'
+        card.innerHTML = this.attemptScoreMarkup(attempt)
+        list.appendChild(card)
+      }
+      popup.hidden = true
       this.attemptScoreTimerId = null
     }, 900)
   }
@@ -624,11 +636,10 @@ export class Game {
       window.clearTimeout(this.attemptScoreTimerId)
       this.attemptScoreTimerId = null
     }
-    const element = document.getElementById('attempt-score')
-    if (element) {
-      element.hidden = true
-      element.classList.remove('side')
-    }
+    const popup = document.getElementById('attempt-popup')
+    if (popup) popup.hidden = true
+    const list = document.getElementById('attempt-scores')
+    if (list) list.replaceChildren()
   }
 
   private finishRound(skipped = false): void {
