@@ -252,7 +252,7 @@ export class Game {
             <div class="hud-item"><span class="hud-label">Round</span><span class="hud-value" id="hud-round">—</span></div>
             <div class="hud-item"><span class="hud-label">Total</span><span class="hud-value" id="hud-total">0</span></div>
             <div class="hud-item"><span class="hud-label">Time</span><span class="hud-value" id="hud-time">0:00</span></div>
-            <div class="hud-item accent"><span class="hud-label">Points for this round</span><span class="hud-value" id="hud-potential">—</span></div>
+            <div class="hud-item accent"><span class="hud-label"><span class="hud-label-wide">Points for this round</span><span class="hud-label-mobile">Round points</span></span><span class="hud-value" id="hud-potential">—</span></div>
             <div class="hud-item countdown"><span class="hud-label">Next puzzle · SGT</span><span class="hud-value" data-countdown>--:--:--</span></div>
           </div>
         </header>
