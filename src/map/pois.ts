@@ -9,10 +9,10 @@ interface MapInteractionCallbacks {
 export class MapInteraction {
   private readonly map: google.maps.Map
   private readonly callbacks: MapInteractionCallbacks
-  private guessMarker: google.maps.Marker | null = null
+  private currentGuess: Guess | null = null
+  private attemptMarkers: google.maps.Marker[] = []
   private answerMarker: google.maps.Marker | null = null
   private answerInfo: google.maps.InfoWindow | null = null
-  private currentGuess: Guess | null = null
   private enabled = false
 
   constructor(map: google.maps.Map, callbacks: MapInteractionCallbacks) {
@@ -32,15 +32,15 @@ export class MapInteraction {
     return this.currentGuess
   }
 
-  clearGuess(): void {
-    this.guessMarker?.setMap(null)
-    this.guessMarker = null
+  clearCurrentGuess(): void {
     this.currentGuess = null
     this.callbacks.onGuessChange(null)
   }
 
   resetForRound(): void {
-    this.clearGuess()
+    this.clearCurrentGuess()
+    for (const marker of this.attemptMarkers) marker.setMap(null)
+    this.attemptMarkers = []
     this.answerMarker?.setMap(null)
     this.answerMarker = null
     this.answerInfo?.close()
@@ -98,24 +98,29 @@ export class MapInteraction {
 
   private setGuess(guess: Guess): void {
     this.currentGuess = guess
-
-    if (!this.guessMarker) {
-      this.guessMarker = new google.maps.Marker({
-        map: this.map,
-        zIndex: 10,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: '#ff7a1a',
-          fillOpacity: 1,
-          strokeColor: '#fff4ea',
-          strokeWeight: 3,
-        },
-      })
-    }
-
-    this.guessMarker.setPosition(guess.location)
-    this.guessMarker.setTitle(guess.name)
     this.callbacks.onGuessChange(guess)
+  }
+
+  commitAttempt(attemptNumber: number): void {
+    if (!this.currentGuess) return
+
+    const marker = new google.maps.Marker({
+      map: this.map,
+      position: this.currentGuess.location,
+      zIndex: 10,
+      title: `Attempt ${attemptNumber}`,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 9,
+        fillColor: '#ff7a1a',
+        fillOpacity: 0.85,
+        strokeColor: '#fff4ea',
+        strokeWeight: 2,
+      },
+    })
+    this.attemptMarkers.push(marker)
+
+    this.currentGuess = null
+    this.callbacks.onGuessChange(null)
   }
 }

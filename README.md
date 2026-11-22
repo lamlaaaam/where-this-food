@@ -96,11 +96,3 @@ scripts/
   deploy.yml              build & deploy to Pages
 ```
 
-## Notes
-
-- Photos are downloaded during generation and served from `public/photos/` — no per-player API calls.
-- Map instance is reused across all 5 rounds → 1 billable map load per game.
-- Clicking a food place uses its Google Place ID; empty map space prompts again.
-- Wrong guesses flash red; out of guesses/skip keeps map visible with green answer pin.
-- Generator restricts to Singapore (`SG` country component); no Johor/Johor Bahru places.
-- Google Places returns max 5 reviews per place — all 5 are used and shuffled.

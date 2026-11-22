@@ -40,9 +40,9 @@ export class Game {
   private attemptStartedAt = 0
   private attemptScores: AttemptScore[] = []
   private timerId: number | null = null
+  private attemptScoreTimerId: number | null = null
   private roundOver = false
   private loading = false
-  private flashTimerId: number | null = null
 
   constructor(root: HTMLElement) {
     this.root = root
@@ -272,7 +272,6 @@ export class Game {
           </div>
         </div>
         <main id="screen" class="screen"></main>
-        <div class="wrong-flash" id="wrong-flash" aria-hidden="true"></div>
       </div>
     `
   }
@@ -568,21 +567,6 @@ export class Game {
     this.finishRound(true)
   }
 
-  private flashWrongGuess(): void {
-    const flash = document.getElementById('wrong-flash')
-    if (!flash) return
-
-    if (this.flashTimerId !== null) window.clearTimeout(this.flashTimerId)
-    flash.classList.remove('active')
-    // Force a reflow so consecutive wrong guesses replay the animation.
-    void flash.offsetWidth
-    flash.classList.add('active')
-    this.flashTimerId = window.setTimeout(() => {
-      flash.classList.remove('active')
-      this.flashTimerId = null
-    }, 600)
-  }
-
   private handleConfirm(): void {
     if (this.roundOver || this.loading || !this.currentPlace || !this.interaction) return
 
@@ -598,17 +582,14 @@ export class Game {
       elapsedSeconds: this.elapsedSeconds(),
     })
     this.attemptScores.push(attempt)
+    this.interaction.commitAttempt(this.attempts)
     this.showAttemptScore(attempt)
-
-    if (attempt.distanceMeters > CONFIG.perfectDistanceMeters) this.flashWrongGuess()
+    this.updateAttempts()
+    this.updateHud()
 
     if (this.attempts < CONFIG.maxAttempts) {
       this.attempts += 1
       this.attemptStartedAt = Date.now()
-      this.interaction.clearGuess()
-      this.updateAttempts()
-      this.showAttemptFeedback(attempt)
-      this.updateHud()
       return
     }
 
@@ -619,26 +600,35 @@ export class Game {
     const element = document.getElementById('attempt-score')
     if (!element) return
 
+    if (this.attemptScoreTimerId !== null) {
+      window.clearTimeout(this.attemptScoreTimerId)
+      this.attemptScoreTimerId = null
+    }
+
     element.hidden = false
+    element.classList.remove('side')
     element.innerHTML =
       `<span class="attempt-score-kicker">Attempt ${attempt.attempt}</span>` +
       `<strong>${attempt.score} pts</strong>` +
       `<span>${formatDistance(attempt.distanceMeters)} · ${attempt.distanceScore} distance + ${attempt.speedScore} speed</span>`
+
+    // Pop up in the middle of the map, then settle into the corner.
+    this.attemptScoreTimerId = window.setTimeout(() => {
+      element.classList.add('side')
+      this.attemptScoreTimerId = null
+    }, 900)
   }
 
   private hideAttemptScore(): void {
+    if (this.attemptScoreTimerId !== null) {
+      window.clearTimeout(this.attemptScoreTimerId)
+      this.attemptScoreTimerId = null
+    }
     const element = document.getElementById('attempt-score')
-    if (element) element.hidden = true
-  }
-
-  private showAttemptFeedback(attempt: AttemptScore): void {
-    const info = document.getElementById('guess-info')
-    if (!info) return
-
-    const best = bestAttempt(this.attemptScores)
-    info.innerHTML =
-      `<span class="guess-kicker">Attempt ${attempt.attempt} scored ${attempt.score}</span>` +
-      `<span>${formatDistance(attempt.distanceMeters)} away · best ${best?.score ?? 0}. Drop another pin for attempt ${this.attempts}.</span>`
+    if (element) {
+      element.hidden = true
+      element.classList.remove('side')
+    }
   }
 
   private finishRound(skipped = false): void {
