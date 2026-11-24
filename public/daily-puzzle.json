@@ -1,20 +1,21 @@
 {
   "source": "daily",
-  "date": "2026-11-24",
-  "seed": "2026-11-24",
+  "date": "2026-11-25",
+  "seed": "2026-11-25",
   "places": [
     {
-      "placeId": "ChIJAQAAsAAc2jERbbHzLY1ImcM",
-      "name": "Good Old Days Singapore Flavours",
-      "address": "60 Siloso Bch Walk, #01-03/04, Singapore 098997",
+      "placeId": "ChIJu2Xyl0AR2jERqiJV3y1HsKU",
+      "name": "Ying Chinese Restaurant @ SICC Bukit",
+      "address": "240 Sime Rd, Singapore 288303",
       "location": {
-        "lat": 1.2516524999999998,
-        "lng": 103.8171855
+        "lat": 1.341446,
+        "lng": 103.80999890000001
       },
-      "rating": 4.4,
-      "userRatingsTotal": 3737,
+      "rating": 4.7,
+      "userRatingsTotal": 66,
       "countryCode": "SG",
       "types": [
+        "chinese_restaurant",
         "restaurant",
         "food",
         "point_of_interest",
@@ -27,54 +28,56 @@
       ],
       "reviews": [
         {
-          "author": "Hải Đăng Trần",
-          "rating": 2,
-          "text": "This buffet restaurant is located near the musical fountain show on Sentosa Island.\nThe food selection is extremely poor, with barely around a dozen dishes, and the taste is absolutely terrible. I strongly advise against eating here—honestly, grabbing instant noodles at 7-Eleven would be way better. The service was also very disappointing; they wouldn't even let customers use a power outlet to charge their phones.",
-          "relativeTime": "a month ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUblBttKkP2bIvH31H-TocHsQiaDECo8mfEdrJ4kS30--WOuqyO=s128-c0x00000000-cc-rp-mo-ba8"
-        },
-        {
-          "author": "Avik Banerjee",
-          "rating": 4,
-          "text": "Booked the Indian Thali dinner combo along with our Wings of Time tickets at Good Old Days (Siloso Beach). The thali was very filling and flavorful, featuring savory chicken curry, dal, aloo matar, spiced rice, naan, papadum, and a samosa. It also came with juice and ice cream to finish. Super convenient location right by the show venue—definitely worth grabbing as a combo package!",
-          "relativeTime": "3 weeks ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjU7jOD560rA12XG2jcsqgamiIZv7g1a-CGccyYEgwCzJM1E9WJy_A=s128-c0x00000000-cc-rp-mo-ba5"
-        },
-        {
-          "author": "Caleb Look",
+          "author": "Mommy Dragon",
           "rating": 5,
-          "text": "$9.80 for grilled chicken chop and $2.50 for iced coffee at Sentosa - pretty value for money considering this is Sentosa. Quality of food and drink was good. Comfortable, air-conditioned environment.\n\nCutlery and condiments are neatly displayed in a separate section.",
-          "relativeTime": "2 months ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVkQt7_R3neooA4b7jEakVAGM27QjI4KxIYJt2oR9RfWl__dzsn2g=s128-c0x00000000-cc-rp-mo-ba4"
+          "text": "Teochew dishes here are thoughtfully prepared and intricately put together. Visualise:\n\nDinner menu\n\n1. Seafood soup steamed for hours in a winter melon gourd until the melon is soft ( advanced order needed).\n\n2. Sweet Soy Cod Fish (without bones) served with a thin sheet of Cheong Fun.\n\n3. Biting into a hand made spongy Longevity Bun the size of a fist.\n\nHighly recommended to make reservations 2 weeks to 1 month in advance, especially if you are eyeing one of its private rooms.\n\nLunch menu\n\nLess oily and very delicious and refined looking dim sum. The fried turnip cake is slightly crisped  on the outside and very soft and flavourful.  Pan fried black pepper duck bun is another killer. I have not tasted black pepper duck buns this good. Stewed Teo chew duck and tofu and Or Ni dessert are the restaurant's signature items. They stand out too. This post shouts out the good but not yet famous, and the good and famous.\n\nBook 1 week ahead if you are planning a weekend dim sum lunch with your friends or extended family.",
+          "relativeTime": "in the last week",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVJaE_8ol3z81vApXfdJKW9PYioXuD2X_gn9VlcEA0mJBqovr4=s128-c0x00000000-cc-rp-mo-ba5"
         },
         {
-          "author": "Deborah Corleto",
-          "rating": 1,
-          "text": "Avoid this place 🚨🔔 staff is not polite. Food  is not worth the experience.  There are huge advertisements of iced tea and ice coffee for affordable price. You enter to order and they are not available at the ordering. In my case, I went out to the coffe shop outside to get some iced coffee. When I entered they told “NOT ALLWED TO BRING IN BEVERAGES FROM OUTSIDE” which I replied “ok what should i do? “ they asked me to not drink it and leave it on the side. The manner they told was not polite but anyways I didn’t want more uncomfortable situations. I indicated also, that if the drinks are not allowed that at least they should have what they are promoting everywhere outside. They replied that that a different stand to order there. Note that one “coffee” stand was empty with no staff  (see video). So the real next level impolite situation was when I was spiced up with the food and I was nearly breathing because I was coughing of the spiced food, I has available water but I needed something to calm down the spice which my iced latte was soothing option to ease the spice pain. Which I decided to get ONE sip of the drink. The same senior staff came to ask me no to drink it, again ima DEROGATORY tone, I explained that I  needed tho drink something “ milky” to calm down. It was so uncomfortable, I know there are rules but that is not a way for treating the customers. To comment further more on the impolite mannerisms of the staff, some young girls were looking for the bathroom and then from a distance she was screaming to go outside but in a derogatory way.  I don’t think these are the standards of Singapore customer service is just this place that need to urgently improve.",
-          "relativeTime": "2 months ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjU-gRaz21gqrJZZaw1dnVJ25Z_9RsHxb4-QhoVmySstd5sgcGxc=s128-c0x00000000-cc-rp-mo-ba5"
+          "author": "Michelin Inspector",
+          "rating": 5,
+          "text": "I am a Teochew and came here because of the authentic Teochew food! We had the delicious bamboo clams and the best dish of the night was the braised Teochew duck 🦆 reserve for a nice quiet spot to celebrate with the family.",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXaqaHBx-ltGeCnT_tiS83cytdcW8UucckorU7dw7UTKunKAXE=s128-c0x00000000-cc-rp-mo-ba5"
         },
         {
-          "author": "CK C",
-          "rating": 2,
-          "text": "This Halal food court offers Malay-Indian rice, Chinese noodles, Western food and Chicken Rice. Food quality and taste were poor but portion was generous and was probably the cheapest option (most mains at $9.80) along Siloso beach. Many items, including hot drinks, were not available even by 11.20am. Staff were not helpful when approached and insisted that everything is automatic and just check the ordering kiosk. Taps were impossible for washing both hands.",
-          "relativeTime": "3 months ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUJngakiAyXfuUPzsbeKdkVxjM8nPSXTlt1gt0po1I-NptHHTNE4g=s128-c0x00000000-cc-rp-mo-ba8"
+          "author": "Jeremy Khoo",
+          "rating": 5,
+          "text": "Celebrated Kong Kong’s birthday here last weekend with the family. For a Saturday morning it was completely empty so we had the restaurant all to ourselves. We ordered a range of timsum, braised duck, truffle beef cubes and of course birthday noodles. All were excellent, especially the melt in your mouth beef cubes and tender duck slices. Service was also exceptional and the staff waited on us hand and foot and even gave us a tour of the function rooms for future visits. Will definitely come again for dinner one day.",
+          "relativeTime": "a year ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVfnnxOpjXUlSmoDu1Iaj6w1RxG2W1EmHsEr-3z8O3-mjTLH2nGkA=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "Elna Tan",
+          "rating": 5,
+          "text": "Amazing food here, absolutely love the tofu in the braised duck, the thinly sliced squid with tanghoon is just out of the world with its texture and familiar (bamboo clam dish), the crunch of the oyster omelette is seriously脆香到一個不行！ the teochew style fish is truly perfect with the freshness and seasoning.",
+          "relativeTime": "a year ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjV3_fi1aOjutCRoDaQxfFHYjclXZdROy8Q8_2JEgz_TId_6E6Y=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "PJK",
+          "rating": 5,
+          "text": "Ying at SICC is a fantastic addition to the club’s dining scene. The setting is elegant and comfortable, making it a perfect spot for a refined lunch or a quiet dinner.\nThe menu offers an excellent range of authentic Teochew specialties and Cantonese dim sum. The braised duck is a standout, perfectly tender and full of flavour, as is the signature Orh Nee for dessert. Service is consistently polished and attentive, reflecting the high standards of the club. A top tier choice for high quality Chinese cuisine in a beautiful, relaxed setting.",
+          "relativeTime": "7 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjW8S07fzA5xGQ6vuj49eqZG3JUVCBR6KlRFWF-rYmSG9sIY6aq0=s128-c0x00000000-cc-rp-mo-ba4"
         }
       ]
     },
     {
-      "placeId": "ChIJrWyUwREa2jERitUG_YpbAt8",
-      "name": "Ah Wing's Wanton Mee",
-      "address": "7 Empress Rd, #01-108, Singapore 260007",
+      "placeId": "ChIJw_MQ1NQV2jERPz458YBCKk8",
+      "name": "Ju Shin Jung Seletar CC",
+      "address": "101 Seletar Club Rd, Level 2 Country Club Singapore 798273",
       "location": {
-        "lat": 1.3161034999999999,
-        "lng": 103.8053123
+        "lat": 1.4096539,
+        "lng": 103.858132
       },
-      "rating": 4.5,
-      "userRatingsTotal": 180,
+      "rating": 4.8,
+      "userRatingsTotal": 428,
       "countryCode": "SG",
       "types": [
+        "korean_restaurant",
+        "korean_barbecue_restaurant",
         "restaurant",
         "food",
         "point_of_interest",
@@ -87,59 +90,56 @@
       ],
       "reviews": [
         {
-          "author": "Gopi Bala",
+          "author": "jared Lee",
           "rating": 5,
-          "text": "There is always a long queue at this stall, and it's been a while since I last ate their wanton mee.\n\nWhen it came to my turn at about 1.30pm, there was no char siew left, and so I opted for the prawn dumpling noodles.\n\nI must say the noodles were thumbs up al dente and the chilli was great as was the various ingredients in the plate of noodles.\n\nThe shrimp wantons also really succulent and delicious, and the tasty soup was piping hot until the last drop.\n\nThey are closed on Monday, Thursday and Friday.\n\nWhat would have made the meal even more stellar was to have cruncy bits of fried pork lard in the noodles.",
+          "text": "Generous serving of standard korean side dishes, bbq marinated chicken is very well done and potato pancake is crispy with lots of cheese sandwiched in the layers. Definitely recommend to anyone in the area and would come back again. Location is well ventilated with not much residual smell after having the bbq",
           "relativeTime": "a month ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocI7ZzaudFcbdAGlKH6kwZCFzR8Me9ksnqE8OnLeAzyXe9hGDQ=s128-c0x00000000-cc-rp-mo-ba6"
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocID4Og5_ALp2Wmfy_ZvNCd-hoN8UP1itBJ8xQaSF9d50Chj3w=s128-c0x00000000-cc-rp-mo-ba3"
         },
         {
-          "author": "Justin Tan",
+          "author": "Lachesis Tang",
           "rating": 5,
-          "text": "April 2025: I had just finished a 10 km hike and was craving for wantan noodles.  There were 15 people waiting ahead of me even though I came at 1115 hrs. When it was my turn, I ordered the char siew wantan noodle $5 and a bowl of dumpling soup for $5. I asked for 1 piece of chicken feet and paid an extra $1.50. Maybe I was polite, and the owners gave me an extra piece. The soup was delicious,  full of anchovy flavours.  The dumplings have pieces of prawns in them. The char siew was moist, but I wished that they could have been fattier. The wantans were delicious.  The noodles were springy but had a bicarbonate soda taste, which disappeared when mixed with the chilli sauce. This is certainly a favourite stall of mine, even though I don't like the food centre, a bit warm and small. It closes on Monday,  Thursday, and Friday. There's a bubble tea stall almost close to it, and the drinks were refreshing and cheap.",
-          "relativeTime": "a year ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUV8VBKgwNvDqAsp5AT9f5U53v_b9AYlSDXI8QpXA_XsfMKtJCq=s128-c0x00000000-cc-rp-mo-ba6"
+          "text": "I’ve visited several times, and Mina has always provided excellent and professional service. She is very friendly, helpful and attentive. Her wagyu beef is always cooked perfectly and tastes amazing! Really appreciate her great service every time. Highly recommended!",
+          "relativeTime": "2 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocKjc2hFEOFQNLvSMlPuD9BL-Pl7c6-tMO6Nb4hBOSEfyDmv3teQ=s128-c0x00000000-cc-rp-mo-ba4"
         },
         {
-          "author": "Darren Tan",
-          "rating": 5,
-          "text": "Very nice old school wanton noodles.. wanton filling is good and nice. Noodles is chewy and well cooked.. added 2 dumplings and it come with small prawn and the overall taste just nice.. even soup is well cooked. Must try ..expect a wait for good food though..",
-          "relativeTime": "a year ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJmBzPBxnDvabg_QJZBqh7n7eB85ulOpZiI_3pjuafeQE4aow=s128-c0x00000000-cc-rp-mo-ba5"
+          "author": "Honestbee",
+          "rating": 4,
+          "text": "Dined at Alexandra road outlet several times but it has closed and relocated to Seletar CC. The ginseng chicken soup is good; can refill the soup once for free. Banchan were good",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXoF0BOQ5xyNUcvcOHr9HVHZTmEVw1NoJw4JiNIysLsqTF8Hs4=s128-c0x00000000-cc-rp-mo-ba5"
         },
         {
-          "author": "James ZGQing",
+          "author": "nigel tan",
           "rating": 5,
-          "text": "Highly recommended by friends and I’m totally satisfied for my first try. Distinctive Cantonese flavour, generous servings and most importantly, hand made Wanton and Shrimp dumplings is heavenly made! Spoke to the owner and he is very courteous and pleasant. Can’t give full marks for atmosphere as it’s a typical hawker centre. Do note the limited opening days and timings if u wish to try! Will certainly return for more!",
-          "relativeTime": "2 years ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVoswI7Mr3879b6QsvtSzEfCNiJp8IMXRiHHMWEfWWyInmC08SW=s128-c0x00000000-cc-rp-mo-ba4"
+          "text": "Had a great dining experience here. We came as a big group of 16, and despite it being peak hours and the restaurant being busy, the staff were attentive, friendly and did their best to make sure everyone was well taken care of. The food was great as well.\n\nShoutout to Zeff and team for their excellent service. Zeff was attentive, approachable and quick to respond to our needs. Service was swift, and we really appreciated his effort in taking care of our group.\n\nKudos to the entire team. Overall, food and service were top notch. Definitely worth coming back.",
+          "relativeTime": "2 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocIjzEGI9Jdy9d2OMBnYMNdQpODUdBv17RcRzRxNuA3BPgkM2A=s128-c0x00000000-cc-rp-mo"
         },
         {
-          "author": "Mal Osi",
+          "author": "Clive",
           "rating": 5,
-          "text": "True local gem. This small stand, run daily by a humble and kind elderly couple, serves up some of the best wanton noodles in the area. Open every day, the queue forms quickly, so be prepared to wait. But the wait is absolutely worth it.\n\nThe wanton mee is simple, traditional, and full of flavor — the noodles springy, the char siew tender, and the wantons perfectly seasoned. It’s the kind of comforting, nostalgic plate that keeps you coming back. If you’re in the neighbourhood, don’t miss it. A must-try.",
-          "relativeTime": "a year ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocIuM5wI_ZGKp9BoG1XIKaLfNBuG20HdC6uwed0IurgkPsqoEkc=s128-c0x00000000-cc-rp-mo-ba4"
+          "text": "Random find for a rainy Friday night. Found this and headed over. No disappointment. Server Mina very professional. We took the promo buffet 2 full paying adults 3rd 50%. Portion is huge, 1 round for us and we are done. Side dishes was also good.",
+          "relativeTime": "2 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLmo2taF5GMViqZ-FSjCecuCBCGrODNxdYFqN7pb5xB_RlrEg=s128-c0x00000000-cc-rp-mo-ba5"
         }
       ]
     },
     {
-      "placeId": "ChIJPevdorwZ2jERVTcwKGDdm6I",
-      "name": "Bar Bar Black Sheep @ Cherry Ave",
-      "address": "879 Bukit Timah Rd, Singapore 279892",
+      "placeId": "ChIJVQrPXZ8R2jER8jdzVf1G_Gg",
+      "name": "McDonald's Fajar",
+      "address": "Blk 445 Fajar Rd, #01-520, Singapore 670445",
       "location": {
-        "lat": 1.332671,
-        "lng": 103.79114
+        "lat": 1.3838177999999999,
+        "lng": 103.77042540000001
       },
-      "rating": 4.1,
-      "userRatingsTotal": 688,
+      "rating": 3.9,
+      "userRatingsTotal": 1468,
       "countryCode": "SG",
       "types": [
-        "gastropub",
-        "bar_and_grill",
-        "pub",
-        "indian_restaurant",
-        "bar",
+        "fast_food_restaurant",
+        "halal_restaurant",
         "restaurant",
         "food",
         "point_of_interest",
@@ -152,56 +152,58 @@
       ],
       "reviews": [
         {
-          "author": "Mark Azzopardi",
+          "author": "Love Gng",
           "rating": 5,
-          "text": "Really cool venue. Even thought it’s near the main road it’s blocked off by a garden wall. The staff are awesome - fast and friendly!! Options for food are great! They do curries, Thai and pizza. 3 different menus to choose from.\n\nA really nice place to come with friends with kids. Highly recommend.\n\nRecommend reservation if on busy night like a Friday, or if coming with a large group.",
+          "text": "Nice people deserve a review for many years I always eat my mc Donald’s here this team is the best waking up eating my breakfast here seeing people who have good vibes and helping each other make my day good. Hi to all the Jie Jie always smiling and friendly Jie Jie Jenny and all the staff and Ms Sue. Great team 👍🏽 keep it up💪🏻",
+          "relativeTime": "3 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJy1t1_rRnWGp2bRMNAWqybjgSH1gpFDVLTHilMJuRYPiVykg=s128-c0x00000000-cc-rp-mo-ba3"
+        },
+        {
+          "author": "darroz",
+          "rating": 1,
+          "text": "This has been happening since 2024. This outlet has been scamming customers on quantity of potato pops. Even contacted them for feedback. Agreed that they will solve the issue, returned today to the same scam. Hopeless. Management does not want to look into the issue",
           "relativeTime": "5 months ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVlYHvYyNiroc9nNxKd_jKWAYAC6T9mxDyJMk7Y7iu9EmeTbkt-=s128-c0x00000000-cc-rp-mo-ba6"
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocKOsCysEX1zRUP97B3ZOJzSH2lNQgDGfS1fKyotWu1Mhs4ddw=s128-c0x00000000-cc-rp-mo-ba3"
         },
         {
-          "author": "Ivan Teh",
-          "rating": 4,
-          "text": "Naan (SGD $9) @ Bar Bar Black Sheep.\n.\nWith 3 independent kitchens, including a North Indian focused kitchen, this watering hole is a relaxed night-time dining spot.\n.\nTheir rendition is soft fluffy chewy in texture, tearing apart easily. While the plain version exudes smoky bready sweet savoury flavour, the garlic version studded with minced garlic and fresh coriander exudes smoky bready savoury vegetal bitter herbal spice flavour.\n.\n.\n.\nPalak Paneer (SGD $15) @ Bar Bar Black Sheep.\n.\nThis casual gastrobar struggled to find its footing over the last few years, and it appears things have stabilized.\n.\nTheir rendition has a vibrant green hue, the puréed spinach curry being thick and creamy while the paneer cottage cheese cubes are tender and soft.\n.\nGenerously laced with cream, this carries vegetal sweet savoury herbal spice milky sour cheesy flavour.",
-          "relativeTime": "a month ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjV5w6w1Nz613H-FTdYMJdrdrsR43y5bcInG5AtU7Oxf59DHDoeK=s128-c0x00000000-cc-rp-mo-ba7"
+          "author": "youdont knowme",
+          "rating": 1,
+          "text": "The order wasn’t made properly. I specifically requested no onions in my Fortune Prosperity Chicken burger but there were still onions!! Even the packaging has the special order label but the burger was still the original. This is unacceptable!! I had to remove the onions myself and endure the lingering taste of onion in my burger. Such bad experience!!",
+          "relativeTime": "9 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXl_jR_hzvRusQl3h05j4f12T0GdnbBn4x4uEeNh1aTqDrg-TI=s128-c0x00000000-cc-rp-mo"
         },
         {
-          "author": "Jeff Leong",
-          "rating": 4,
-          "text": "This is a nice, casual neighbourhood gastropub for residents staying in Bukit Timah Road area. It is equally well patronised by diners from further away. Its open-air premises has a rustic atmosphere, with dining tables and high tables. Adults and children are welcomed here.\n\nA variety of cuisines is offered to accompany beers, homemade lemonade and drinks. As credit cards of customers are held by the operator, we felt more comfortable to pay as we ordered to avoid unnecessary hassle of disputed charges.",
-          "relativeTime": "5 years ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXwzumK-1y4tbUNn3qRb-vMzQqCPIDYmT_J0VwiQVmhk6txrusT=s128-c0x00000000-cc-rp-mo-ba5"
+          "author": "snbden bdbsbsns",
+          "rating": 1,
+          "text": "The only outlet that always messes up my order constantly? Ive had no issues with other outlets except this one, even if you complain to management they wont do much but its expected from a fast food company. If you come here just double check your own meals before leaving because it seems like they have been hiring everyone and anyone these days",
+          "relativeTime": "2 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJea3F7JgJCattMEC7NSzjLym5j6yJk1NghjDWiTiTggFP-yg=s128-c0x00000000-cc-rp-mo"
         },
         {
-          "author": "Howard",
-          "rating": 4,
-          "text": "Decent option for casual drinks and it has a reasonable range of tap beers. The seating is all covered but it's open plan and semi-outdoors (ie, no walls). That's ok though because the location is set back from the main road so it doesn't get too much traffic noise and ends up with a nice breeze.\nThe food is from a separate (but connected) Indian kitchen and is good but it's a little annoying you can't just order it all at once with the drinks.\nFun, relaxed place for a beer.",
-          "relativeTime": "3 years ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXByb82t5NlecGOwmp7_35HTYAyR0uJrjdEBCrIfdZciG4nW0GQUg=s128-c0x00000000-cc-rp-mo-ba6"
-        },
-        {
-          "author": "Raphael",
-          "rating": 2,
-          "text": "(The Indian chef who made this great food is gone and so is the quality, likely same with Thai - very sad)) Can’t go wrong any night of the week. Perfect Indian fare, burgers for kids, and authentic Thai... all of it with perfect pint of Carlsberg or whatever beer you have in mind including some choice IPAs.",
-          "relativeTime": "5 years ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXY9ilNlOkRCpssXD5hhUQuhxh9J1tZpQOCV4cbtXSY6g3MXT9E=s128-c0x00000000-cc-rp-mo-ba4"
+          "author": "Fatin Nuwairah",
+          "rating": 1,
+          "text": "Very unpleasant start to our morning and I am still pissed so I'm getting my frustrations out through this review.\n\nMy sister needs to report to school earlier today (she already left home as I'm typing this at 6.30am and she did not eat anything aside from a biscuit), and so she requested to pre-order breakfast because no eating or drinking (even plain water) is allowed at the field trip venue. She was specifically craving McDonald's, and I had done a pre-order with this outlet before on 28 May which went smoothly then, so why not?\n\nI pre-ordered for our breakfast to be delivered between 5.30 to 6am through Grab. I woke up to find missed calls and messages from my Grab delivery rider who, as you can see in the screenshot, informed me that the earliest delivery they can make is 7am because nothing we ordered was available.\n\nSo of course I am baffled because why does a 24/7 outlet (the ONLY 24/7 outlet in Bukit Panjang mind you; the next nearest outlet would have been Choa Chu Kang CC) not have breakfast available especially when it's stated on McDonald's website that breakfast starts from 4am? Why even ALLOW us to preorder if we were just going to have to cancel the order because it cannot be delivered at the timing we want eventhough it was given to us as an option? Was there no way for this to be communicated to me much earlier so I could have arranged to order other food instead if, based on Grab's merchant FAQs on their website, scheduled orders are already displayed and there is a live chat option for merchants to communicate with customers (then the delivery rider also didn't need to waste his time coming down)? If food is not available to be delivered within the timeframe we requested for, does that mean other people entering the restaurant with intention to eat breakfast at 4-5am also get turned away or are they left with food from the lunch/dinner menu?\n\nIt's not like this is my first time buying McDonald's from this outlet. I have seen how crowded it gets and how slow the wait for the food can be (as you can also see from previous reviews here). My family work in customer-facing jobs so we get how overwhelming it can be. We closed one eye even when we had to wait for 45 minutes plus before. This is literally a pre-order, at a timing when I wouldn't think there's an overwhelming number of people. I still feel like the restaurant could have figured out a way to reach me WAY before the scheduled timing, especially because I was awake till 2am so I could have made different meal plans if I was informed earlier. If I'm understanding my Grab delivery rider correctly and this outlet is no longer 24/7, then this information definitely NEEDS to be updated on Google Maps and delivery platform apps.\n\nThis incident has made me lose trust. The staff may read this and just pass me off as a Karen, but I am very frustrated and really needed to get this off my chest.",
+          "relativeTime": "3 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWzZnbnqfhbmB97FhJpJmuuUqOjX6QBUuNiDzCzK-zq4x5I_-7U=s128-c0x00000000-cc-rp-mo-ba4"
         }
       ]
     },
     {
-      "placeId": "ChIJT7d_bwA92jERg_Lmr124baw",
-      "name": "Breakthrough Café",
-      "address": "1 Changi Village Rd, #2000 2002, Singapore 500001",
+      "placeId": "ChIJW2NKp4AF2jERYdukVAKLQNk",
+      "name": "KFC Fairprice Hub",
+      "address": "1 Joo Koon Cir, #01-25/26 FairPrice Joo Koon, Singapore 629117",
       "location": {
-        "lat": 1.3877397999999999,
-        "lng": 103.98764059999999
+        "lat": 1.3273439,
+        "lng": 103.6780256
       },
-      "rating": 4.9,
-      "userRatingsTotal": 242,
+      "rating": 4.7,
+      "userRatingsTotal": 1073,
       "countryCode": "SG",
       "types": [
-        "french_restaurant",
-        "european_restaurant",
+        "fast_food_restaurant",
+        "chicken_wings_restaurant",
+        "chicken_restaurant",
+        "meal_takeaway",
         "restaurant",
         "food",
         "point_of_interest",
@@ -214,55 +216,55 @@
       ],
       "reviews": [
         {
-          "author": "munkymandee",
+          "author": "Pink 爱吃",
           "rating": 5,
-          "text": "Decided to come here on a whim after a quick look at google reviews. Very happy to say it exceeded our expectations. Service was very friendly, every single person was so polite. Upon being seated we were given a basket of freshly toasted baguette with butter, and water. The bread was so good!\n\nThere were four of us but two were small eaters so we ordered three 3-course sets to share. For $32 you get a starter, main, and dessert.\n\nFor starters we got the mesclun salad, mushroom soup and truffle fries. Everything was so well seasoned and fresh. Like, these are simple starters but we were already impressed by these! For the mains, we had the shrimp linguine, seafood soup and pork belly. Everything was generously portioned. Pasta was perfectly al dente. Soup was so rich and full of seafood. Porkbelly was crispy outside and tender inside. It paired very well with the apples and sauce. The mash was so creamy and good.\n\nWe were quite blown away by the quality of food. We even got a second basket of bread to mop up all the sauces.\n\nFor dessert we tried the belgian chocolate ice cream and peach sorbet. Both were good. Quite glad they gave small scoops because by then we were stufffffed.\n\nThey also had a 10% off promo going, so in total our 3 sets cost $86.40 after the discount. Totally value for money. I would recommend this place to everyone. It was quite sad to see that we were the only table on a friday night. Please support them!!!!!",
+          "text": "📅 02/10/2026\n🍗 KFC Set Meal | Burger + Fried Chicken + Fries + Mashed Potato + Drink\n\n😋 The fried chicken was really crispy — so satisfying to bite into. The burger was tasty too, and the fries and mashed potato completed the meal nicely. Everything tasted good. A classic comfort meal that hits the spot! 🍔🍟✨",
           "relativeTime": "a month ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjU_HTWn2m6ZKyKyMx-df8THuiBqaMLAmeWBwcWdaAoxer4tECsI0Q=s128-c0x00000000-cc-rp-mo-ba5"
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjV79mZmCwc4oQTtD-57UBOkd1B6fDhOpVBr50hh8v6TO__RKg0=s128-c0x00000000-cc-rp-mo-ba4"
         },
         {
-          "author": "Princess Mania",
-          "rating": 4,
-          "text": "Nice cozy atmosphere with friendly and attentive staff; always checking in on us and getting feedback about their food. Even the chef behind the glass kitchen panel would steal glances at us and asking us non-verbally about their food. The meal also came with complimentary French bread and butter. The restaurant offers extra to replenish.\nTried the pan fried pork belly - tasty, crispy and succulent without being overly rich to the palate. Enjoy my truffle fries which came with truffle shavings and Parmesan shavings.  Portion was good. Enjoyed my salted caramel ice-cream. On the whole, it was a good and enjoyable meal.\nNo service charge but has GST. However, GST is also being absorbed by the restuarant. There is a tipping box. Do tip them!",
+          "author": "Belphegor",
+          "rating": 5,
+          "text": "Had a great experience. The food was served hot and fresh, especially the fried chicken which was crispy on the outside and juicy on the inside. The staff were friendly, and the restaurant was clean and comfortable. Service was quick, and the overall dining experience was enjoyable. Will definitely come back again!",
           "relativeTime": "3 months ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJWPlbSa9FWZ_tink8oMFLNgvZ8Q45Pl_aRtl78YLAoyWjR7w=s128-c0x00000000-cc-rp-mo-ba6"
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocI4Z1ke1DkJDJ4t1mDFIum_uubY4575CUysFe-J-32qGc43hw=s128-c0x00000000-cc-rp-mo"
         },
         {
-          "author": "Jewel",
-          "rating": 5,
-          "text": "The staff were so friendly and service was great. They were attentive and polite. They served bread which had a crispy crust & soft fluffy interior with generous servings of salted butter. I really enjoyed it.\n\nWe ordered the Garden Mesclun Salad, Duck Confit Leg, and Pork Belly with Freshly Baked Madeleines (comes with ice cream).\n\nThe salad was refreshing. duck confit was well seasoned and meat was extremely tender, great when paired with the mash potatoes which was creamy and smooth. The pork belly was cooked to perfection, fats melt in the mouth, crispy exterior, paired great with the cooked apples which cut through the greasiness of the fat.\n\nLastly really enjoyed the fresh madeleines, which were crispy on the edges, light lemon fragrance and beautiful texture. The warm madeleines contrasts the cold ice cream, simply delicious.\n\nI was glad that my grandma enjoyed the food, her first time trying french cuisine. Beautiful interior, meaningful mission, and beautiful artworks available for purchase.",
-          "relativeTime": "4 months ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWuiWu7naruxP1YdiuSvBQpb9VzlYMhaE4Y-C2TYtVEkEUvOuIacQ=s128-c0x00000000-cc-rp-mo-ba3"
-        },
-        {
-          "author": "Ben Star",
-          "rating": 5,
-          "text": "🌟 Finally Made It! A Delightful French Set-Meal Experience🌟\nI finally had the chance to dine at [Breakthrough Art & Crafts Café]! Interestingly, my first two attempts were unsuccessful. On my first visit, I arrived too late and the café had already closed. On my second attempt, I had not made a reservation, and the café was packed with diners. We had no choice but to head to a nearby hawker centre instead.\nThis time, our group of more than 40 people made a reservation in advance and gathered here for a meal. Having seen so many five-star reviews, I was looking forward to finally experiencing the café for myself—and I am happy to say that it did not disappoint!\nUpon entering, we were greeted by soft, soothing music that created a relaxing atmosphere. The interior was tastefully arranged and spotlessly tidy, while the staff were warm, welcoming and attentive. Their thoughtful hospitality made us feel right at home. The café offers both an air-conditioned indoor dining area and an open-air seating area with natural ventilation, catering to different preferences.\n🍽️ The Food Experience\nI ordered the 【Pan-Fried Pork Belly Set】, accompanied by a starter of Chinese-Style Egg Omelette. My companion chose the 【Pan-Fried Barramundi Set】, with a starter of Creamy Mushroom Soup.\n🥓 【Pan-Fried Pork Belly】\nThe pork belly was cooked to perfection—tender and juicy, never dry or tough. Its skin was wonderfully crispy, while the meat was rich in flavour without being overly greasy. It was so tender that it practically melted in the mouth! Paired with smooth, creamy mashed potatoes, the combination was simply delicious.\n🐟 【Pan-Fried Barramundi】\nMy companion’s barramundi was equally impressive. Beautifully pan-fried and fragrant, the fish was served with baby potatoes, vegetables and a pleasantly tangy sauce. The refreshing flavours complemented the fish wonderfully, making the dish appetising and enjoyable without any unpleasant fishy taste.\n🍄 【Creamy Mushroom Soup with Crispy Toast】\nThe mushroom soup was rich, creamy and full of flavour. Paired with crispy toasted bread that could be replenished without extra charge, it made a simple yet satisfying combination. The contrast between the velvety soup and crunchy toast was delightful, and my companion thoroughly enjoyed it!\n✨ 【Overall Verdict: Excellent Value for Money!】\nOverall, the French-style set meals were delicious, reasonably priced and certainly worth the money.\nAnother highlight was the efficient service.\nDespite our large group of more than 40 diners, the food arrived smoothly and without undue delays, thanks to our advance reservation. The staff remained friendly, attentive and well organised throughout our visit, allowing everyone to relax and enjoy the gathering.\nThis visit was well worth the wait, and the café has left us with a very positive impression & experience!\nOn our next visit, I would love to explore more dishes from the à la carte menu.\nI would also be happy to recommend [Breakthrough Art & Crafts Café] to friends looking for a comfortable dining atmosphere, warm hospitality, tasty food and good value for money.\nA thoroughly enjoyable dining experience—one worth sharing and definitely worth revisiting! ❤️",
+          "author": "Gaming Water Sheep",
+          "rating": 2,
+          "text": "Disappointing service and poor quality control across multiple visits at this outlet.\n\nFirst, I ordered a breakfast wrap combo during the morning shift. The staff informed me the wrap was out of stock but proceeded to hand over just the hashbrown and drink. No replacement options, alternatives, or refunds were offered for the missing main item, forcing me to absorb the financial loss for an unfulfilled meal.\n\nSecond, during a separate visit, I received a Zinger burger with an unacceptably small patty—the size of two nuggets. When I brought it back to request a standard replacement, the manager on duty appeared highly annoyed, gave a silent, unhelpful attitude, and left me standing there awkwardly before finally replacing it.\n\nWhile the burger was eventually exchanged, the overall customer service, attitude, and handling of out-of-stock items at this location are deeply unprofessional.\n\nManagement seriously needs to look into staff training and service standards.",
           "relativeTime": "3 weeks ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWcD1MgmdEP5G7PIZiYKIfiNIrKQdxKHb0bSog2Lw20Yx0OzXQi=s128-c0x00000000-cc-rp-mo-ba3"
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXOnNj7L60tZpx-dV_eXHrx5dkncaielyAUFxWIsejBSkgvrdQ=s128-c0x00000000-cc-rp-mo-ba2"
         },
         {
-          "author": "cinnamonlane cinnamonlane",
+          "author": "ItzChaRoo",
+          "rating": 1,
+          "text": "The chicken is super dry can the cola doesn’t have gas it taste like water and plus cola without the gas",
+          "relativeTime": "4 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUxFRnFWAeFoQ38tNWa4OL_o7TSgAQcdSVmuSFeI8JDR4CZJpAX=s128-c0x00000000-cc-rp-mo"
+        },
+        {
+          "author": "Pei Lin",
           "rating": 5,
-          "text": "The food is great! The cooking style is perfect and the ingredients taste amazing , they even provide free flow bread. The service here is great as the servers are very dedicated! The atmosphere is a perfect warm comforting environment. This is a great place to check out if you want to have a nice multi course French authentic cuisine!!!",
-          "relativeTime": "a month ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLCFGHFXucaJ1wx5JTW1fncqK1OTmTmqywgBtxhBf6LxuJf7Q=s128-c0x00000000-cc-rp-mo-ba3"
+          "text": "Had a pleasant experience at KFC Joo Koon! The staff were friendly and helpful, and my order was prepared quickly. The food was served hot and the outlet was clean and comfortable. Great place to grab a quick meal will definitely visit again!",
+          "relativeTime": "4 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocKRfW3lLwnkmN_75f5NTIqZOBmJAcUcWrIAmNrOWEN_ePG8wA=s128-c0x00000000-cc-rp-mo"
         }
       ]
     },
     {
-      "placeId": "ChIJW2KEKQAT2jERTy6egmamw_M",
-      "name": "Marrybrown Fuchun CC",
-      "address": "1 Woodlands Street 31, #01-02, Singapore 738581",
+      "placeId": "ChIJvT4iLQAP2jERDlROzMJpOas",
+      "name": "Ariff's Restaurant",
+      "address": "451 Jurong West Street 42, #01-174, Singapore 640451",
       "location": {
-        "lat": 1.4295185,
-        "lng": 103.7749465
+        "lat": 1.3518812,
+        "lng": 103.7183312
       },
       "rating": 4.1,
-      "userRatingsTotal": 62,
+      "userRatingsTotal": 257,
       "countryCode": "SG",
       "types": [
-        "fast_food_restaurant",
+        "indian_restaurant",
         "restaurant",
         "food",
         "point_of_interest",
@@ -275,39 +277,39 @@
       ],
       "reviews": [
         {
-          "author": "Musthafa Kaamal Mohammad",
+          "author": "Guowei",
           "rating": 5,
-          "text": "Had a very pleasant meal here with my mom. The food was delicious and very nicely presented, and everything looked fresh and well prepared. The restaurant was clean, neat and had a really comfortable atmosphere.\nThe staff were very friendly and welcoming, especially the tall Indian manager who attended to us. He was extremely kind, polite and made us feel very welcome throughout our visit.\nOverall, we had a wonderful dining experience and really enjoyed our time here. Good food, great service and a lovely atmosphere. Definitely a place I would happily visit again! 👍",
-          "relativeTime": "2 months ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocL6RRHViehKErXkk2nuXCxvd0sQSnBnr04f4TZ8DhyxEFXd1g=s128-c0x00000000-cc-rp-mo"
-        },
-        {
-          "author": "Amir M",
-          "rating": 5,
-          "text": "Stopped by Marrybrown to take away a meal and was really impressed by the service. A special shoutout to Al Ajamal, who went above and beyond to make sure our order was accurate and served quickly. His friendly attitude and professionalism truly made our visit pleasant. Thank you, Al Ajamal and the whole team",
-          "relativeTime": "a week ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocKoOHLlHYnyYfoP1_fRfes9ig4VAol1DgiZvfL7wbQS3NS8LA=s128-c0x00000000-cc-rp-mo-ba2"
-        },
-        {
-          "author": "Shi Leng Teo",
-          "rating": 5,
-          "text": "2 piece meal original dine-in. Served quickly after ordering. Chicken was fresh, crispy and tender. Bread was meh but the coleslaw and mash potato were good and completed the meal. Restaurant was clean.",
+          "text": "A nice neighborhood Indian restaurant that I frequent regularly. Returnee of good food! Though sometimes need to wait a while during busy times :)",
           "relativeTime": "a month ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocIAJ5cBJpLyjaxYipqvjCEKJs4V0qso6rlRvA8oBwiP1oua0g=s128-c0x00000000-cc-rp-mo-ba3"
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocKzAZkjYKTEjyO7hONs-4oXzXEc3lcqg1KyDSC3UBPdtnDvyyI=s128-c0x00000000-cc-rp-mo-ba3"
         },
         {
-          "author": "sher",
-          "rating": 2,
-          "text": "good service, but food is super mediocre and can be improved. $9.9 for this… no fries and the sides given are very small portion.",
-          "relativeTime": "4 months ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLZwHtdoa2qNLE8-XkS9kHzhLKCe--r3KS7kBbuViTbkWUhZHg=s128-c0x00000000-cc-rp-mo-ba4"
-        },
-        {
-          "author": "Miss Pea",
+          "author": "Masethung Govindaraj",
           "rating": 5,
-          "text": "Love marrybrown. Nolstagia. Wide menu options. Cute toy collections. Very tasty chicken and rice.",
-          "relativeTime": "4 months ago",
-          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjX22h-JYzDjQtq5xca_P7fh9S4w31-XuLsx7hGdNTyYqAFxWzJp=s128-c0x00000000-cc-rp-mo-ba4"
+          "text": "I had a wonderful dinner experience at this Ariff restaurant in Jurong West\n, and it truly deserves five stars. From the moment we walked in, the warm hospitality and inviting ambience made us feel comfortable and relaxed. The staff were attentive, knowledgeable, and happy to recommend dishes.\nThe food was outstanding and authentically South Indian. The dosas were perfectly crisp, the idlis were soft and fluffy, and the sambar and chutneys were rich, aromatic, and beautifully balanced in flavor. The veg and non-veg curries were cooked to perfection, with fresh ingredients and traditional spices that reminded me of home-style cooking. Every dish was served hot and well-presented.\nWhat stood out the most was the consistency in taste and quality, along with generous portions at a very reasonable price for Singapore. The place was clean, well-organized, and had a pleasant dining atmosphere that made the dinner feel special without being overly formal.\nOverall, this Ariff restaurant offers an authentic South Indian dining experience with excellent food, great service, and a welcoming vibe. Highly recommended for anyone craving delicious South Indian cuisine in Singapore. I will definitely be coming back again!",
+          "relativeTime": "6 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjW2UOn2f42dIoOvkAgERzAvQSYv-c-avFU5J0Op_yAtTUtQkZGc=s128-c0x00000000-cc-rp-mo-ba2"
+        },
+        {
+          "author": "Traveller",
+          "rating": 2,
+          "text": "Actually you deserved 4 or even 5 stars. I really enjoyed your food but I hate the waiting. Slow and really really slow that I have skipped going to your restaurant. Never need to wait for a table or too long to place my order but a simple breakfast of chapati, prata or thosai can make people wait up to half an hour and I have seen many others who waited and got impatient as well.",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXO2dnskozyuOSF7YzgUhUG2OuJEkYc-Z5du0-KrfydcRiFWiY=s128-c0x00000000-cc-rp-mo"
+        },
+        {
+          "author": "lontongstroong",
+          "rating": 4,
+          "text": "24-hr heartland prata place which is pretty popular among the locals. Sometimes go there to grab a prata supper in the weekend. The roti prata is always freshly made, warm, and crispy, served with some kind of South Indian acidic fish curry. The other meals are also generally good, for instance, the chicken kuzhambu (curry) comes with a flavorful and pretty thick gravy. Surprised they also served chilled Shams, which is a non-alcoholic malt beverage from Iran, which means this rare stuff is imported twice from Iran to Malaysia, and later across the causeway to Singapore.\n\nThe place is airy, with a lot of ceiling fans and some tables located in semi-outdoor setting.",
+          "relativeTime": "8 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWnlDnQdIiRVGPPjHCFJrWtm4ROxtfQz27Vz39DC7nNdmectwSX7A=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "rents",
+          "rating": 5,
+          "text": "Open 24hrs, Good Food. You really can’t ask for more. Friendly service from macha and even gave me complimentary papadom. The best for me was their sambal tofu!",
+          "relativeTime": "8 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjX0f_aZCKccM59ehA6xa7jkMfqBSOALGLPJ-BotwyYPGIFKI7T2=s128-c0x00000000-cc-rp-mo-ba4"
         }
       ]
     }
