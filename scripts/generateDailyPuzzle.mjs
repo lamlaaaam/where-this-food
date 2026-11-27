@@ -1,9 +1,10 @@
 import { existsSync } from 'node:fs'
-import { mkdir, readdir, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, rename, unlink, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import puppeteer from 'puppeteer-core'
+import sharp from 'sharp'
 
 const API_KEY = process.env.GOOGLE_MAPS_API_KEY ?? process.env.VITE_GOOGLE_MAPS_API_KEY
 if (!API_KEY) {
@@ -26,11 +27,13 @@ function addDays(date, offsetDays) {
 }
 
 const WINDOW_DAYS = Math.max(1, Number(process.env.PUZZLE_WINDOW_DAYS ?? 3))
+const HISTORY_DAYS = Math.max(WINDOW_DAYS, Number(process.env.PUZZLE_HISTORY_DAYS ?? 30))
 const START_DATE =
   process.env.PUZZLE_DATE ?? singaporeDate(Number(process.env.PUZZLE_DATE_OFFSET_DAYS ?? 0))
 const DATES = IS_DEFAULT
   ? [START_DATE]
   : Array.from({ length: WINDOW_DAYS }, (_, index) => addDays(START_DATE, index))
+const HISTORY_FILE = resolve(PUZZLE_DIR, 'history.json')
 const PHOTO_DIR = resolve(ROOT, 'public/photos')
 const PUZZLE_DIR = resolve(ROOT, 'public/puzzles')
 const DEFAULT_OUTPUT = resolve(ROOT, 'public/daily-puzzle-default.json')
@@ -245,7 +248,58 @@ async function startLocalServer() {
   return server
 }
 
-async function generateInBrowser(page, apiKey, seed) {
+async function readHistory() {
+  if (IS_DEFAULT || !existsSync(HISTORY_FILE)) return { entries: [] }
+  try {
+    const raw = await readFile(HISTORY_FILE, 'utf8')
+    const parsed = JSON.parse(raw)
+    if (!parsed || !Array.isArray(parsed.entries)) return { entries: [] }
+    return { entries: parsed.entries.filter((e) => e && typeof e.date === 'string' && Array.isArray(e.placeIds)) }
+  } catch {
+    return { entries: [] }
+  }
+}
+
+async function writeHistory(history) {
+  if (IS_DEFAULT) return
+  const tmp = `${HISTORY_FILE}.tmp`
+  await mkdir(dirname(HISTORY_FILE), { recursive: true })
+  await writeFile(tmp, `${JSON.stringify(history, null, 2)}\n`)
+  await rename(tmp, HISTORY_FILE)
+}
+
+async function recentPlaceIds(dates) {
+  const history = await readHistory()
+  const cutoff = addDays(START_DATE, -HISTORY_DAYS)
+  const ids = new Set()
+  for (const entry of history.entries) {
+    if (entry.date >= cutoff) {
+      for (const id of entry.placeIds) if (typeof id === 'string') ids.add(id)
+    }
+  }
+  // Also scan existing puzzle files in window to be robust
+  for (const date of dates) {
+    const file = outputFor(date)
+    if (!existsSync(file)) continue
+    try {
+      const puzzle = JSON.parse(await readFile(file, 'utf8'))
+      for (const place of puzzle.places ?? []) if (place?.placeId) ids.add(place.placeId)
+    } catch {}
+  }
+  return [...ids]
+}
+
+async function recordHistory(date, placeIds) {
+  if (IS_DEFAULT) return
+  const history = await readHistory()
+  const cutoff = addDays(START_DATE, -HISTORY_DAYS)
+  const entries = history.entries.filter((e) => e.date >= cutoff && e.date !== date)
+  entries.push({ date, placeIds })
+  entries.sort((a, b) => a.date.localeCompare(b.date))
+  await writeHistory({ entries })
+}
+
+async function generateInBrowser(page, apiKey, seed, excludedPlaceIds = []) {
   return page.evaluate(
     async ({ key, fields, config }) => {
       if (!globalThis.google?.maps?.importLibrary) {
@@ -313,41 +367,10 @@ async function generateInBrowser(page, apiKey, seed) {
       }
 
       const GENERIC_NAME_WORDS = new Set([
-        'a',
-        'an',
-        'and',
-        'at',
-        'bistro',
-        'cafe',
-        'cafeteria',
-        'canteen',
-        'center',
-        'centre',
-        'co',
-        'company',
-        'cuisine',
-        'deli',
-        'diner',
-        'dining',
-        'eatery',
-        'food',
-        'for',
-        'in',
-        'ltd',
-        'of',
-        'on',
-        'place',
-        'pte',
-        'restaurant',
-        'resto',
-        'sg',
-        'shop',
-        'singapore',
-        'stall',
-        'store',
-        'the',
-        'to',
-        'by',
+        'a','an','and','at','bistro','cafe','cafeteria','canteen','center','centre','co','company','cuisine','deli','diner','dining','eatery','food','for','in','ltd','of','on','place','pte','restaurant','resto','sg','shop','singapore','stall','store','the','to','by',
+      ])
+      const GENERIC_LOCATION_WORDS = new Set([
+        'avenue','ave','blk','block','building','central','close','crescent','drive','dr','east','floor','jalan','lane','level','lorong','mall','north','plaza','rd','road','south','square','st','street','unit','west',
       ])
 
       function normalize(value) {
@@ -362,15 +385,12 @@ async function generateInBrowser(page, apiKey, seed) {
       function namePhrases(placeName) {
         const normalized = normalize(placeName)
         if (!normalized) return []
-
         const tokens = normalized.split(' ').filter(Boolean)
         const phrases = new Set([normalized])
-
         const distinctive = tokens.filter((token) => !GENERIC_NAME_WORDS.has(token))
         if (distinctive.length >= 2) {
           const joined = distinctive.join(' ')
           if (joined.length >= 5) phrases.add(joined)
-
           for (let size = 2; size <= Math.min(3, distinctive.length); size += 1) {
             for (let i = 0; i <= distinctive.length - size; i += 1) {
               const phrase = distinctive.slice(i, i + size).join(' ')
@@ -380,17 +400,45 @@ async function generateInBrowser(page, apiKey, seed) {
         } else if (distinctive.length === 1 && distinctive[0].length >= 5) {
           phrases.add(distinctive[0])
         }
-
         return [...phrases]
       }
 
-      function usableReviews(reviews, placeName) {
-        const phrases = namePhrases(placeName)
+      function addressLeakPhrases(address) {
+        if (!address) return []
+        const normalized = normalize(address)
+        if (!normalized) return []
+        const parts = normalized.split(' ').filter(
+          (word) => word.length >= 4 && !/^\d+$/.test(word) && !GENERIC_NAME_WORDS.has(word) && !GENERIC_LOCATION_WORDS.has(word),
+        )
+        const phrases = new Set()
+        for (const part of parts) if (part.length >= 5) phrases.add(part)
+        for (let i = 0; i < parts.length - 1; i += 1) {
+          const phrase = `${parts[i]} ${parts[i + 1]}`
+          if (phrase.length >= 6) phrases.add(phrase)
+        }
+        return [...phrases]
+      }
+
+      function isLowSignalReview(text) {
+        const trimmed = String(text ?? '').trim()
+        if (trimmed.length < 24) return true
+        const letters = (trimmed.match(/[a-zA-Z]/g) ?? []).length
+        if (letters < 12) return true
+        const words = normalize(trimmed).split(' ').filter(Boolean)
+        return words.length < 4
+      }
+
+      function usableReviews(reviews, place) {
+        const name = typeof place === 'string' ? place : place?.name ?? ''
+        const address = typeof place === 'string' ? '' : place?.address ?? ''
+        const leak = [...new Set([...namePhrases(name), ...addressLeakPhrases(address)])]
         return (reviews ?? []).filter((review) => {
-          const text = normalize(review.text ?? '')
+          const raw = String(review.text ?? '')
+          const text = normalize(raw)
           if (text.length === 0) return false
-          if (phrases.length === 0) return true
-          return !phrases.some((phrase) => text.includes(phrase))
+          if (isLowSignalReview(raw)) return false
+          if (leak.length === 0) return true
+          return !leak.some((phrase) => text.includes(phrase))
         })
       }
 
@@ -456,7 +504,7 @@ async function generateInBrowser(page, apiKey, seed) {
       }
 
       const places = []
-      const usedIds = new Set()
+      const usedIds = new Set(config.excludedPlaceIds ?? [])
 
       for (let round = 0; round < config.totalRounds; round += 1) {
         let selected = null
@@ -492,7 +540,7 @@ async function generateInBrowser(page, apiKey, seed) {
             .sort((a, b) => (b.userRatingsTotal ?? 0) - (a.userRatingsTotal ?? 0))
 
           for (const candidate of results.slice(0, config.maxResultCount)) {
-            if (usableReviews(candidate.reviews, candidate.name).length >= 5) {
+            if (usableReviews(candidate.reviews, candidate).length >= 5) {
               selected = candidate
               break
             }
@@ -518,7 +566,7 @@ async function generateInBrowser(page, apiKey, seed) {
 
       return places
     },
-    { key: apiKey, fields: FIELDS, config: { ...CONFIG, seed } },
+    { key: apiKey, fields: FIELDS, config: { ...CONFIG, seed, excludedPlaceIds } },
   )
 }
 
@@ -543,9 +591,16 @@ async function downloadPhotos(photoTargets) {
         if (!response.ok) {
           throw new Error(`Photo download failed (${response.status}): ${url}`)
         }
-        const buffer = await response.arrayBuffer()
-        await writeFile(target, Buffer.from(buffer))
-        console.log(`  Downloaded ${target} (${i + 1}/${entries.length})`)
+        const buffer = Buffer.from(await response.arrayBuffer())
+        const optimized = await sharp(buffer)
+          .rotate()
+          .resize({ width: 900, height: 900, fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 78, mozjpeg: true })
+          .toBuffer()
+        const tmp = `${target}.tmp`
+        await writeFile(tmp, optimized)
+        await rename(tmp, target)
+        console.log(`  Downloaded ${target} (${i + 1}/${entries.length}, ${(optimized.length / 1024).toFixed(0)}KB)`)
         break
       } catch (error) {
         lastError = error
@@ -570,15 +625,16 @@ async function downloadPhotos(photoTargets) {
   }
 }
 
-async function generatePuzzle(page, date) {
+async function generatePuzzle(page, date, excludedPlaceIds = []) {
   const output = outputFor(date)
   if (!IS_DEFAULT && existsSync(output)) {
     console.log(`Skipping ${date}: ${output} already exists`)
-    return
+    const existing = JSON.parse(await readFile(output, 'utf8'))
+    return { date, placeIds: (existing.places ?? []).map((p) => p.placeId).filter(Boolean), skipped: true }
   }
 
   const seed = IS_DEFAULT ? 'default' : date
-  const places = await generateInBrowser(page, API_KEY, seed)
+  const places = await generateInBrowser(page, API_KEY, seed, excludedPlaceIds)
   const prefix = photoPrefixFor(date)
 
   // Download the Place photos once during generation and serve them as static
@@ -606,9 +662,12 @@ async function generatePuzzle(page, date) {
   }
 
   await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, `${JSON.stringify(puzzle, null, 2)}\n`)
+  const tmp = `${output}.tmp`
+  await writeFile(tmp, `${JSON.stringify(puzzle, null, 2)}\n`)
+  await rename(tmp, output)
   console.log(`Wrote ${output} (${places.length} places, ${photoTargets.size} photos)`)
   for (const place of places) console.log(`  ${place.name}`)
+  return { date, placeIds: places.map((p) => p.placeId), skipped: false }
 }
 
 async function pruneWindow(dates) {
@@ -640,6 +699,16 @@ async function pruneWindow(dates) {
   }
 }
 
+async function writeManifest() {
+  if (IS_DEFAULT) return
+  const files = (await readdir(PUZZLE_DIR)).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()
+  const manifest = { generatedAt: new Date().toISOString(), puzzles: files.map((f) => f.replace('.json', '')) }
+  const out = resolve(PUZZLE_DIR, 'index.json')
+  const tmp = `${out}.tmp`
+  await writeFile(tmp, `${JSON.stringify(manifest, null, 2)}\n`)
+  await rename(tmp, out)
+}
+
 async function main() {
   console.log(`Puzzle window: ${DATES[0]}..${DATES.at(-1)} (${DATES.length} day(s))`)
 
@@ -649,9 +718,14 @@ async function main() {
 
   if (datesToGenerate.length === 0) {
     await pruneWindow(DATES)
+    await writeManifest()
     console.log(`All ${DATES.length} puzzles already exist for ${DATES[0]}..${DATES.at(-1)}`)
     return
   }
+
+  const excluded = await recentPlaceIds(DATES)
+  const excludedSet = new Set(excluded)
+  console.log(`Loaded ${excluded.length} recent place IDs for dedupe`)
 
   const server = await startLocalServer()
   let browser
@@ -672,7 +746,11 @@ async function main() {
 
     for (let i = 0; i < datesToGenerate.length; i++) {
       const date = datesToGenerate[i]
-      await generatePuzzle(page, date)
+      const result = await generatePuzzle(page, date, [...excludedSet])
+      if (result?.placeIds) {
+        for (const id of result.placeIds) excludedSet.add(id)
+        if (!result.skipped) await recordHistory(date, result.placeIds)
+      }
       if (i < datesToGenerate.length - 1) {
         console.log('  Waiting 5s before next puzzle...')
         await new Promise((r) => setTimeout(r, 5000))
@@ -680,6 +758,7 @@ async function main() {
     }
 
     await pruneWindow(DATES)
+    await writeManifest()
   } finally {
     await browser?.close()
     await new Promise((resolveClose) => server.close(resolveClose))

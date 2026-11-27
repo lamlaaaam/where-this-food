@@ -8,10 +8,11 @@ A daily browser game: guess Singapore food places from their Google reviews, the
 
 - **One shared puzzle per day** — everyone gets the same 5 places, resets at 12:00 AM SGT.
 - **5 rounds**, max 100 points each, 500 total.
-- **1 attempt per round** — drop a pin anywhere on the map. Make it count.
+- **1 attempt per round** — drop a pin, confirm it, and make it count.
 - **Distance scoring** — the closer your pin, the more points (up to 88 per attempt).
 - **6 hints available** — 3 photos, nearby MRT, expected cost, name hint. Unused hints give **+2 points each**.
 - **Skip round** — reveals the answer, scores 0, forfeits hint bonus.
+- **Share & stats** — copy Wordle-style results and track local streak/score stats.
 
 ## Scoring
 
@@ -56,9 +57,9 @@ Add billing alerts at $5 and $20.
 
 ## Daily generation
 
-The generator runs daily at 00:07 SGT (GitHub Actions) and maintains a sliding window of five puzzles: today plus the next four days. Each puzzle is stored as `public/puzzles/YYYY-MM-DD.json` with date-labelled photos under `public/photos/`. Days that already have a puzzle are skipped, and files outside the window are pruned.
+The generator runs daily at 00:07 SGT (GitHub Actions) and maintains a sliding window of puzzles (default 3 days, configurable via `PUZZLE_WINDOW_DAYS`): today plus the next days. Each puzzle is stored as `public/puzzles/YYYY-MM-DD.json` with date-labelled photos under `public/photos/`. Days that already have a puzzle are skipped, and files outside the window are pruned. It also writes `public/puzzles/index.json` and a `public/puzzles/history.json` used to avoid repeating recent places.
 
-The browser reads the current date at runtime (using the player's clock converted to SGT) and fetches that day's puzzle, so the site does not need a rebuild each day. Because future puzzles are generated ahead of time, a delayed or failed scheduled run does not break the current day. If a puzzle is missing, players see the bundled default puzzle with a warning. Re-run the workflow manually if needed; after deploying this change, trigger it once to populate the initial five-day window.
+The browser reads the current date at runtime (using the player's clock converted to SGT) and fetches that day's puzzle, so the site does not need a rebuild each day. Puzzle JSON is validated on load. If a puzzle is missing, players see the bundled default puzzle with a warning. Re-run the workflow manually if needed.
 
 ## Stack
 

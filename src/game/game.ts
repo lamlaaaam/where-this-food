@@ -15,6 +15,8 @@ import { formatDistance, haversineMeters } from '../data/geo'
 import type { DailyPuzzle, Guess, Hint, PlaceData, RoundScore } from '../types'
 import { escapeHtml, toast } from '../ui/utils'
 import { puzzleNumber, singaporeDate } from './date'
+import { buildShareText, copyShareText } from './share'
+import { averageScore, gameTotalDistribution, hasPlayedDate, loadStatsWithTotals, recordGameWithTotals } from './stats'
 
 export class Game {
   private readonly root: HTMLElement
@@ -149,10 +151,30 @@ export class Game {
       throw new Error(`${url.split('/').pop()} is not valid JSON.`)
     }
 
-    if (!puzzle?.date || !Array.isArray(puzzle.places) || puzzle.places.length < CONFIG.totalRounds) {
-      throw new Error(`${url.split('/').pop()} is incomplete.`)
-    }
+    this.validatePuzzle(puzzle, url.split('/').pop() ?? 'puzzle')
     return puzzle
+  }
+
+  private validatePuzzle(puzzle: DailyPuzzle, label: string): void {
+    if (!puzzle || typeof puzzle !== 'object') throw new Error(`${label} is invalid.`)
+    if (typeof puzzle.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(puzzle.date)) {
+      throw new Error(`${label} has an invalid date.`)
+    }
+    if (!Array.isArray(puzzle.places) || puzzle.places.length < CONFIG.totalRounds) {
+      throw new Error(`${label} is incomplete.`)
+    }
+    puzzle.places.forEach((place, i) => {
+      if (!place || typeof place !== 'object') throw new Error(`${label} place ${i + 1} is invalid.`)
+      if (typeof place.placeId !== 'string' || !place.placeId) throw new Error(`${label} place ${i + 1} missing placeId.`)
+      if (typeof place.name !== 'string' || !place.name) throw new Error(`${label} place ${i + 1} missing name.`)
+      if (typeof place.address !== 'string') throw new Error(`${label} place ${i + 1} missing address.`)
+      if (!place.location || typeof place.location.lat !== 'number' || typeof place.location.lng !== 'number') {
+        throw new Error(`${label} place ${i + 1} has invalid location.`)
+      }
+      if (!Array.isArray(place.photos) || !Array.isArray(place.reviews) || !Array.isArray(place.types)) {
+        throw new Error(`${label} place ${i + 1} has invalid fields.`)
+      }
+    })
   }
 
   private applyPuzzle(puzzle: DailyPuzzle): void {
@@ -255,6 +277,9 @@ export class Game {
             <div class="hud-item"><span class="hud-label">Round</span><span class="hud-value" id="hud-round">—</span></div>
             <div class="hud-item"><span class="hud-label">Total</span><span class="hud-value" id="hud-total">0</span></div>
             <div class="hud-item accent"><span class="hud-label"><span class="hud-label-wide">This attempt</span><span class="hud-label-mobile">Score</span></span><span class="hud-value" id="hud-potential">—</span></div>
+            <button class="hud-stats-btn" id="open-stats" type="button" aria-label="Open stats" title="Stats">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20v-11"/></svg>
+            </button>
           </div>
         </header>
         <div class="puzzle-warning" id="puzzle-warning" hidden>
@@ -265,13 +290,16 @@ export class Game {
           </div>
         </div>
         <main id="screen" class="screen"></main>
+        <div class="sr-live" id="sr-live" aria-live="polite" aria-atomic="true"></div>
       </div>
     `
+    document.getElementById('open-stats')?.addEventListener('click', () => this.showStatsModal())
   }
 
   private renderMenu(): void {
     this.setPlayingLayout(false)
     const screen = this.screen()
+    const played = hasPlayedDate(this.puzzleDate)
     screen.innerHTML = `
       <section class="menu">
         <div class="menu-glow"></div>
@@ -311,7 +339,11 @@ export class Game {
               <div><strong>Hints are free · unused hints earn points</strong><p>Every hint you leave unused adds +${CONFIG.unusedHintBonus} to your round score.</p></div>
             </li>
           </ul>
-          <button class="btn primary large" id="start-game" type="button">Start game <span>→</span></button>
+          <div class="menu-actions">
+            <button class="btn primary large" id="start-game" type="button">${played ? 'Play again' : 'Start game'} <span>→</span></button>
+            <button class="btn ghost" id="menu-stats" type="button">Stats</button>
+          </div>
+          ${played ? '<p class="fineprint played-note">You already played today. Replay is fine, but only your first finish counts for stats.</p>' : ''}
         </div>
       </section>
     `
@@ -321,6 +353,7 @@ export class Game {
     this.setText('hud-potential', '—')
 
     document.getElementById('start-game')?.addEventListener('click', () => this.startGame())
+    document.getElementById('menu-stats')?.addEventListener('click', () => this.showStatsModal())
   }
 
   private async startGame(): Promise<void> {
@@ -463,7 +496,7 @@ export class Game {
     const container = document.getElementById('reviews')
     if (!place || !container) return
 
-    const starReviews = reviewsForDisplay(place.reviews, place.name)
+    const starReviews = reviewsForDisplay(place.reviews, place)
 
     // Show the place's overall average rating from Google.
     const ratingEl = document.getElementById('place-rating')
@@ -478,7 +511,10 @@ export class Game {
     }
 
     container.innerHTML = starReviews
-      .map(({ star, review }) => {
+      .map(({ star, review }, index) => {
+        const text = review.text.trim()
+        const long = text.length > 220
+        const preview = long ? `${text.slice(0, 220).trimEnd()}…` : text
         return `
           <article class="review">
             <div class="review-head">
@@ -486,11 +522,30 @@ export class Game {
               <span class="review-author">${escapeHtml(review.author)}</span>
               <span class="review-time">${escapeHtml(review.relativeTime)}</span>
             </div>
-            <p class="review-text">${escapeHtml(review.text)}</p>
+            <p class="review-text" id="review-text-${index}">${escapeHtml(preview)}</p>
+            ${
+              long
+                ? `<button class="review-more" type="button" data-review-toggle="${index}" data-full="${escapeHtml(text)}" data-preview="${escapeHtml(preview)}" aria-expanded="false" aria-controls="review-text-${index}">Show more</button>`
+                : ''
+            }
           </article>
         `
       })
       .join('')
+
+    container.querySelectorAll<HTMLButtonElement>('[data-review-toggle]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = btn.dataset.reviewToggle
+        const textEl = idx ? document.getElementById(`review-text-${idx}`) : null
+        if (!textEl) return
+        const expanded = btn.getAttribute('aria-expanded') === 'true'
+        const full = btn.dataset.full ?? ''
+        const preview = btn.dataset.preview ?? ''
+        textEl.textContent = expanded ? preview : full
+        btn.textContent = expanded ? 'Show more' : 'Show less'
+        btn.setAttribute('aria-expanded', String(!expanded))
+      })
+    })
   }
 
   private renderHints(): void {
@@ -511,7 +566,7 @@ export class Game {
         if (hint.unlocked) {
           action = '<span class="hint-tag">Revealed</span>'
         } else if (hint.available) {
-          action = `<button class="hint-btn" type="button" data-hint="${hint.id}">Reveal</button>`
+          action = `<button class="hint-btn" type="button" data-hint="${hint.id}" aria-label="Reveal ${escapeHtml(hint.label)}">Reveal</button>`
         } else {
           action = '<span class="hint-tag muted">Not available</span>'
         }
@@ -527,6 +582,20 @@ export class Game {
         `
       })
       .join('')
+
+    container.querySelectorAll<HTMLImageElement>('.hint-photo img').forEach((img) => {
+      img.tabIndex = 0
+      img.role = 'button'
+      img.setAttribute('aria-label', 'Open hint photo')
+      const open = () => this.openLightbox(img.currentSrc || img.src, img.alt || 'Hint photo')
+      img.addEventListener('click', open)
+      img.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          open()
+        }
+      })
+    })
   }
 
   private handleHintClick(event: Event): void {
@@ -563,6 +632,23 @@ export class Game {
     if (!guess) {
       toast('Drop a pin on the map first.')
       return
+    }
+
+    const confirm = document.getElementById('confirm-guess') as HTMLButtonElement | null
+    const pending = confirm?.dataset.mode === 'confirm'
+    if (!pending) {
+      if (confirm) {
+        confirm.dataset.mode = 'confirm'
+        confirm.textContent = 'Confirm pin?'
+      }
+      toast('Tap Confirm pin? to lock it in, or move your pin to adjust.')
+      this.announce('Pin selected. Confirm to lock your guess, or move the pin.')
+      return
+    }
+
+    if (confirm) {
+      confirm.dataset.mode = ''
+      confirm.textContent = 'Confirm Guess'
     }
 
     const attempt = scoreAttempt({
@@ -602,6 +688,7 @@ export class Game {
 
     popup.innerHTML = this.attemptScoreMarkup(attempt)
     popup.hidden = false
+    this.announce(`Attempt scored ${attempt.score} points, ${formatDistance(attempt.distanceMeters)} away.`)
 
     // Pop up in the middle of the map, then add it to the list in the corner.
     this.attemptScoreTimerId = window.setTimeout(() => {
@@ -645,7 +732,11 @@ export class Game {
     this.interaction?.revealAnswer(place)
 
     const confirm = document.getElementById('confirm-guess') as HTMLButtonElement | null
-    if (confirm) confirm.disabled = true
+    if (confirm) {
+      confirm.disabled = true
+      confirm.textContent = 'Confirm Guess'
+      confirm.dataset.mode = ''
+    }
     const skip = document.getElementById('skip-round') as HTMLButtonElement | null
     if (skip) skip.disabled = true
 
@@ -666,6 +757,7 @@ export class Game {
       hintBonus: breakdown?.hintBonus ?? 0,
     })
 
+    this.announce(skipped ? `Round skipped. Answer was ${place.name}.` : `Round complete. ${score} points. Answer was ${place.name}.`)
     this.showResult(breakdown, place, skipped)
   }
 
@@ -688,10 +780,12 @@ export class Game {
     const note = skipped
       ? 'Skipping scores 0 and forfeits the unused-hint bonus. The green pin shows the answer.'
       : 'No attempts were recorded. The green pin shows the answer.'
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${encodeURIComponent(place.placeId)}`
+
     document.body.insertAdjacentHTML(
       'beforeend',
       `
-      <div class="modal-backdrop map-visible" id="result-modal">
+      <div class="modal-backdrop map-visible" id="result-modal" role="dialog" aria-modal="true" aria-label="Round result">
         <div class="modal ${good || perfect ? 'good' : 'bad'}">
           <div class="result-badge">${badge}</div>
           <h2>${title}</h2>
@@ -700,6 +794,7 @@ export class Game {
             <strong>${escapeHtml(place.name)}</strong>
           </p>
           <p class="result-address">${escapeHtml(place.address)}</p>
+          <a class="result-map-link" href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a>
           ${
             breakdown
               ? `
@@ -720,6 +815,8 @@ export class Game {
     `,
     )
 
+    const nextBtn = document.getElementById('next-round') as HTMLButtonElement | null
+    nextBtn?.focus()
     document.getElementById('next-round')?.addEventListener('click', () => {
       document.getElementById('result-modal')?.remove()
       if (isLast) {
@@ -735,6 +832,7 @@ export class Game {
     this.setPlayingLayout(false)
     const screen = this.screen()
     const maxTotal = CONFIG.totalRounds * CONFIG.maxRoundScore
+    const stats = recordGameWithTotals(this.puzzleDate, this.totalScore, this.roundScores)
     const message =
       this.totalScore >= 450
         ? 'Hawker legend. You know this island by heart.'
@@ -768,7 +866,12 @@ export class Game {
               )
               .join('')}
           </div>
-          <button class="btn primary large" type="button" disabled>Come back tomorrow</button>
+          <div class="summary-actions">
+            <button class="btn primary large" id="share-results" type="button">Share results</button>
+            <button class="btn ghost" id="summary-stats" type="button">Stats</button>
+          </div>
+          <p class="fineprint">Come back tomorrow for a new puzzle.</p>
+          <p class="fineprint stats-mini">Streak: ${stats.currentStreak} · Avg: ${averageScore(stats)} · Best: ${stats.bestScore}</p>
         </div>
       </section>
     `
@@ -776,6 +879,15 @@ export class Game {
     this.setText('hud-round', `${CONFIG.totalRounds} / ${CONFIG.totalRounds}`)
     this.setText('hud-total', String(this.totalScore))
     this.setText('hud-potential', '—')
+    this.announce(`Game complete. Final score ${this.totalScore} out of ${maxTotal}.`)
+
+    document.getElementById('share-results')?.addEventListener('click', async () => {
+      const text = buildShareText(this.puzzleDate, this.totalScore, this.roundScores)
+      const ok = await copyShareText(text)
+      toast(ok ? 'Results copied to clipboard.' : 'Could not copy results.')
+      this.announce(ok ? 'Results copied to clipboard.' : 'Could not copy results.')
+    })
+    document.getElementById('summary-stats')?.addEventListener('click', () => this.showStatsModal())
   }
 
   private updateAttempts(): void {
@@ -791,14 +903,21 @@ export class Game {
     if (!info || !button) return
 
     if (guess) {
+      const label = guess.name && guess.name !== 'Dropped pin' ? guess.name : 'Dropped pin'
       info.innerHTML =
-        `<span class="guess-kicker">Your pin</span><strong>${escapeHtml(guess.name)}</strong>`
+        `<span class="guess-kicker">Your pin</span><strong>${escapeHtml(label)}</strong><span class="guess-hint">Move pin to adjust, then confirm.</span>`
       button.disabled = this.roundOver
+      if (button.dataset.mode === 'confirm') {
+        button.dataset.mode = ''
+        button.textContent = 'Confirm Guess'
+      }
     } else {
       info.innerHTML =
         '<span class="guess-kicker">Drop a pin</span>' +
         '<span>Tap anywhere on the map to guess.</span>'
       button.disabled = true
+      button.dataset.mode = ''
+      button.textContent = 'Confirm Guess'
     }
   }
 
@@ -836,6 +955,127 @@ export class Game {
   private setText(id: string, value: string): void {
     const element = document.getElementById(id)
     if (element) element.textContent = value
+  }
+
+  private announce(message: string): void {
+    const el = document.getElementById('sr-live')
+    if (el) el.textContent = message
+  }
+
+  private showStatsModal(): void {
+    const stats = loadStatsWithTotals()
+    const dist = gameTotalDistribution(stats)
+    const maxCount = Math.max(1, ...dist.map((d) => d.count))
+    const avg = averageScore(stats)
+    const body = `
+      <div class="stats-grid">
+        <div class="stat"><span class="stat-value">${stats.gamesPlayed}</span><span class="stat-label">Played</span></div>
+        <div class="stat"><span class="stat-value">${stats.currentStreak}</span><span class="stat-label">Streak</span></div>
+        <div class="stat"><span class="stat-value">${stats.maxStreak}</span><span class="stat-label">Max streak</span></div>
+        <div class="stat"><span class="stat-value">${avg}</span><span class="stat-label">Avg score</span></div>
+        <div class="stat"><span class="stat-value">${stats.bestScore}</span><span class="stat-label">Best</span></div>
+      </div>
+      <div class="stats-dist" aria-label="Score distribution">
+        <h3>Score distribution</h3>
+        ${dist
+          .map(
+            (d) => `
+              <div class="dist-row">
+                <span class="dist-label">${escapeHtml(d.label)}</span>
+                <div class="dist-bar-wrap"><div class="dist-bar" style="width:${(d.count / maxCount) * 100}%"></div></div>
+                <span class="dist-count">${d.count}</span>
+              </div>`,
+          )
+          .join('')}
+      </div>
+    `
+    this.showModal('Your stats', body)
+  }
+
+  private openLightbox(src: string, alt: string): void {
+    document.getElementById('lightbox-modal')?.remove()
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      `
+      <div class="modal-backdrop" id="lightbox-modal" role="dialog" aria-modal="true" aria-label="Photo preview">
+        <div class="modal lightbox-modal">
+          <button class="modal-close" id="lightbox-close" type="button" aria-label="Close photo">×</button>
+          <img class="lightbox-img" src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" />
+        </div>
+      </div>
+      `,
+    )
+    const modal = document.getElementById('lightbox-modal')
+    const close = () => {
+      modal?.remove()
+      document.removeEventListener('keydown', onKey)
+      previous?.focus()
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        close()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) close()
+    })
+    document.getElementById('lightbox-close')?.addEventListener('click', close)
+    ;(document.getElementById('lightbox-close') as HTMLButtonElement | null)?.focus()
+  }
+
+  private showModal(title: string, bodyHtml: string): void {
+    document.getElementById('app-modal')?.remove()
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      `
+      <div class="modal-backdrop" id="app-modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
+        <div class="modal info-modal">
+          <div class="modal-head">
+            <h2>${escapeHtml(title)}</h2>
+            <button class="modal-close" id="app-modal-close" type="button" aria-label="Close">×</button>
+          </div>
+          <div class="modal-body">${bodyHtml}</div>
+        </div>
+      </div>
+      `,
+    )
+    const modal = document.getElementById('app-modal') as HTMLElement | null
+    const closeBtn = document.getElementById('app-modal-close') as HTMLButtonElement | null
+    const close = () => {
+      modal?.remove()
+      document.removeEventListener('keydown', onKey)
+      previous?.focus()
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        close()
+        return
+      }
+      if (e.key === 'Tab' && modal) {
+        const focusables = modal.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+        if (focusables.length === 0) return
+        const first = focusables[0]
+        const last = focusables[focusables.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) close()
+    })
+    closeBtn?.addEventListener('click', close)
+    closeBtn?.focus()
   }
 }
 

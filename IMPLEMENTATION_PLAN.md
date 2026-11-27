@@ -12,7 +12,7 @@ once daily by a GitHub Actions script; no game engine — the map is the game bo
 - Data: Places API (New) via the Maps JavaScript API in headless Chrome, run by a scheduled
   GitHub Actions workflow and written to `public/puzzles/YYYY-MM-DD.json`.
 - The puzzle resets at **12:00 AM SGT**. The workflow runs daily at 00:07 SGT and maintains a
-  sliding five-day window (today + next four days). Existing days are skipped, so a delayed
+  sliding window (default 3 days). Existing days are skipped, so a delayed
   scheduled run does not block the current day's puzzle.
 - The browser reads the current SGT date at runtime and fetches that day's puzzle file, so a
   static build does not need to be rebuilt each day.
