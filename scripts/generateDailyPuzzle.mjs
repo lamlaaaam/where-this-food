@@ -33,10 +33,10 @@ const START_DATE =
 const DATES = IS_DEFAULT
   ? [START_DATE]
   : Array.from({ length: WINDOW_DAYS }, (_, index) => addDays(START_DATE, index))
-const HISTORY_FILE = resolve(PUZZLE_DIR, 'history.json')
 const PHOTO_DIR = resolve(ROOT, 'public/photos')
 const PUZZLE_DIR = resolve(ROOT, 'public/puzzles')
 const DEFAULT_OUTPUT = resolve(ROOT, 'public/daily-puzzle-default.json')
+const HISTORY_FILE = resolve(PUZZLE_DIR, 'history.json')
 
 const CONFIG = {
   seed: '',
