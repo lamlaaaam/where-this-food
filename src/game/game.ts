@@ -483,7 +483,13 @@ export class Game {
     this.loading = false
 
     const skip = document.getElementById('skip-round') as HTMLButtonElement | null
-    if (skip) skip.disabled = false
+    if (skip) {
+      skip.disabled = false
+      skip.textContent = 'Skip Round'
+      skip.dataset.mode = ''
+    }
+    const confirm = document.getElementById('confirm-guess') as HTMLButtonElement | null
+    if (confirm) confirm.textContent = 'Confirm Guess'
 
     this.renderReviews()
     this.renderHints()
@@ -603,6 +609,12 @@ export class Game {
     const button = target?.closest<HTMLButtonElement>('button[data-hint]')
     if (!button) return
 
+    const skip = document.getElementById('skip-round') as HTMLButtonElement | null
+    if (skip?.dataset.mode === 'confirm') {
+      skip.dataset.mode = ''
+      skip.textContent = 'Skip Round'
+    }
+
     const id = button.dataset.hint as HintId | undefined
     if (!id) return
 
@@ -622,6 +634,21 @@ export class Game {
 
   private skipRound(): void {
     if (this.roundOver || this.loading || !this.currentPlace) return
+    const skip = document.getElementById('skip-round') as HTMLButtonElement | null
+    const pending = skip?.dataset.mode === 'confirm'
+    if (!pending) {
+      if (skip) {
+        skip.dataset.mode = 'confirm'
+        skip.textContent = 'Confirm skip?'
+      }
+      toast('Tap Confirm skip? to skip this round for 0 points.')
+      this.announce('Skip selected. Confirm to skip this round.')
+      return
+    }
+    if (skip) {
+      skip.dataset.mode = ''
+      skip.textContent = 'Skip Round'
+    }
     this.finishRound(true)
   }
 
@@ -632,23 +659,6 @@ export class Game {
     if (!guess) {
       toast('Drop a pin on the map first.')
       return
-    }
-
-    const confirm = document.getElementById('confirm-guess') as HTMLButtonElement | null
-    const pending = confirm?.dataset.mode === 'confirm'
-    if (!pending) {
-      if (confirm) {
-        confirm.dataset.mode = 'confirm'
-        confirm.textContent = 'Confirm pin?'
-      }
-      toast('Tap Confirm pin? to lock it in, or move your pin to adjust.')
-      this.announce('Pin selected. Confirm to lock your guess, or move the pin.')
-      return
-    }
-
-    if (confirm) {
-      confirm.dataset.mode = ''
-      confirm.textContent = 'Confirm Guess'
     }
 
     const attempt = scoreAttempt({
@@ -735,10 +745,13 @@ export class Game {
     if (confirm) {
       confirm.disabled = true
       confirm.textContent = 'Confirm Guess'
-      confirm.dataset.mode = ''
     }
     const skip = document.getElementById('skip-round') as HTMLButtonElement | null
-    if (skip) skip.disabled = true
+    if (skip) {
+      skip.disabled = true
+      skip.textContent = 'Skip Round'
+      skip.dataset.mode = ''
+    }
 
     this.totalScore += score
     this.setText('hud-total', String(this.totalScore))
@@ -900,24 +913,24 @@ export class Game {
   private updateGuessUi(guess: Guess | null): void {
     const info = document.getElementById('guess-info')
     const button = document.getElementById('confirm-guess') as HTMLButtonElement | null
+    const skip = document.getElementById('skip-round') as HTMLButtonElement | null
     if (!info || !button) return
+
+    if (skip?.dataset.mode === 'confirm') {
+      skip.dataset.mode = ''
+      skip.textContent = 'Skip Round'
+    }
 
     if (guess) {
       const label = guess.name && guess.name !== 'Dropped pin' ? guess.name : 'Dropped pin'
       info.innerHTML =
-        `<span class="guess-kicker">Your pin</span><strong>${escapeHtml(label)}</strong><span class="guess-hint">Move pin to adjust, then confirm.</span>`
+        `<span class="guess-kicker">Your pin</span><strong>${escapeHtml(label)}</strong><span class="guess-hint">Move pin to adjust before confirming.</span>`
       button.disabled = this.roundOver
-      if (button.dataset.mode === 'confirm') {
-        button.dataset.mode = ''
-        button.textContent = 'Confirm Guess'
-      }
     } else {
       info.innerHTML =
         '<span class="guess-kicker">Drop a pin</span>' +
         '<span>Tap anywhere on the map to guess.</span>'
       button.disabled = true
-      button.dataset.mode = ''
-      button.textContent = 'Confirm Guess'
     }
   }
 
