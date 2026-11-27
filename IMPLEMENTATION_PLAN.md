@@ -77,20 +77,20 @@ public/
 3. **Round**: read the answer for this round from the loaded puzzle, render reviews, enable
    the map.
 4. **Guessing**: click the food place POI itself; empty-map clicks are rejected. Confirm a
-   guess; 2 attempts. Wrong guesses flash the screen red with no distance text.
+   guess; 1 attempt. Wrong guesses flash the screen red with no distance text.
 5. **Result**: correct/incorrect, distance score breakdown, map reveal.
 6. **Summary** after 5 rounds: total /500, per-round rows, “Come back tomorrow”.
 
 ## Scoring
 - Each attempt is scored only by distance; there is no timer or speed component.
-- Best of the two attempts is used for the round.
+- One attempt per round.
 - Formula:
 
 ```
 distanceScore = 88 × exp(-distance / 2000)    // ~88 at 50 m, 53 at 1 km, 7 at 5 km
 attemptScore  = distanceScore                 // max 88
 hintBonus     = unusedHints × 2
-roundScore    = min(100, bestAttemptScore + hintBonus)
+roundScore    = min(100, attemptScore + hintBonus)
 ```
 
 The HUD shows the live potential score and updates on each attempt and hint use.

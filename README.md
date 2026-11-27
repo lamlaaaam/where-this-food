@@ -8,7 +8,7 @@ A daily browser game: guess Singapore food places from their Google reviews, the
 
 - **One shared puzzle per day** — everyone gets the same 5 places, resets at 12:00 AM SGT.
 - **5 rounds**, max 100 points each, 500 total.
-- **2 attempts per round** — drop a pin anywhere on the map. Your best attempt counts.
+- **1 attempt per round** — drop a pin anywhere on the map. Make it count.
 - **Distance scoring** — the closer your pin, the more points (up to 88 per attempt).
 - **6 hints available** — 3 photos, nearby MRT, expected cost, name hint. Unused hints give **+2 points each**.
 - **Skip round** — reveals the answer, scores 0, forfeits hint bonus.
@@ -22,7 +22,7 @@ hintBonus     = unusedHints × 2
 roundScore    = min(100, bestAttemptScore + hintBonus)
 ```
 
-The top bar shows your current best attempt score live.
+The top bar shows your current attempt score live.
 
 ## Local development
 

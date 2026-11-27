@@ -1,6 +1,6 @@
 export const CONFIG = {
   totalRounds: 5,
-  maxAttempts: 2,
+  maxAttempts: 1,
   maxRoundScore: 100,
   maxDistanceScore: 88,
   distanceDecayMeters: 2000,

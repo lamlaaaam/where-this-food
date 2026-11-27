@@ -254,7 +254,7 @@ export class Game {
             <div class="hud-item"><span class="hud-label">Puzzle</span><span class="hud-value" id="hud-puzzle">#${puzzleNumber(singaporeDate())}</span></div>
             <div class="hud-item"><span class="hud-label">Round</span><span class="hud-value" id="hud-round">—</span></div>
             <div class="hud-item"><span class="hud-label">Total</span><span class="hud-value" id="hud-total">0</span></div>
-            <div class="hud-item accent"><span class="hud-label"><span class="hud-label-wide">Best attempt</span><span class="hud-label-mobile">Best</span></span><span class="hud-value" id="hud-potential">—</span></div>
+            <div class="hud-item accent"><span class="hud-label"><span class="hud-label-wide">This attempt</span><span class="hud-label-mobile">Score</span></span><span class="hud-value" id="hud-potential">—</span></div>
           </div>
         </header>
         <div class="puzzle-warning" id="puzzle-warning" hidden>
@@ -300,7 +300,7 @@ export class Game {
             </li>
             <li>
               <span class="rule-icon">📍</span>
-              <div><strong>2 attempts</strong><p>Your best attempt is used for the round.</p></div>
+              <div><strong>1 attempt</strong><p>Drop your pin carefully — you only get one shot per round.</p></div>
             </li>
             <li>
               <span class="rule-icon">🎯</span>
@@ -760,7 +760,7 @@ export class Game {
                     <span class="round-meta">${
                       round.skipped
                         ? 'Skipped'
-                        : `${formatDistance(round.bestDistanceMeters ?? 0)} · ${round.hintsUsed} hint${round.hintsUsed === 1 ? '' : 's'} · ${round.attempts} ${round.attempts === 1 ? 'try' : 'tries'}`
+                        : `${formatDistance(round.bestDistanceMeters ?? 0)} · ${round.hintsUsed} hint${round.hintsUsed === 1 ? '' : 's'}`
                     }</span>
                     <span class="round-score">${round.score}</span>
                   </div>
@@ -782,12 +782,7 @@ export class Game {
     const element = document.getElementById('attempts')
     if (!element) return
 
-    const dots = Array.from(
-      { length: CONFIG.maxAttempts },
-      (_, index) => `<i class="${index < this.attempts ? 'used' : ''}"></i>`,
-    ).join('')
-
-    element.innerHTML = `<span>Attempt ${this.attempts} of ${CONFIG.maxAttempts}</span><span class="dots">${dots}</span>`
+    element.innerHTML = `<span>1 attempt</span>`
   }
 
   private updateGuessUi(guess: Guess | null): void {
