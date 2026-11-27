@@ -462,56 +462,26 @@ function photoPrefixFor(date) {
   return IS_DEFAULT ? 'default' : date
 }
 
-async function downloadPhotos(page, photoTargets) {
-  const pendingWrites = []
-  const onResponse = (response) => {
-    if (response.status() >= 300 && response.status() < 400) return
+async function downloadPhotos(photoTargets) {
+  const maxConcurrent = 3
+  const entries = [...photoTargets.entries()]
 
-    const request = response.request()
-    const redirectUrls = (request.redirectChain?.() ?? []).map((entry) => entry.url())
-    const sourceUrl = [response.url(), request.url(), ...redirectUrls].find((url) =>
-      photoTargets.has(url),
-    )
-    const target = sourceUrl ? photoTargets.get(sourceUrl) : undefined
-    if (!target) return
-
-    pendingWrites.push(
-      (async () => {
-        if (!response.ok()) {
-          throw new Error(`Photo download failed (${response.status()}): ${response.url()}`)
+  for (let i = 0; i < entries.length; i += maxConcurrent) {
+    const batch = entries.slice(i, i + maxConcurrent)
+    await Promise.all(
+      batch.map(async ([url, target]) => {
+        try {
+          const response = await fetch(url)
+          if (!response.ok) {
+            throw new Error(`Photo download failed (${response.status()}): ${url}`)
+          }
+          const buffer = await response.arrayBuffer()
+          await writeFile(target, Buffer.from(buffer))
+        } catch (error) {
+          throw new Error(`Failed to download ${url}: ${error.message}`)
         }
-        await writeFile(target, await response.buffer())
-      })(),
+      }),
     )
-  }
-
-  page.on('response', onResponse)
-  try {
-    const failedPhotos = await page.evaluate(async (urls) => {
-      const failed = []
-      await Promise.all(
-        urls.map(
-          (url) =>
-            new Promise((resolveImage) => {
-              const image = new Image()
-              image.onload = () => resolveImage()
-              image.onerror = () => {
-                failed.push(url)
-                resolveImage()
-              }
-              image.src = url
-            }),
-        ),
-      )
-      return failed
-    }, [...photoTargets.keys()])
-
-    if (failedPhotos.length > 0) {
-      throw new Error(`Could not download ${failedPhotos.length} photo(s).`)
-    }
-    await Promise.all(pendingWrites)
-  } finally {
-    page.off('response', onResponse)
   }
 
   const missing = [...photoTargets.values()].filter((target) => !existsSync(target))
@@ -546,7 +516,7 @@ async function generatePuzzle(page, date) {
   })
 
   await mkdir(PHOTO_DIR, { recursive: true })
-  await downloadPhotos(page, photoTargets)
+  await downloadPhotos(photoTargets)
 
   const puzzle = {
     source: IS_DEFAULT ? 'default' : 'daily',
