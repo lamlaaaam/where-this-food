@@ -3,11 +3,14 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  # Rebuild daily after puzzle generation. The puzzle workflow commits with
-  # GITHUB_TOKEN, which does not trigger push-triggered workflows, so deploy
-  # also needs its own schedule.
+  # Rebuild when puzzle generation completes. The puzzle workflow commits with
+  # GITHUB_TOKEN, which does not trigger push-triggered workflows. Keep schedule
+  # as a fallback in case workflow_run delivery is missed.
+  workflow_run:
+    workflows: ["Generate daily puzzle"]
+    types: [completed]
   schedule:
-    - cron: '30 16 * * *' # 00:30 SGT, ~23 min after puzzle generation
+    - cron: '30 16 * * *' # 00:30 SGT, fallback after puzzle generation
   workflow_dispatch:
 
 permissions:
@@ -21,10 +24,13 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Set up Node
         uses: actions/setup-node@v5
