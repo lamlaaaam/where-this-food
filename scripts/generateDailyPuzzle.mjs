@@ -312,19 +312,85 @@ async function generateInBrowser(page, apiKey, seed) {
         return { lat: 1.3521, lng: 103.8198 }
       }
 
+      const GENERIC_NAME_WORDS = new Set([
+        'a',
+        'an',
+        'and',
+        'at',
+        'bistro',
+        'cafe',
+        'cafeteria',
+        'canteen',
+        'center',
+        'centre',
+        'co',
+        'company',
+        'cuisine',
+        'deli',
+        'diner',
+        'dining',
+        'eatery',
+        'food',
+        'for',
+        'in',
+        'ltd',
+        'of',
+        'on',
+        'place',
+        'pte',
+        'restaurant',
+        'resto',
+        'sg',
+        'shop',
+        'singapore',
+        'stall',
+        'store',
+        'the',
+        'to',
+        'by',
+      ])
+
       function normalize(value) {
         return value
           .toLowerCase()
+          .replace(/['’]/g, '')
           .replace(/[^a-z0-9\s]/g, ' ')
           .replace(/\s+/g, ' ')
           .trim()
       }
 
+      function namePhrases(placeName) {
+        const normalized = normalize(placeName)
+        if (!normalized) return []
+
+        const tokens = normalized.split(' ').filter(Boolean)
+        const phrases = new Set([normalized])
+
+        const distinctive = tokens.filter((token) => !GENERIC_NAME_WORDS.has(token))
+        if (distinctive.length >= 2) {
+          const joined = distinctive.join(' ')
+          if (joined.length >= 5) phrases.add(joined)
+
+          for (let size = 2; size <= Math.min(3, distinctive.length); size += 1) {
+            for (let i = 0; i <= distinctive.length - size; i += 1) {
+              const phrase = distinctive.slice(i, i + size).join(' ')
+              if (phrase.length >= 5) phrases.add(phrase)
+            }
+          }
+        } else if (distinctive.length === 1 && distinctive[0].length >= 5) {
+          phrases.add(distinctive[0])
+        }
+
+        return [...phrases]
+      }
+
       function usableReviews(reviews, placeName) {
-        const name = normalize(placeName)
+        const phrases = namePhrases(placeName)
         return (reviews ?? []).filter((review) => {
           const text = normalize(review.text ?? '')
-          return text.length > 0 && (!name || !text.includes(name))
+          if (text.length === 0) return false
+          if (phrases.length === 0) return true
+          return !phrases.some((phrase) => text.includes(phrase))
         })
       }
 
