@@ -1,0 +1,311 @@
+{
+  "source": "daily",
+  "date": "2026-11-29",
+  "seed": "2026-11-29",
+  "places": [
+    {
+      "placeId": "ChIJv6H9GM0V2jERwDaevQ2lbEs",
+      "name": "Hangar66 Cafe",
+      "address": "66 Seletar Aerospace View, #66 Level 1 WOA Aviation Hangar, Singapore 797509",
+      "location": {
+        "lat": 1.4126938,
+        "lng": 103.86971860000001
+      },
+      "rating": 4.6,
+      "userRatingsTotal": 2326,
+      "countryCode": "SG",
+      "types": [
+        "cafe",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-29-01-01.jpg",
+        "photos/2026-11-29-01-02.jpg",
+        "photos/2026-11-29-01-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "HEE Chee Kong",
+          "rating": 5,
+          "text": "Great Food, Generous Portions & Lovely Dining Experience!\n\nHad a wonderful dining experience at W Playground Cafe! A great place to enjoy a hearty meal with family and friends, with a good variety of Western dishes and sides.\n\nWe ordered quite a few dishes, including mushroom pasta, prawn aglio olio, crispy fried calamari, fried chicken wings, BBQ pork ribs, fresh salad and truffle fries.\n\nThe prawn aglio olio looked especially appetising, with generously sized prawns, while the mushroom pasta was nicely presented with plenty of mushrooms. The crispy calamari and fried chicken wings were great choices for sharing, especially with the sweet chilli dipping sauce.\n\nThe BBQ pork ribs were another highlight, served in a generous portion with a rich, glossy BBQ sauce. The salad added a refreshing balance to the meal, and the truffle fries topped with a generous amount of shaved cheese were definitely tempting!\n\nOverall, a satisfying dining experience with good food variety, generous portions and attractive presentation. A nice spot for a casual gathering, family meal or simply catching up with friends.\n\nWorth visiting, and happy to come back again to try more dishes!",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWL6YKGujCydy2k0n5rE9eJwHt94BFelqY2oDY3Myzrc5EVK1kO-Q=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "Grey Rabbit",
+          "rating": 5,
+          "text": "Unique experience. $72.\n\nSea bass is good (charred top). Staff is good too. Kids friendly cutlery but sink is far too big for the kid.\n\nPrawn burger is not bad.\n\nCoffee also surprisingly good",
+          "relativeTime": "a week ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUt7qWb0LxkZRaQ1Fm1mtStYH9YI5i_j9UX4A-df1v3n31ysMc=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "Julia Lee",
+          "rating": 5,
+          "text": "​We had a wonderful dining experience at Hangar 66 and were thoroughly impressed with the quality of the food. We started our meal with their creamy mushroom soup, which was rich and flavorful, topped with perfectly crunchy croutons. For the main courses, the grilled salmon was a standout. It featured an incredibly crispy skin and was served on a bed of smooth pumpkin purée, with a fresh kale salad on the side. The flavors were perfectly balanced. The grilled chicken was also delicious—tender and juicy, with two generous sides of corn and a savory gravy. And you absolutely have to try the baked cheese macaroni.it was incredibly cheesy, with a satisfyingly bubbly, golden-brown top. Every dish was prepared with care. We can't wait to come back and try more! Most importantly, the staffs are so friendly and welcoming too.",
+          "relativeTime": "2 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXJerpR0KAsGSlxb6gke0r1n-55-DWzGGgCxBMmatZ8mzPZhv6S8Q=s128-c0x00000000-cc-rp-mo-ba3"
+        },
+        {
+          "author": "Doris Chong",
+          "rating": 4,
+          "text": "Food was really pretty legit. We ordered the lunch set that came with smoky duck pasta + grilled chicken + soup (we chose 🍄) and dessert (we chose tiramisu). Drinks not included.\n\nThe lychee peach mojito was really delish. But the most delectable one was still the smoky duck pasta. I usually don't like it when it's creamy, but Hangar66 nailed it 💯\n\nIt's pretty inaccessible, gotta take a bus (35 min) and walk 10 minutes from the bus stop. Nonetheless, given the food and view, I'd say it's still worth a trip.\n\nTotal damage for 3 pax: $78+\nVisited: 6/8/26 (Thurs) around 3 pm.",
+          "relativeTime": "3 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXWGCfWnYDkUR8IgGPrGmma5ig0vNmwRQKZZDLezSj-LNV0jACV=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "Spike378",
+          "rating": 5,
+          "text": "Food was very delicious at priced very reasonably too! The staff were very friendly and our food came relatively quick. The aviation theme for this cafe is pretty cool and you get a chance to see the real plane hangars beside the cafe through the glass.\n\nIt is a bit hard to get here though if you do not have a car.",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWCjxS7lbpSvD_V34xiWzhKPH0xPTthVDwkg4eoT1a2VeXiQ3w=s128-c0x00000000-cc-rp-mo-ba4"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJo_3G2eYZ2jERGaZZV5DH0Lc",
+      "name": "Wee Nam Kee Hainanese Chicken Rice Restaurant",
+      "address": "101 Thomson Rd, #01-08 United Square, Singapore 307591",
+      "location": {
+        "lat": 1.3170306999999999,
+        "lng": 103.8438731
+      },
+      "rating": 4.1,
+      "userRatingsTotal": 1979,
+      "countryCode": "SG",
+      "types": [
+        "chinese_restaurant",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-29-02-01.jpg",
+        "photos/2026-11-29-02-02.jpg",
+        "photos/2026-11-29-02-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Tony",
+          "rating": 5,
+          "text": "⭐️⭐️⭐️⭐️⭐️\nA must-visit restaurant for anyone who loves Hainanese chicken rice! Everything was absolutely delicious and exceeded my expectations. The chicken was tender and juicy, while the rice was fragrant with a lovely aroma of chicken broth and spices. It was perfectly seasoned and not too oily. The sauces, including chili, ginger, and dark soy sauce, complemented the chicken rice perfectly and brought all the flavors together.\n\nIt was a truly enjoyable meal from the first bite to the last. Everything was delicious and exactly to my taste. If you’re visiting Singapore and want to try authentic Hainanese chicken rice, I highly recommend giving this place a try. Definitely a restaurant I would love to come back to!",
+          "relativeTime": "a week ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVIkQhy3uADOt_RM1vO1-BQF1ecP_SYSnxjFjSeqm_pl-_6qVc=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "Walter Ng",
+          "rating": 1,
+          "text": "Worst Day Ever Since Being a Regular for 25 Years.\n\nWee Nam Kee changed, they expanded and they forget about their customers.\n\nBeen dining at Wee Nam Kee with my family for the last 25 years. It reminds me of my family connections love and hospitality from the wonderful staff.\n\nHowever today’s experience just shattered everything, without fail, every month i would head to Wee Nam Kee to eat this dish called “Mui Fan” i have eaten eat for the last 25 years, and my father would buy this for me and takeaway without fail because i really like it.\n\nAnd recently as he is not able to do it anymore, i would dine in and eat it on my own.\n\nBut today when i patronise the restaurant, everything went digitalised, fine. But it removed my favourite Mui Fan that our family have faithfully bought and supported for the last 25 years without a sound.\n\nStaff simply told me to scan and pay, and when i see the menu, Mui Fan is not there, i went to the in charge at the counter, she tried finding but to no avail. Not long after, another staff came and wave rudely, “NO, NO, dont have anymore”\n\nI was disappointed so i asked, i have eaten this dish for the last 25 years, why is it no more? With no intention to solve or assist the issue, lady staff with glasses simply said, after renovations never sell anymore, no more.\n\nI was dumbfounded, to be honest there is no difference before and after to the layman, just orientation of the tables.\n\nEven with higher prices we paid to eat, in fact, everytime the renovation occur, prices of food here increased. The earlier years of family dining and being a listener is gone with the expansion of the brand.\n\nUntil Mui Fan is inserted back into the Menu, i guess you just lost a genuine return customer and his family that supported your business for the last 25 years.\n\nAttached is the photos that i joyfully taken of Mui Fan. But i guess it is not joyful anymore when i think of Wee Nam Kee.",
+          "relativeTime": "2 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWF4h7cZXXE3KLv7Ojb3Z71IEyyfRmmxE-pAwFxuug8ky88hD1y=s128-c0x00000000-cc-rp-mo-ba2"
+        },
+        {
+          "author": "Bites & Flights",
+          "rating": 4,
+          "text": "🍗 Wee Nam Kee Hainanese Chicken Rice (Marina Square / United Square): Legendary Flavors, but Service Hits a Snag Post-Renovation! 🇸🇬\n\n​Wee Nam Kee Hainanese Chicken Rice is a household name in Singapore, famous for pairing classic roast meats with local zi char dishes. We dropped by over the weekend for dinner to check out their newly renovated space!\n\n​Here is an honest, balanced breakdown of what to expect now:\n​The Atmosphere & New Ordering Setup:\n​Fresh Look, Bigger Crowds: The post-renovation space looks significantly brighter with a clean, more structured seating layout. However, it gets extremely noisy during peak dinner hours, making casual conversation a bit of a struggle.\n\n​Long Waits: Expect a 30-minute queue on weekend nights!\n\n​QR Code System: Orders are placed and prepaid via QR code at your table. Pro Tip: Sign up for their free membership on the digital menu to unlock instant discount vouchers!\n\n​Service & Operational Gaps:\n​Teething Issues: The staff was visibly rushing around and under pressure. Service was virtually non-existent—free soup was served inconsistently across tables, and our chicken rice arrived well before the actual chicken.\n\n​QR Glitch Mystery: The QR menu listed chicken breast as \"Unavailable,\" so we ordered roast chicken wings instead. But when we added $2 for extra meat, we were served a mix of wings and breast meat! A bit puzzling, but the kitchen clearly still had stock.\n\n​Food Breakdown:\n​Roast Chicken (4.5/5): The saving grace! Beautifully seasoned, succulent, and tender with that iconic flavorful skin. Pairs perfectly with their aromatic rice and signature chili-ginger mix.\n\n​Salad Dough Fritters / Youtiao (4/5): Piping hot and super crispy! Secret Hack: Ask the staff for a side of their sweet prawn roll dipping sauce—it elevates the flavor massively!\n\n​Hong Kong Kailan with Oyster Sauce (4/5): Fresh, vibrant green, and retains a satisfying crunchy bite.\n\n​The Verdict:\n​The food quality and nostalgic flavors at Wee Nam Kee remain genuinely solid, even if prices have climbed over the years. Just temper your expectations regarding service especially during weekend peaks, and you'll still have a delicious meal! ⭐⭐⭐1/2",
+          "relativeTime": "3 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWjf6BYaNt3ikUWYaJfUkLaMUM3LktTFq5OoZLv_wZ1T_e_f5Q=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Eli",
+          "rating": 1,
+          "text": "My two friends and I got food poisoning after our meal here. The staff at this restaurant are extremely rude and black-faced, like earlier reviews say. The general feel during our meal here is the customers owe them a living, everything is ignore you, or no/dont have/cannot, almost throwing plates on your table, starting to clear your plates before you are done. In any case, my friend went back and tried to give the manager feedback so they can investigate for their own benefit, she was rudely ignored and was told \"no manager\". Unbelievable... In any case, we made a report to the relevant authorities. Please avoid this place! Terrible service, terrible food. Any regular chicken rice stall at any food court or hawker is better than this place. We'll definitely never come again.",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocKnNtUp2_YOR6WxTVhI8u3bpND9diHiUszfsyzyyFCNkZQaEA=s128-c0x00000000-cc-rp-mo"
+        },
+        {
+          "author": "Marc Singh",
+          "rating": 4,
+          "text": "standards have dropped significantly in recent times, and that’s disappointing especially since we’ve been patronising this store for several years. we can feel a dip in quality after their most recent renovation. quantity definitely feels like it has decreased too. and the new ordering system via the QR code is pretty frustrating.",
+          "relativeTime": "2 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVZ2crHPW3J4AUvzRLsxEtLwiAPirvP6YUNC_aCw7zevv1wYcg=s128-c0x00000000-cc-rp-mo-ba6"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJpaXv6kIb2jERaR2t1KW20sk",
+      "name": "Lazy Lizard - NEWest",
+      "address": "1 West Coast Drive #01-85 & #01-86, NEWest, Singapore 128020",
+      "location": {
+        "lat": 1.3164178000000002,
+        "lng": 103.7577178
+      },
+      "rating": 4.7,
+      "userRatingsTotal": 1370,
+      "countryCode": "SG",
+      "types": [
+        "restaurant",
+        "bar",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-29-03-01.jpg",
+        "photos/2026-11-29-03-02.jpg",
+        "photos/2026-11-29-03-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Ming Shen Tham",
+          "rating": 3,
+          "text": "The place has a pretty old school design and wasn't too crowded when I visited. There seems to be enough space to accommodate anything from smaller gatherings to larger groups, so the environment itself is quite nice. Unfortunately, I think the food needs quite a bit of improvement.\n\nThe mushroom soup was alright. It was creamy with plenty of mushroom bits, although I wish they had added a little more truffle oil to enhance the flavour. At $9.80 a bowl, I wouldn't call it cheap, but I don't think it's excessively expensive either.\n\nThe buffalo wings were much more disappointing. They honestly reminded me of something like CP frozen drumlets that had simply been baked and served. At around $15, I really didn't think they were worth the money when you could get something similar for much less elsewhere.\n\nThe biggest disappointment, however, was the carbonara spaghetti. I'm not going to complain about whether it's an \"authentic\" Italian carbonara because they used bacon instead of guanciale, added garlic and used cream. My problem was simply that I could barely taste any cheese or egg yolk. Instead, there was so much cream that the poor spaghetti was practically drowning in it. The sauce itself was actually reasonably well seasoned, but with that amount of cream, I honestly think \"bacon cream pasta\" would have been a more accurate description.\n\nThe drinks were alright, but unfortunately they weren't enough to change my overall impression.\n\nConsidering that NEWest isn't particularly convenient for me to get to, I don't think the food was good enough to justify making the trip back. Nice enough environment, but based on this visit, I'll probably give this place a miss.",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLGrMZ5UuB0fyolyPuJlKXs_jnFqr1bJiIw06AcP6YaQ8GAbQ=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Ian Li",
+          "rating": 4,
+          "text": "I came here with my wife for a casual lunch. It's located at NeWest, making it a convenient option for residents living nearby.\n\nThe waitress was warm and friendly, which made the dining experience even more pleasant.\n\nWe ordered the duck confit and the squid ink risotto. Both dishes were quite enjoyable. The risotto came in a very generous portion—so much so that we couldn't finish it. The duck confit was nicely cooked, although the sauce wasn't quite to my personal taste. The grilled garlic, however, was a brilliant addition and paired beautifully with the duck.\n\nTheir potato fries are great, neither soggy nor too dry, and the potato is fresh!\n\nThe prices are reasonable, and overall, we had a pleasant weekday lunch at this cosy bar.",
+          "relativeTime": "4 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjV0y3WenEktwADErZshq780v0OxRHspypUeRCgMugBc1d_q5tbY=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "Local Guide .: : :::",
+          "rating": 4,
+          "text": ".: : ::: - Visited Lazy Lizard at NEWest and really enjoyed the chill atmosphere. Since the mall is usually quiet, it feels less crowded and more relaxed, with a niche crowd that seems to know this place well. The highlight for me was the signature messy cheeseburger, which was juicy, cheesy, and packed with flavour. They also have a good range of draft beers, which makes it an even better spot to hang out and unwind after a day at work!. 😊👍🏻✨✨✨✨",
+          "relativeTime": "2 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVor_1Wo9PWs2DNIHcHF3_dhE_NxYOchFzWGFmxZogWYfY5JmM=s128-c0x00000000-cc-rp-mo-ba7"
+        },
+        {
+          "author": "Wiz Yeo",
+          "rating": 5,
+          "text": "I’m having dinner at Lazy Lizard right now, and it’s such a great find in the West Coast area. It has a very laid-back, welcoming vibe. Definitely a \"hidden gem\" for a chill neighborhood meal.\n\nThe Food\nDuck Confit: This was the highlight for me. The duck is just as good as it looks in the photos, with the skin done perfectly. I absolutely love the sauce (Spicy Cumin Mango Chutney) it comes with; it’s a really interesting blend of sweet, fruity, and just a hint of spiciness.\n\nClassic Ribeye: A very reliable choice if you’re looking for a hearty steak. It was cooked well and satisfied that craving for a classic Western main.\n\nPan Seared Halibut: This was a great lighter option. The fish was seared nicely, keeping it moist and flavourful.\n\nMenu Variety: They have a solid range of Western comfort food. Aside from these mains, they’ve got plenty of pasta, burgers, and pizzas, plus a good selection of craft beers.\n\nService & Vibe\nThe staff here are very friendly and attentive, which makes the whole experience feel personal and relaxed. They were quick to help without being overbearing.\n\nIt’s a very family-friendly spot, perfect for a casual dinner without any fuss.",
+          "relativeTime": "8 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVn0B1bp7RoQPc2W6xqgSc2t0ttT5ZpXGXQY4uMGBe_ddmZTfs=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Z Feng",
+          "rating": 4,
+          "text": "Great atmosphere. Food is big portions and nice.\nFoods taste can be improved more. Overall is good place to chill.",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocIZ4pKdGaJYkSzu5Nton8qltC_bS5S7jUfStCYI4t0zkchJUQ=s128-c0x00000000-cc-rp-mo"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJpwkngngZ2jERWh7XDFzVAhI",
+      "name": "Jypsy Parkland Green",
+      "address": "920 ECP, #01-25/26/27, Singapore 449875",
+      "location": {
+        "lat": 1.2985343000000003,
+        "lng": 103.9062328
+      },
+      "rating": 4.6,
+      "userRatingsTotal": 1732,
+      "countryCode": "SG",
+      "types": [
+        "japanese_restaurant",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-29-04-01.jpg",
+        "photos/2026-11-29-04-02.jpg",
+        "photos/2026-11-29-04-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Galroreem HoLee (The HoLee Crib)",
+          "rating": 5,
+          "text": "Food was excellent. We ordered the Gypsy mini burger, Crispy portobello, Gypsy Rainbow roll and Signature Tuna Tacos.\n\nPresentation and taste was excellent. Thoroughly enjoyed it. Atmosphere indoors was great not too noisy.\n\nOutdoors are pet friendly. Lots of tables with their pets, you have to expect the occasional barking.\n\nAgain great experience overall.",
+          "relativeTime": "a week ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjU_iqwqpLu7Q7C5r3dqwF7EGqE07_rb0GWpzFwwr_1dJWgepaSF=s128-c0x00000000-cc-rp-mo"
+        },
+        {
+          "author": "C K",
+          "rating": 5,
+          "text": "Dining at Jpsy (East Coast) was a wonderful experience. The restaurant's location, just a short distance from the coastline, offers pleasant ocean views and a relaxing atmosphere. The décor is stylish and inviting, surrounded by lush greenery that creates a refreshing and vibrant ambiance.\nThe service was attentive throughout our visit. Dasa was courteous, professional, and made us feel very welcome.\nThe food was both delicious and creative, featuring an innovative fusion of modern Japanese and Western influences. The weekend two-course lunch menu also represents excellent value for money.\nOverall, we thoroughly enjoyed the experience and would gladly return. Highly recommended.",
+          "relativeTime": "2 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocKLE7k7YV_vL2SM8ZR8VE79R6ua9byPeyd4q6nTTHPB4HCS6w=s128-c0x00000000-cc-rp-mo"
+        },
+        {
+          "author": "Winnie",
+          "rating": 4,
+          "text": "Overall it’s worth it and will go next time, one thing need to improve is the service, every time need to raise hand for long time then they will see you.\nRecommend the crispy mushroom and the pizza. It’s very impressive. Tomato salad is refreshing too. But the tiramisu is very watery and no flavor, don’t try it. But the Yuzu tofu cheesecake is quite tasty.\nIt’s not crowded and the sitting is also quite spacious, and next to the beach so it’s a good place to relax yourselves.",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUBsYEEftIuTvlPkUoTqC1KT-37gmNWstM32Rhs0JkFqc3bPR4=s128-c0x00000000-cc-rp-mo-ba2"
+        },
+        {
+          "author": "Blenda",
+          "rating": 5,
+          "text": "Love the vibe at Jypsy Singapore , such a beautiful space with both indoor and outdoor seating! The service was amazing, especially Fariz, who was so attentive and friendly.\n\nBut the real highlight was definitely the food! Everything we ordered was so delicious, especially the unagi and beef fried rice. And the winner of the night for me was definitely the pork katsu ! absolutely delicious!\n\nWe ordered so many dishes and honestly enjoyed every single one. Definitely coming back again!",
+          "relativeTime": "3 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVyUJffON0FIGRTjdaxGthwzLQj-lvMp3GOZGBqU8Q5OxGoiUXhgQ=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "IamPotato",
+          "rating": 5,
+          "text": "Jypsy consistently delivers a fresh, vibrant twist on modern Japanese fusion. Here is a breakdown of the standouts from this visit:\n\nThe Highlights:\n\nKaraage Croffle (Must-Try)\nAn absolute standout dish. The crunch of the savory, tender fried chicken paired with a buttery, golden croffle creates an addictive harmony of textures and savory-sweet goodness.\n\nCrab Omelette\nDecadent and deeply satisfying. The omelette itself is delightfully fluffy and loaded with sweet, succulent crab meat. Pure comfort in every bite.\n\nCalamari\nGolden, crisp, and cooked to tender perfection. Lightly seasoned and free of excess oil, making it an effortless starter.\n\nCabbage Pile\nThe unsung hero of the meal. Cold, crunchy, and exceptionally refreshing, it cuts through the richness of the fried dishes and acts as the ideal palate cleanser.\n\nThe Verdict:\nA stellar meal across the board where every plate pulled its weight. Jypsy excels at balancing bold, comforting flavors with light, refreshing contrasts. Definitely a spot to return to!",
+          "relativeTime": "3 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVoc8HxCYQfiS01rr7sYz554xirkoERdXmVnCc5AaLi1fPwLb4=s128-c0x00000000-cc-rp-mo-ba4"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJufNzJ_EZ2jERNg6gEX1koI8",
+      "name": "Waa Cow! Marina One",
+      "address": "5 Straits View, #01-09 Marina One West Tower, Singapore 018935",
+      "location": {
+        "lat": 1.2766868999999998,
+        "lng": 103.852532
+      },
+      "rating": 4.6,
+      "userRatingsTotal": 1041,
+      "countryCode": "SG",
+      "types": [
+        "japanese_restaurant",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-29-05-01.jpg",
+        "photos/2026-11-29-05-02.jpg",
+        "photos/2026-11-29-05-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "JR FF",
+          "rating": 5,
+          "text": "Stable and good quality bowls. The eponymous wagyu beef performed as usual, had the chicken teriyaki as well.\n\nSeared with a very consistent flavor, the beef was tender and juicy without being overly fat. Queenie liked the chicken as well.\n\nConfused this outlet with the city link one - thought it was at the sheares link underground mall, thus made a bit of a detour before getting here. The staff were attentive and customer oriented as well. Impressive, as we'd went at an off-peak period around 330.\n\nWould come again.",
+          "relativeTime": "2 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjW4rhNn7hJO2HjNP_Xr3RhbKISk61999j4Zo0ZeppA4FIanrSjPqQ=s128-c0x00000000-cc-rp-mo-ba7"
+        },
+        {
+          "author": "Eric Chan",
+          "rating": 4,
+          "text": "Visited Waa Cow! at Marina One recently with friends and it was nice to see a familiar name still going strong after all these years. Having left for China and returned to Singapore nearly eight years later, I was pleasantly surprised to find the brand still around and continuing to serve up quality bowls.\n\nThe food remains the main draw here. I went for one of their signature Wagyu beef bowls topped with mentaiko and foie gras, and it delivered exactly what it promised. Rich, indulgent, and packed with flavour, it's the kind of bowl that will appeal to those who enjoy bolder and heavier flavour profiles. The Wagyu was tender, the toppings added plenty of richness, and everything came together nicely without feeling overly complicated. We also ordered the truffle fries on the side, which turned out to be a great accompaniment. The fries were crispy and the accompanying dip was genuinely tasty, making it easy to keep reaching for more.\n\nThe environment was comfortable and relaxed. Despite visiting during the weekend lunch period, the restaurant wasn't particularly crowded, which made for a pleasant dining experience. Seating was comfortable and the atmosphere felt casual enough for a catch-up with friends while still being polished enough for a business lunch.\n\nService was efficient throughout. Food arrived at the table surprisingly quickly, and the overall experience felt smooth and well managed despite the lunch timing. Staff interactions were pleasant and professional without being intrusive.\n\nOverall, Waa Cow! continues to deliver what it does best, satisfying beef bowls with rich flavours and quality ingredients. It's good to see a long-standing brand maintaining its standards, and I'd happily return whenever the craving for a hearty Wagyu bowl strikes.",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVeLJiG6uqkpGs5iafQW7gzvC2_3R0PVEyR6ypyyvcos6A8-bQk_g=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Che C",
+          "rating": 5,
+          "text": "Very nice bowls we had the Salmon and Yuzu Wagyu beef! Abit pricey but ok for the fresh and tasty ingredients. The drinks were interesting and cheaper with the meals. We came on a Saturday evening and it’s not too occupied. Good place to dine during weekends and chill in cbd area when it’s less buzzing than weekdays.",
+          "relativeTime": "8 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLAKNfTIQRltHtrvB6UbTOKI45dtqkghKzsHLD64jsz2zuu7V0=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "Peter L",
+          "rating": 4,
+          "text": "I always like Waa Cow, first for the delicious rice bowls, and 2nd for the wonderful staff who always help us get the best value using Grab Dine Out. I tried for the first time the mentaiko chirashi and love it!\nHowever I do need to complain, AGAIN, about the inside seating, where for most tables, one side of the seats face the glass door. During lunch time this is super glaring and uncomfortable, as was my case and I had to rush to finish lunch just to get out. This is not the first time I’ve given this feedback. Previous times because I was super early, I managed to ask for those seats that are placed horizontal to the glass door and avoiding the glare. Was Cow management - please take this feedback seriously and do something about it.",
+          "relativeTime": "7 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjXo9hmF0nqqf2ph4TTfE811OfajacVfnakRhorJh6GKr9YeBnQ7=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "Ian Yam",
+          "rating": 5,
+          "text": "So happy to be back at Waa Cow to eat their original bowl — always brings back happy memories hanging out with friends at NUS. Very lucky to try their truffle fries, which were crispy and fluffy. The winner was the truffle sauce which was subtle, rich and not overpowering. Legit flavour too. Great service too, for which I thank Siew Bin for being so warm and giving us a good time. Will be back! One of the rare places open in CBD on a Sunday :))",
+          "relativeTime": "7 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWKGlWuCKPQk7iSkpxkh54Sarn78Ih-8b4W9Vi68nEIm5fVC2De=s128-c0x00000000-cc-rp-mo-ba2"
+        }
+      ]
+    }
+  ]
+}

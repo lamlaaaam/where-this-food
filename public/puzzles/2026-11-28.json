@@ -1,0 +1,310 @@
+{
+  "source": "daily",
+  "date": "2026-11-28",
+  "seed": "2026-11-28",
+  "places": [
+    {
+      "placeId": "ChIJ1WlZGHwZ2jERfe0_ZCZKyEA",
+      "name": "The Brewing Ground Joo Chiat",
+      "address": "406 Joo Chiat Pl, #01-24 The Yards, Singapore 428084",
+      "location": {
+        "lat": 1.3148971,
+        "lng": 103.9110412
+      },
+      "rating": 4.5,
+      "userRatingsTotal": 1041,
+      "countryCode": "SG",
+      "types": [
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-28-01-01.jpg",
+        "photos/2026-11-28-01-02.jpg",
+        "photos/2026-11-28-01-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Ankori",
+          "rating": 4,
+          "text": "Brewing Ground is a cozy day restaurant offering a breakfast and simple brunch menu that’s available all day, though they close early at 5pm. Both indoor and outdoor seating are available, making it a nice spot for different moods. On weekdays, especially between 9:00 to 10:30am, the atmosphere is particularly peaceful and unhurried. We sat outdoors this morning and really enjoyed the cool breeze it set the tone for a relaxed and pleasant meal. The staff were friendly, attentive, and helpful, which added to the overall positive experience.\n\nWe ordered the crab pasta and mentaiko fries, and the portions were very reasonable for the price. The crab pasta came with a rich, creamy sauce that was genuinely delicious ,flavorful, indulgent, and clearly well thought out. Unfortunately, the pasta itself didn’t live up to the quality of the sauce. The texture tasted floury and dense, almost like pasta made from lower-quality flour, which really held the dish back. It felt like a waste of such a good sauce, as the sauce deserved a better pasta that could properly carry and complement its richness.\n\nOn the other hand, the mentaiko fries were excellent. The fries were crispy and addictive on their own, and taken to another level with the generous amount of mentaiko sauce. It was indulgent, satisfying, and definitely a dish I’d order again.\n\nDespite the pasta letdown, we still had a good time overall and would come back to try other items on the menu , perhaps the burger next time. Brewing Ground has a lot going for it, and with a small improvement to the pasta quality, it could easily be even better.\n\nSecond visit : fish and chips was good . Light crispy crust fresh succulents fish .",
+          "relativeTime": "10 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjW07k7wO_dgQd0spN8yvMqZqcZg9It2ojlPKoDMHMsTjAYLG12x=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Orange",
+          "rating": 3,
+          "text": "Ordered their signature grilled cheese sandwich with add-ons. While the portion was impressively large, it wasn’t the best grilled cheese I’ve had. The sandwich lacked the rich, punchy flavour I was hoping for, and the bread didn’t really complement the cheese filling.\n\nI was initially looking forward to trying their tomato soup, but it seems they’ve replaced it with a potato and leek soup on the current menu.\n\nThe truffle fries were a highlight — crispy, fragrant, and well-executed.\n\nSurprisingly, the aglio olio turned out to be the star of the meal. It had a creamy texture while still retaining the characteristics of a traditional aglio olio. Very flavourful and satisfying.\n\nService could be improved. We were dining with a crutch user and a heavily pregnant guest, yet we were initially assigned a high table in the middle of the cafe. It would have been nice if the staff had been more observant and considerate of the seating arrangement.\n\nOrdering and payment are done at the counter, though a service charge is still applied. Complimentary self-service water is available.\n\nThe coffee was disappointing despite the cafe having sophisticated coffee machines. The brew tasted rather flat and lacked depth. The iced chocolate was also underwhelming, with the chocolate powder not properly mixed, leaving a grainy texture.\n\nThat said, it’s a spacious and comfortable place to relax and catch up with friends. There are also a few parking lots available beside the cafe, which is convenient for those driving.",
+          "relativeTime": "6 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjW5tfzap08xM-_ghBNR9UH-FOlPCSbMwthIp4UY27Q3SIPDPs1G=s128-c0x00000000-cc-rp-mo-ba7"
+        },
+        {
+          "author": "Charlotte Choo",
+          "rating": 5,
+          "text": "One of my favourite brunch places! We ordered the truffle fries, breakfast burger and crab pasta for4 pax and the portions were really generous, we were really full at the end of the meal. Crab pasta had a lobster taste and i loved the fish roe, it gave the pasta a really unique texture. The breakfast burger eggs were soft and fluffy and the sauce was super yummy. Truffle fries were pretty standard imo\nOverall i rly like this place, slightly pricey but i would pay for the quality of the food. Would definitely revisit!",
+          "relativeTime": "11 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWc3cjGb3FI4JfTxJYn_T72CqhNbY720knGjxMl4YjE5BXUugbT=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "Agnes",
+          "rating": 4,
+          "text": "The cafe has a cozy and relaxing atmosphere, making it a great spot to unwind with friends and family. The food was good, beautifully presented, and made with fresh ingredients. The staff were friendly, attentive, and provided great service throughout our visit.",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLIdQOaW07cFNjOqU9-to3iZlRbgBS0E1B8Zpu7ajPaEv3-0Q=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "Sebastian Lee",
+          "rating": 2,
+          "text": "Food was decent but it can't go wrong anyway, since the Breakfast Burger dish tasted primarily like heated-up processed food, with its hashbrown and sausage patty being major components of the dish. The fish and chips also tasted average. Well fried but again, processed food taste - fish tasted like it was made from frozen fillet, and fries didn't taste home-made.\n\nThe service was good. Friendly staff but the place was cramp, noisy and warm with low ventilation even with the aircon on.\n\nIt is nonetheless quite popular so be prepared to queue outside, which has no aircon or fan. Warm warm warm. Also, this place is not easily accessible.\n\nOverall price is not cheap too.",
+          "relativeTime": "7 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocIWQRiQLvKcwAvtS-wDNQhHxZT5uIdZxHFzUX0fU_MUdCv_pw=s128-c0x00000000-cc-rp-mo-ba5"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJr39M4QYa2jERe0a_7urSZ4I",
+      "name": "Warong Pak Sapari",
+      "address": "2 Adam Rd, #01-09, Singapore 289877",
+      "location": {
+        "lat": 1.3241821999999999,
+        "lng": 103.81418629999999
+      },
+      "rating": 4.3,
+      "userRatingsTotal": 231,
+      "countryCode": "SG",
+      "types": [
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-28-02-01.jpg",
+        "photos/2026-11-28-02-02.jpg",
+        "photos/2026-11-28-02-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Vincent J",
+          "rating": 3,
+          "text": "Average food | Basic setting | Great value\n\nOrdered Mee Soto ($4.50) + Bergedil ($1.20)\n\nDon't let the plain look of the soup fool you—it is savory enough and yet not too salty. They are quite generous with the shredded chicken, but the absolute game-changer is the dollop of sambal chili on top. Once you mix it in, the broth becomes significantly richer.\n\nAs for the noodles, the texture was right on the harder end (which is exactly to my liking!). Bergedil was a very pleasant plus. A satisfying and unpretentious meal!",
+          "relativeTime": "2 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJn2FsnptUB-a9aeujQLwtImamXxIeqcLIP5n8YApQQDAui4ECt=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "Ash Ash",
+          "rating": 5,
+          "text": "Oklah not bad. The mee soto I had was less salty which is excellent. Sambal not spicy can ask for more to those who wants spicy. Price a little bit high for a hawker dish as stall rental are actually very cheap compared to coffee shops. Honestly, there are many other slightly cheaper mee soto at neighbourhood coffee shop which tastes better. Tetapi macam mana pun mak saya punya mee soto the best. Hehe. Ok to try to those who are curious about the long Q. All the best for the hard work 👍",
+          "relativeTime": "4 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJPY6dx3NxcH8Me6F2DPChdGexTdAiGY9FWMPZeWeQRSDGCSY4=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "Ferdi",
+          "rating": 4,
+          "text": "Came by around 8.15am on a Saturday and there was already a long queue. It moved quite slowly as a few customers had multiple orders, and everything is prepared from scratch.\n\nI was there for their soto and had it with bee hoon, though I asked paman for just half a serving of noodles, it was a good amount for a breakfast.\n\nThe broth had gentle rempah notes, not overly strong or spicy, so the sambal kicap (sweet soy sauce with chilli) really helped lift the whole bowl.\n\nI probably should have ordered extra bergedil like many others did. Not sure if it was accidental, but I tasted a few small bergedil pieces in my soup, and even those tiny bits were really good—savoury, fried, and nicely mashed. Almost felt like a teaser. I’ll definitely add one next time.\n\nThey also offer interesting add-ons not commonly found elsewhere. I wanted babat, but only saw gizzards and liver that day.",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUZLkxEsZk_sj6GJNZAImMLvuuLj5qUlZJ3o_AJNFHwPHchDofgvA=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "empress ker",
+          "rating": 5,
+          "text": "Uncle worked very hard for a living and chili seems to be more spicy this time round. Will support uncle again!\n\nMy bestie queued for 20 minutes to get\ntwo bowls of noodles. The Mee Soto was excellent; I wish the chili had been spicier. The soup was savoury, with great-tasting chicken and no unpleasant smell. I loved the soup, and the mee rebus was decent.  Still, I will still choose the Mee Soto! Will go back again!",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLoS_Xsz0JSLe1j_dKWwbq9beJ_LLg1LDO7EgD6YfgDg3Ygdw=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Damien Wong",
+          "rating": 5,
+          "text": "The quest for Michelin hawker took me to Adam Food Center today. The queue was about 10 pax in front of me and I think I queued a good 20 mins before getting Mee Rebus and Mee Soto.\n\nThe chicken Mee Soto that I ordered had a very savoury stock and the chicken was fresh and tender. Wasn’t a big fan of Mee Soto prior to this visit but this bowl definitely changed my impression of this soup dish.\n\nThe Mee rebus was accompanied by the robust and thick gravy. It was slightly spicy to me. It came with one full egg.\n\nThe queue was long, even at 1030am on a weekday morning but it’s well worth the wait!\n\nBoth dishes were great but if you asked me, I will pick the Mee Soto over the Mee Rebus!",
+          "relativeTime": "11 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLg4kVSqwnnnFCCRSeWSFUGIthGWj1l3m3Ld2oAJpFEsG6fRA=s128-c0x00000000-cc-rp-mo-ba4"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJS44NPfwa2jERH1ygoIgk05w",
+      "name": "Niqqi's The Cheese Prata Shop",
+      "address": "16 Clementi Rd, Singapore 129745",
+      "location": {
+        "lat": 1.2928572,
+        "lng": 103.7685899
+      },
+      "rating": 3.9,
+      "userRatingsTotal": 1223,
+      "countryCode": "SG",
+      "types": [
+        "indian_restaurant",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-28-03-01.jpg",
+        "photos/2026-11-28-03-02.jpg",
+        "photos/2026-11-28-03-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "カラなつめ",
+          "rating": 2,
+          "text": "Might be the worst briyani I’ve ever had. The first batch was brown and has an incredibly soapy taste. Second batch was full of ghee but edible. Both had a very apparent lack of spices. Mutton was also hard, came. Thank the worker for remaking it which I appreciate but I don’t think I’d come back here for this again. Ate here at 11:15pm on a Sunday night, quite spacious and not many people",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWzjF9PneLrlGGlVdbmE5jN8WXckOQpASAcE5Og_BEXQlFTsqVg=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "A H",
+          "rating": 5,
+          "text": "Always enjoy eating prata at Niqqi’s. Not greasy just the way I like it. My goto - egg onion chilli prata. Generous portions of onion n green chilli to make the prata aromatic and pedas. And to down the meal, teh tarik - perfect ceylon tea flavour with just the right amt of evaporated milk and sweetness. Keep it up!",
+          "relativeTime": "2 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocKZUW71FJIaaBEXErb1XH9fD0cAi2JHIMn9Ilz8ry35ov5RdA=s128-c0x00000000-cc-rp-mo-ba2"
+        },
+        {
+          "author": "Sheue Lin Ng",
+          "rating": 3,
+          "text": "I think the special cheese prata needs more cheese to make it special. Fish curry gravy lacks the sharp flavours. The fried noodles were ok.",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUxVuPdunZ3qOBapSqWTAGofJrp-szxBMOoJt0h5mZYwaU-3cxiiA=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Nas",
+          "rating": 5,
+          "text": "Food & drink was great! Very generous portions. Value for money. I love how clean the place is. Toilet 10/10 🙌🏽",
+          "relativeTime": "4 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocIm21CU7k2VkAYTC_N6OgVGzpvzcEvuk070wxH3fvhUGPs4LQ=s128-c0x00000000-cc-rp-mo"
+        },
+        {
+          "author": "Mohd Amin",
+          "rating": 3,
+          "text": "Food - Wide selection to choose, spoilt for choices. Generally the food order is average, though I do find some of the portions can be improved.\nDrink - Teh pandan hahaha(upside) is a good selection but ask for less sweet as it is of a cut-leg sweetness category!\nService - Online order via qrcode, pretty convenient and it takes about 20mins for food to arrive.\nPayment - Cash n paynow option available\nDamage - $41.90 for 5meals n 3 drinks. Receipt as attached. A bit on the pricey side.",
+          "relativeTime": "a year ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjX3RHUz3MSt9lablMzgjO-D3bkKzRoybRBnbluJ9Cv_UzLV5Czv=s128-c0x00000000-cc-rp-mo-ba6"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJNxYtxq4P2jERyLHOEUz3f_s",
+      "name": "McDonald's Jurong Central Park",
+      "address": "291 Boon Lay Way, Singapore 649849",
+      "location": {
+        "lat": 1.3391575999999998,
+        "lng": 103.70866769999999
+      },
+      "rating": 4.4,
+      "userRatingsTotal": 2584,
+      "countryCode": "SG",
+      "types": [
+        "fast_food_restaurant",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-28-04-01.jpg",
+        "photos/2026-11-28-04-02.jpg",
+        "photos/2026-11-28-04-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Abraham",
+          "rating": 5,
+          "text": "One of the more unique McDonald’s outlets in Singapore, and one of the few standalone ones, with the added bonus of a drive-through and a location right within the park.\n\nThe biggest highlight for us was the kids’ playground, which is such a great touch! Many kids looked like they were having a ball of a time, and it made the visit much more enjoyable than a typical McDonald’s meal. Wish more McDonald’s outlets in Singapore would incorporate playgrounds like this.\n\nFood-wise, it’s pretty standard McDonald’s fare, with both indoor seating and alfresco options available. The outdoor seating is especially nice in the evening, with a breezy and relaxed atmosphere. Just be prepared for quite a few bugs at night, given that it’s located within a park.\n\nOverall, a great spot for families looking for a casual meal where the kids can have some fun too. Definitely a nice change from the usual McDonald’s experience",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWFFQ__G9Ob59OTiXnvPx3tYxfOHLLg3WrWG7bnPeXMckO0dnw=s128-c0x00000000-cc-rp-mo-ba7"
+        },
+        {
+          "author": "lontongstroong",
+          "rating": 4,
+          "text": "One of a few McD places in SG that has drivethru. Unlike most McD places that are located inside community centers or malls, it's situated in the middle of a quaint park.\n\nThe outlet is neat and clean, with a child playing space outdoors. My order came quickly, partly due to the near-absence of queue, unlike most other outlets that are often overcrowded.",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWnlDnQdIiRVGPPjHCFJrWtm4ROxtfQz27Vz39DC7nNdmectwSX7A=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "SANDY LAU",
+          "rating": 4,
+          "text": "Went to drive thru. Sophie took my order. She was clear and polite. She has a lovely voice. The way she took my order was very impressive especially when I have less than pleasant service elsewhere.\nGood job Sophie.",
+          "relativeTime": "7 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVLnzFlo7kWhFe7MkrfjIiAU25Mb_A178qz2mn9Alg9ux6hneVn4g=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "Kingzkai",
+          "rating": 1,
+          "text": "If I could give a zero star I would. On the 29 March 2026 11:45am I ordered breakfast items in this branch (it was stated online and also at kiosk that breakfast was available until 12pm at this outlet). To our disbelief, I waited well over 1 hour and my meal was not served. Upon checking with the manager he showed an unapologetic attitude and was not being very helpful. The staff totally forgot the items that were being ordered. Luckily there was another older lady staff who assisted me in getting my refund. Please do better next time McDonald… there was another couple with two kids who faced the same issue. They also got their meals refunded only after much persistence. The McDonald staff totally cancelled/forgotten all the breakfast items that was ordered and moved on to preparing only the lunch items. We are extremely disappointed and hope that this can be resolved. PS. The photo attached is the refund receipt.",
+          "relativeTime": "8 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVGZFe_XOzqdkwVchnM1KnmWUmYgFtd3qI7R3qBpPkgEVjid6c=s128-c0x00000000-cc-rp-mo-ba2"
+        },
+        {
+          "author": "Danny Tan",
+          "rating": 2,
+          "text": "Mcdonald getting worst these days. Over crowded, taking in so much orders the output cant catchup anymore.\nPeak hours the food is bad.\nFries are soggy and cold.\nIm skipping mcdonald now. Better look elsewhere.\n\nI waited 35mins my food, wrote in to feedback and got zero reply. Their customer service sucks big! Sucks! Sucks!",
+          "relativeTime": "7 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVtIOGEuVK3lJ4VMpAYxJlus5BxQDtdKCs5Oj49XEBCFX0fXPE=s128-c0x00000000-cc-rp-mo-ba5"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJDWYScgUQ2jER9DtRVYQXaD8",
+      "name": "Soi 19 Thai Wanton Mee Dairy Farm",
+      "address": "4 Dairy Farm Ln, #01-12 Dairy Farm Mall, Singapore 677622",
+      "location": {
+        "lat": 1.3655359999999999,
+        "lng": 103.77451699999999
+      },
+      "rating": 4.2,
+      "userRatingsTotal": 552,
+      "countryCode": "SG",
+      "types": [
+        "food_court",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-28-05-01.jpg",
+        "photos/2026-11-28-05-02.jpg",
+        "photos/2026-11-28-05-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Mr Yang",
+          "rating": 5,
+          "text": "Finally came to try out at their 'new' location and glad that quality was much intact. With its current food court setting prices seems to have increased, at least the add-on noodle is now at $1.50(up$1). However, the ingredients still pretty substantial so no add-on of ingredients were needed, thus reducing further damage to the wallet. Just wish they could include the soup wantons that they used to, or have the option to change the fried ones to it.",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJGEWfepqzjA_XQC-du2jtgSR80urvA98kP3i9r9sRsb2v6Xg=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "C Y",
+          "rating": 4,
+          "text": "Usually we'll eat the Western but decided to try the Soi 19 wanton noodles today. Ordered the Signature and the black sauce dry wonton noodles and it's delicious. The noodles were chewy and eggy. The fried Taiwanese sausage adds to the taste. The lard bits were fresh and crunchy\nBetween the 2, I preferred the Signature. The black sauce is a bit sweet to my liking",
+          "relativeTime": "3 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocK0cNXtNF707N1fOti0KPo9UaMKNJgjzx5M6UHvJADvW1spKw=s128-c0x00000000-cc-rp-mo-ba3"
+        },
+        {
+          "author": "Tracy Lee",
+          "rating": 5,
+          "text": "I was surprised to come across this stall at Dairy Farm mall. Ordered 1 signature Thai Wanton noodle at $6.90 and a chicken cutlet at $7.50. The chef is so generous with the pork lard and with the ingredients. I was surprised that the noodle is so delicious. The sausage is also very tasty, I have never tasted something like that before 😝. The service was fast too. I find the cutlet crispy but salty, so I may skip that the next round. Will be back again for the wanton noodles though. Recommend to try",
+          "relativeTime": "8 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJ9ItqFkdWmZ8__JevE6MDRUIH8uUr0X4NATznCG9_Nb2lQlA=s128-c0x00000000-cc-rp-mo-ba3"
+        },
+        {
+          "author": "edtayjb",
+          "rating": 4,
+          "text": "My wife and I were here today (21 March 2026) for an early lunch - we live nearby, in the Dairy Farm area. Whilst I had Soi 19's Wantan Mee before, but elsewhere, today was the first time for my wife at a Soi 19 outlet. We ordered the following here today: an Original Wanton Mee and a Black Wanton Mee - both with boiled wantans instead of deep-fried wantans. Overall, the Wanton Mee was very good - with the noodles nicely al dente, and with its add-ons pairing well with the noodles; especially the fish sausages. And the soup that came in a separate bowl, though clear, was flavourful. Service here was nice enough. The dining ambience here was also nice enough as the dining tables were adequately set apart and in air-conditioned comfort.",
+          "relativeTime": "8 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJnxyZ0BYtgLZ6p7QJ-kzeM77_I23A7aVM-YXaEyCzSWBv6Fg=s128-c0x00000000-cc-rp-mo-ba8"
+        },
+        {
+          "author": "Zac (Zakku)",
+          "rating": 4,
+          "text": "3.9/5 ⭐\nFound myself at a very clean kopitiam and tried Soi 19 Thai Wanton Mee! For $5.80, the bowl isn't too filling, but it's loaded with ingredients, so the price feels fair. The Thai-style wanton mee is incredibly flavorful, but it's also super sinful—think lots of lard and oil. The charsiew was good, but I found the sausage a bit too sweet and oily for my liking. Overall, it's a great bowl in terms of flavor, but one I could only eat maybe once every six months due to how rich it is!",
+          "relativeTime": "a year ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWXgr_9-duMb4b0R9PyNI_sh3jgwgo1gli7zzndoT7lce-Zv2iESA=s128-c0x00000000-cc-rp-mo-ba8"
+        }
+      ]
+    }
+  ]
+}
