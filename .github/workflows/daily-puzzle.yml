@@ -34,7 +34,7 @@ jobs:
       - name: Generate puzzle window (SGT)
         env:
           GOOGLE_MAPS_API_KEY: ${{ secrets.PLACES_API_KEY }}
-          PUZZLE_WINDOW_DAYS: '5'
+          PUZZLE_WINDOW_DAYS: '3'
         run: node scripts/generateDailyPuzzle.mjs
 
       - name: Commit puzzles

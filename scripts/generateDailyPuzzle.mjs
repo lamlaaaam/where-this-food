@@ -25,7 +25,7 @@ function addDays(date, offsetDays) {
   return new Date(Date.parse(`${date}T00:00:00Z`) + offsetDays * DAY_MS).toISOString().slice(0, 10)
 }
 
-const WINDOW_DAYS = Math.max(1, Number(process.env.PUZZLE_WINDOW_DAYS ?? 5))
+const WINDOW_DAYS = Math.max(1, Number(process.env.PUZZLE_WINDOW_DAYS ?? 3))
 const START_DATE =
   process.env.PUZZLE_DATE ?? singaporeDate(Number(process.env.PUZZLE_DATE_OFFSET_DAYS ?? 0))
 const DATES = IS_DEFAULT
@@ -463,23 +463,31 @@ function photoPrefixFor(date) {
 }
 
 async function downloadPhotos(photoTargets) {
-  const maxConcurrent = 3
+  const maxConcurrent = 2
   const entries = [...photoTargets.entries()]
 
   for (let i = 0; i < entries.length; i += maxConcurrent) {
     const batch = entries.slice(i, i + maxConcurrent)
     await Promise.all(
       batch.map(async ([url, target]) => {
-        try {
-          const response = await fetch(url)
-          if (!response.ok) {
-            throw new Error(`Photo download failed (${response.status()}): ${url}`)
+        let lastError
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const response = await fetch(url)
+            if (!response.ok) {
+              throw new Error(`Photo download failed (${response.status}): ${url}`)
+            }
+            const buffer = await response.arrayBuffer()
+            await writeFile(target, Buffer.from(buffer))
+            return
+          } catch (error) {
+            lastError = error
+            if (attempt < 2) {
+              await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)))
+            }
           }
-          const buffer = await response.arrayBuffer()
-          await writeFile(target, Buffer.from(buffer))
-        } catch (error) {
-          throw new Error(`Failed to download ${url}: ${error.message}`)
         }
+        throw new Error(`Failed to download ${url} after 3 attempts: ${lastError.message}`)
       }),
     )
   }
