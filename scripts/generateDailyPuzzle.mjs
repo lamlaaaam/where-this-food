@@ -463,33 +463,37 @@ function photoPrefixFor(date) {
 }
 
 async function downloadPhotos(photoTargets) {
-  const maxConcurrent = 2
   const entries = [...photoTargets.entries()]
+  const delayMs = 2000
 
-  for (let i = 0; i < entries.length; i += maxConcurrent) {
-    const batch = entries.slice(i, i + maxConcurrent)
-    await Promise.all(
-      batch.map(async ([url, target]) => {
-        let lastError
-        for (let attempt = 0; attempt < 3; attempt++) {
-          try {
-            const response = await fetch(url)
-            if (!response.ok) {
-              throw new Error(`Photo download failed (${response.status}): ${url}`)
-            }
-            const buffer = await response.arrayBuffer()
-            await writeFile(target, Buffer.from(buffer))
-            return
-          } catch (error) {
-            lastError = error
-            if (attempt < 2) {
-              await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)))
-            }
-          }
+  for (let i = 0; i < entries.length; i++) {
+    const [url, target] = entries[i]
+    let lastError
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const response = await fetch(url)
+        if (!response.ok) {
+          throw new Error(`Photo download failed (${response.status}): ${url}`)
         }
-        throw new Error(`Failed to download ${url} after 3 attempts: ${lastError.message}`)
-      }),
-    )
+        const buffer = await response.arrayBuffer()
+        await writeFile(target, Buffer.from(buffer))
+        console.log(`  Downloaded ${target} (${i + 1}/${entries.length})`)
+        break
+      } catch (error) {
+        lastError = error
+        if (attempt < 3) {
+          const wait = delayMs * (attempt + 1)
+          console.log(`    Retry ${attempt + 1}/3 after ${wait}ms: ${error.message}`)
+          await new Promise((r) => setTimeout(r, wait))
+        }
+      }
+    }
+    if (lastError && !existsSync(target)) {
+      throw new Error(`Failed to download ${url} after 4 attempts: ${lastError.message}`)
+    }
+    if (i < entries.length - 1) {
+      await new Promise((r) => setTimeout(r, delayMs))
+    }
   }
 
   const missing = [...photoTargets.values()].filter((target) => !existsSync(target))
@@ -598,8 +602,13 @@ async function main() {
     })
     await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' })
 
-    for (const date of datesToGenerate) {
+    for (let i = 0; i < datesToGenerate.length; i++) {
+      const date = datesToGenerate[i]
       await generatePuzzle(page, date)
+      if (i < datesToGenerate.length - 1) {
+        console.log('  Waiting 5s before next puzzle...')
+        await new Promise((r) => setTimeout(r, 5000))
+      }
     }
 
     await pruneWindow(DATES)
