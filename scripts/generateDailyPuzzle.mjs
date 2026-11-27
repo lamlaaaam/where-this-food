@@ -248,14 +248,16 @@ async function startLocalServer() {
 async function generateInBrowser(page, apiKey, seed) {
   return page.evaluate(
     async ({ key, fields, config }) => {
-      await new Promise((resolveScript, rejectScript) => {
-        const script = document.createElement('script')
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&v=weekly`
-        script.async = true
-        script.onload = () => resolveScript()
-        script.onerror = () => rejectScript(new Error('Could not load the Maps JavaScript API.'))
-        document.head.appendChild(script)
-      })
+      if (!globalThis.google?.maps?.importLibrary) {
+        await new Promise((resolveScript, rejectScript) => {
+          const script = document.createElement('script')
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&v=weekly`
+          script.async = true
+          script.onload = () => resolveScript()
+          script.onerror = () => rejectScript(new Error('Could not load the Maps JavaScript API.'))
+          document.head.appendChild(script)
+        })
+      }
 
       const placesLibrary = await google.maps.importLibrary('places')
       const PlaceClass = placesLibrary.Place ?? google.maps.places.Place
