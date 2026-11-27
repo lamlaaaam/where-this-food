@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Rebuild daily after puzzle generation. The puzzle workflow commits with
+  # GITHUB_TOKEN, which does not trigger push-triggered workflows, so deploy
+  # also needs its own schedule.
+  schedule:
+    - cron: '30 16 * * *' # 00:30 SGT, ~23 min after puzzle generation
   workflow_dispatch:
 
 permissions:
