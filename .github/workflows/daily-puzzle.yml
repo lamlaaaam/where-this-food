@@ -1,13 +1,19 @@
 name: Generate daily puzzle
 
 on:
-  # 15:50 UTC = 11:50 PM SGT. Generate tomorrow's puzzle before the midnight reset.
+  # 16:07 UTC = 00:07 SGT. Generates a five-day window (today + next four days).
+  # GitHub Actions can delay scheduled runs, but previous runs already generated
+  # the next few days, so players always have a puzzle to load.
   schedule:
-    - cron: '50 15 * * *'
+    - cron: '7 16 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: daily-puzzle
+  cancel-in-progress: false
 
 jobs:
   generate:
@@ -25,20 +31,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate puzzle for tomorrow (SGT)
+      - name: Generate puzzle window (SGT)
         env:
           GOOGLE_MAPS_API_KEY: ${{ secrets.PLACES_API_KEY }}
-          PUZZLE_DATE_OFFSET_DAYS: '1'
+          PUZZLE_WINDOW_DAYS: '5'
         run: node scripts/generateDailyPuzzle.mjs
 
-      - name: Commit puzzle
+      - name: Commit puzzles
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/daily-puzzle.json public/photos
+          git add -A public/puzzles public/photos
           if git diff --cached --quiet; then
             echo "No puzzle changes"
           else
-            git commit -m "Update daily puzzle"
+            git commit -m "Update daily puzzle window"
             git push
           fi

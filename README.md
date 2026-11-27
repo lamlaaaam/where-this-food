@@ -8,17 +8,16 @@ A daily browser game: guess Singapore food places from their Google reviews, the
 
 - **One shared puzzle per day** — everyone gets the same 5 places, resets at 12:00 AM SGT.
 - **5 rounds**, max 100 points each, 500 total.
-- **3 attempts per round** — drop a pin anywhere on the map. Your best attempt counts.
-- **Distance + speed scoring** — closer and faster = more points (up to 88 per attempt).
+- **2 attempts per round** — drop a pin anywhere on the map. Your best attempt counts.
+- **Distance scoring** — the closer your pin, the more points (up to 88 per attempt).
 - **6 hints available** — 3 photos, nearby MRT, expected cost, name hint. Unused hints give **+2 points each**.
 - **Skip round** — reveals the answer, scores 0, forfeits hint bonus.
 
 ## Scoring
 
 ```
-distanceScore = 70 × exp(-distance / 2000)    // ~70 at 50 m, 42 at 1 km, 6 at 5 km
-speedScore    = 18 × max(0, 1 - time / 60)     // 18 at 0 s, 9 at 30 s, 0 at 60 s
-attemptScore  = distanceScore + speedScore     // max 88
+distanceScore = 88 × exp(-distance / 2000)    // ~88 at 50 m, 53 at 1 km, 7 at 5 km
+attemptScore  = distanceScore
 hintBonus     = unusedHints × 2
 roundScore    = min(100, bestAttemptScore + hintBonus)
 ```
@@ -57,7 +56,9 @@ Add billing alerts at $5 and $20.
 
 ## Daily generation
 
-The generator runs once daily at 23:50 SGT (GitHub Actions), downloads photos, writes `public/daily-puzzle.json` + images, and commits. If generation fails, players see the bundled default puzzle with a warning. Re-run the workflow manually if needed.
+The generator runs daily at 00:07 SGT (GitHub Actions) and maintains a sliding window of five puzzles: today plus the next four days. Each puzzle is stored as `public/puzzles/YYYY-MM-DD.json` with date-labelled photos under `public/photos/`. Days that already have a puzzle are skipped, and files outside the window are pruned.
+
+The browser reads the current date at runtime (using the player's clock converted to SGT) and fetches that day's puzzle, so the site does not need a rebuild each day. Because future puzzles are generated ahead of time, a delayed or failed scheduled run does not break the current day. If a puzzle is missing, players see the bundled default puzzle with a warning. Re-run the workflow manually if needed; after deploying this change, trigger it once to populate the initial five-day window.
 
 ## Stack
 
@@ -73,9 +74,9 @@ src/
   main.ts                entry point
   game/
     game.ts              screen flow, rounds, hints, HUD
-    scoring.ts           distance/speed/hint bonus formula
+    scoring.ts           distance/hint bonus formula
     hints.ts             hint content from place data
-    time.ts              SGT date & countdown
+    date.ts              SGT date & puzzle number
   map/
     init.ts              map creation
     pois.ts              click-to-guess, answer reveal
@@ -87,10 +88,13 @@ src/
     mrt.ts               MRT station coords
     geo.ts               haversine helpers
   ui/
-    utils.ts             escape/format/toast
+    utils.ts             escape/toast helpers
   styles.css             responsive dark UI
 scripts/
-  generateDailyPuzzle.mjs  daily puzzle + photo downloader
+  generateDailyPuzzle.mjs  five-day puzzle window + photo downloader
+public/
+  puzzles/               generated puzzles, named YYYY-MM-DD.json
+  photos/                downloaded place photos
 .github/workflows/
   daily-puzzle.yml        scheduled generator
   deploy.yml              build & deploy to Pages

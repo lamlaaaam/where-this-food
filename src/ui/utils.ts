@@ -7,12 +7,6 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;')
 }
 
-export function formatClock(totalSeconds: number): string {
-  const seconds = Math.max(0, Math.floor(totalSeconds))
-  const minutes = Math.floor(seconds / 60)
-  return `${minutes}:${String(seconds % 60).padStart(2, '0')}`
-}
-
 export function starString(rating: number): string {
   const rounded = Math.max(0, Math.min(5, Math.round(rating)))
   return '★'.repeat(rounded) + '☆'.repeat(5 - rounded)

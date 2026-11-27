@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, unlink, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -21,19 +21,22 @@ function singaporeDate(offsetDays = 0) {
   return shifted.toISOString().slice(0, 10)
 }
 
-const DATE =
+function addDays(date, offsetDays) {
+  return new Date(Date.parse(`${date}T00:00:00Z`) + offsetDays * DAY_MS).toISOString().slice(0, 10)
+}
+
+const WINDOW_DAYS = Math.max(1, Number(process.env.PUZZLE_WINDOW_DAYS ?? 5))
+const START_DATE =
   process.env.PUZZLE_DATE ?? singaporeDate(Number(process.env.PUZZLE_DATE_OFFSET_DAYS ?? 0))
-const OUTPUT = resolve(
-  ROOT,
-  process.env.PUZZLE_OUTPUT ??
-    (IS_DEFAULT ? 'public/daily-puzzle-default.json' : 'public/daily-puzzle.json'),
-)
-const SEED = process.env.PUZZLE_SEED ?? (IS_DEFAULT ? 'default' : DATE)
+const DATES = IS_DEFAULT
+  ? [START_DATE]
+  : Array.from({ length: WINDOW_DAYS }, (_, index) => addDays(START_DATE, index))
 const PHOTO_DIR = resolve(ROOT, 'public/photos')
-const PHOTO_PREFIX = IS_DEFAULT ? 'default' : 'daily'
+const PUZZLE_DIR = resolve(ROOT, 'public/puzzles')
+const DEFAULT_OUTPUT = resolve(ROOT, 'public/daily-puzzle-default.json')
 
 const CONFIG = {
-  seed: SEED,
+  seed: '',
   totalRounds: 5,
   coordinateAttempts: 3,
   localRadiusMeters: 12_000,
@@ -242,7 +245,7 @@ async function startLocalServer() {
   return server
 }
 
-async function generateInBrowser(page, apiKey) {
+async function generateInBrowser(page, apiKey, seed) {
   return page.evaluate(
     async ({ key, fields, config }) => {
       await new Promise((resolveScript, rejectScript) => {
@@ -447,66 +450,43 @@ async function generateInBrowser(page, apiKey) {
 
       return places
     },
-    { key: apiKey, fields: FIELDS, config: CONFIG },
+    { key: apiKey, fields: FIELDS, config: { ...CONFIG, seed } },
   )
 }
 
-async function main() {
-  const server = await startLocalServer()
-  let browser
+function outputFor(date) {
+  return IS_DEFAULT ? DEFAULT_OUTPUT : resolve(PUZZLE_DIR, `${date}.json`)
+}
 
+function photoPrefixFor(date) {
+  return IS_DEFAULT ? 'default' : date
+}
+
+async function downloadPhotos(page, photoTargets) {
+  const pendingWrites = []
+  const onResponse = (response) => {
+    if (response.status() >= 300 && response.status() < 400) return
+
+    const request = response.request()
+    const redirectUrls = (request.redirectChain?.() ?? []).map((entry) => entry.url())
+    const sourceUrl = [response.url(), request.url(), ...redirectUrls].find((url) =>
+      photoTargets.has(url),
+    )
+    const target = sourceUrl ? photoTargets.get(sourceUrl) : undefined
+    if (!target) return
+
+    pendingWrites.push(
+      (async () => {
+        if (!response.ok()) {
+          throw new Error(`Photo download failed (${response.status()}): ${response.url()}`)
+        }
+        await writeFile(target, await response.buffer())
+      })(),
+    )
+  }
+
+  page.on('response', onResponse)
   try {
-    browser = await puppeteer.launch({
-      executablePath: findChrome(),
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    })
-    const page = await browser.newPage()
-    page.setDefaultTimeout(180_000)
-    page.on('console', (message) => {
-      if (message.type() === 'error') console.error(`[browser] ${message.text()}`)
-    })
-    await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' })
-
-    const places = await generateInBrowser(page, API_KEY)
-
-    // Download the Place photos once during generation and serve them as static
-    // files. The JSON then contains local paths instead of Google photo URLs,
-    // so players never trigger a Place Photos request.
-    const photoTargets = new Map()
-    places.forEach((place, round) => {
-      place.photos = place.photos.map((url, index) => {
-        const filename = `${PHOTO_PREFIX}-${String(round + 1).padStart(2, '0')}-${String(
-          index + 1,
-        ).padStart(2, '0')}.jpg`
-        photoTargets.set(url, resolve(PHOTO_DIR, filename))
-        return `photos/${filename}`
-      })
-    })
-
-    await mkdir(PHOTO_DIR, { recursive: true })
-    const pendingWrites = []
-    page.on('response', (response) => {
-      if (response.status() >= 300 && response.status() < 400) return
-
-      const request = response.request()
-      const redirectUrls = (request.redirectChain?.() ?? []).map((entry) => entry.url())
-      const sourceUrl = [response.url(), request.url(), ...redirectUrls].find((url) =>
-        photoTargets.has(url),
-      )
-      const target = sourceUrl ? photoTargets.get(sourceUrl) : undefined
-      if (!target) return
-
-      pendingWrites.push(
-        (async () => {
-          if (!response.ok()) {
-            throw new Error(`Photo download failed (${response.status()}): ${response.url()}`)
-          }
-          await writeFile(target, await response.buffer())
-        })(),
-      )
-    })
-
     const failedPhotos = await page.evaluate(async (urls) => {
       const failed = []
       await Promise.all(
@@ -530,18 +510,121 @@ async function main() {
       throw new Error(`Could not download ${failedPhotos.length} photo(s).`)
     }
     await Promise.all(pendingWrites)
+  } finally {
+    page.off('response', onResponse)
+  }
 
-    const puzzle = {
-      source: IS_DEFAULT ? 'default' : 'daily',
-      date: DATE,
-      seed: SEED,
-      places,
+  const missing = [...photoTargets.values()].filter((target) => !existsSync(target))
+  if (missing.length > 0) {
+    throw new Error(`Missing ${missing.length} downloaded photo(s).`)
+  }
+}
+
+async function generatePuzzle(page, date) {
+  const output = outputFor(date)
+  if (!IS_DEFAULT && existsSync(output)) {
+    console.log(`Skipping ${date}: ${output} already exists`)
+    return
+  }
+
+  const seed = IS_DEFAULT ? 'default' : date
+  const places = await generateInBrowser(page, API_KEY, seed)
+  const prefix = photoPrefixFor(date)
+
+  // Download the Place photos once during generation and serve them as static
+  // files. The JSON then contains local paths instead of Google photo URLs,
+  // so players never trigger a Place Photos request.
+  const photoTargets = new Map()
+  places.forEach((place, round) => {
+    place.photos = place.photos.map((url, index) => {
+      const filename = `${prefix}-${String(round + 1).padStart(2, '0')}-${String(
+        index + 1,
+      ).padStart(2, '0')}.jpg`
+      photoTargets.set(url, resolve(PHOTO_DIR, filename))
+      return `photos/${filename}`
+    })
+  })
+
+  await mkdir(PHOTO_DIR, { recursive: true })
+  await downloadPhotos(page, photoTargets)
+
+  const puzzle = {
+    source: IS_DEFAULT ? 'default' : 'daily',
+    date,
+    seed,
+    places,
+  }
+
+  await mkdir(dirname(output), { recursive: true })
+  await writeFile(output, `${JSON.stringify(puzzle, null, 2)}\n`)
+  console.log(`Wrote ${output} (${places.length} places, ${photoTargets.size} photos)`)
+  for (const place of places) console.log(`  ${place.name}`)
+}
+
+async function pruneWindow(dates) {
+  if (IS_DEFAULT) return
+
+  const keep = new Set(dates)
+  await mkdir(PUZZLE_DIR, { recursive: true })
+  await mkdir(PHOTO_DIR, { recursive: true })
+  let removed = 0
+
+  for (const file of await readdir(PUZZLE_DIR)) {
+    const match = /^(\d{4}-\d{2}-\d{2})\.json$/.exec(file)
+    if (match && !keep.has(match[1])) {
+      await unlink(resolve(PUZZLE_DIR, file))
+      removed += 1
+    }
+  }
+
+  for (const file of await readdir(PHOTO_DIR)) {
+    const match = /^(\d{4}-\d{2}-\d{2})-/.exec(file)
+    if (match && !keep.has(match[1])) {
+      await unlink(resolve(PHOTO_DIR, file))
+      removed += 1
+    }
+  }
+
+  if (removed > 0) {
+    console.log(`Pruned ${removed} file(s) outside ${dates[0]}..${dates.at(-1)}`)
+  }
+}
+
+async function main() {
+  console.log(`Puzzle window: ${DATES[0]}..${DATES.at(-1)} (${DATES.length} day(s))`)
+
+  const datesToGenerate = IS_DEFAULT
+    ? DATES
+    : DATES.filter((date) => !existsSync(outputFor(date)))
+
+  if (datesToGenerate.length === 0) {
+    await pruneWindow(DATES)
+    console.log(`All ${DATES.length} puzzles already exist for ${DATES[0]}..${DATES.at(-1)}`)
+    return
+  }
+
+  const server = await startLocalServer()
+  let browser
+
+  try {
+    browser = await puppeteer.launch({
+      executablePath: findChrome(),
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    })
+    const page = await browser.newPage()
+    await page.setCacheEnabled(false)
+    page.setDefaultTimeout(180_000)
+    page.on('console', (message) => {
+      if (message.type() === 'error') console.error(`[browser] ${message.text()}`)
+    })
+    await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' })
+
+    for (const date of datesToGenerate) {
+      await generatePuzzle(page, date)
     }
 
-    await mkdir(dirname(OUTPUT), { recursive: true })
-    await writeFile(OUTPUT, `${JSON.stringify(puzzle, null, 2)}\n`)
-    console.log(`Wrote ${OUTPUT} (${places.length} places, ${photoTargets.size} photos)`)
-    for (const place of places) console.log(`  ${place.name}`)
+    await pruneWindow(DATES)
   } finally {
     await browser?.close()
     await new Promise((resolveClose) => server.close(resolveClose))

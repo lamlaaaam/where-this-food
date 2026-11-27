@@ -10,15 +10,18 @@ once daily by a GitHub Actions script; no game engine — the map is the game bo
 
 ## Key decisions
 - Data: Places API (New) via the Maps JavaScript API in headless Chrome, run by a scheduled
-  GitHub Actions workflow and written to `public/daily-puzzle.json`.
-- The puzzle resets at **12:00 AM SGT**. The workflow runs at 11:50 PM SGT and generates the
-  next day's puzzle so it is ready at the reset.
-- If the dated puzzle is missing or stale, load `public/daily-puzzle-default.json` and show a
+  GitHub Actions workflow and written to `public/puzzles/YYYY-MM-DD.json`.
+- The puzzle resets at **12:00 AM SGT**. The workflow runs daily at 00:07 SGT and maintains a
+  sliding five-day window (today + next four days). Existing days are skipped, so a delayed
+  scheduled run does not block the current day's puzzle.
+- The browser reads the current SGT date at runtime and fetches that day's puzzle file, so a
+  static build does not need to be rebuilt each day.
+- If the dated puzzle is missing, load `public/daily-puzzle-default.json` and show a
   prominent warning that daily puzzle generation failed and the player is on the default puzzle.
 - If both files are missing/invalid, show an error screen. There is no silent demo mode.
 - Map: Google Maps JS API with clickable POIs and a browser-restricted key.
 - Place selection: generated once per day, filtered to Singapore food places with usable reviews.
-- Hints: −12 points each.
+- Hints: each unused hint earns +2 points for the round.
 - Leaderboard/multiplayer: deferred to a later version.
 
 ## Prerequisites
@@ -41,7 +44,7 @@ src/
     game.ts              screen flow, rounds, attempts, hints, HUD, fallback warning
     scoring.ts           score formula + breakdown
     hints.ts             hint content from place data + bundled geo data
-    time.ts              SGT date and next-puzzle countdown helpers
+    date.ts              SGT date and puzzle-number helpers
   map/
     init.ts              map creation
     pois.ts              POI click, guess/answer markers
@@ -53,50 +56,44 @@ src/
     mrt.ts               MRT station coordinates
     geo.ts               haversine + Singapore bounds
   ui/
-    utils.ts             escape, clock formatting, toast
+    utils.ts             escape and toast helpers
   styles.css             responsive dark UI
 scripts/
-  generateDailyPuzzle.mjs  headless-Chrome Places generator (daily + default)
+  generateDailyPuzzle.mjs  headless-Chrome Places generator (five-day window + default)
 public/
-  daily-puzzle.json        generated dated puzzle
+  puzzles/                 generated dated puzzles
   daily-puzzle-default.json committed fallback puzzle
 .github/workflows/
-  daily-puzzle.yml       commits the generated puzzle before midnight SGT
+  daily-puzzle.yml       commits the generated five-day puzzle window
   deploy.yml             builds and deploys the static site
 ```
 
 ## Game flow
-1. **Boot**: read the map key from `VITE_GOOGLE_MAPS_API_KEY`, fetch `daily-puzzle.json`,
-   validate its SGT date, and fall back to `daily-puzzle-default.json` with a warning if needed.
-2. **Menu**: rules, puzzle date, default-puzzle warning (when applicable), Start button, and
-   countdown to the next 12:00 AM SGT reset. Google Maps is loaded only when Start is pressed.
-3. **Round**: read the answer for this round from the loaded puzzle, render reviews, start the
-   timer, enable the map.
+1. **Boot**: read the map key from `VITE_GOOGLE_MAPS_API_KEY`, compute the current SGT date,
+   fetch `puzzles/YYYY-MM-DD.json`, and fall back to `daily-puzzle-default.json` with a warning
+   if needed.
+2. **Menu**: rules, puzzle date, default-puzzle warning (when applicable), and Start button.
+   Google Maps is loaded only when Start is pressed.
+3. **Round**: read the answer for this round from the loaded puzzle, render reviews, enable
+   the map.
 4. **Guessing**: click the food place POI itself; empty-map clicks are rejected. Confirm a
-   guess; 3 attempts. Wrong guesses flash the screen red with no distance text.
-5. **Result**: correct/incorrect, score breakdown, map reveal.
-6. **Summary** after 5 rounds: total /500, per-round rows, “Come back tomorrow”, countdown.
+   guess; 2 attempts. Wrong guesses flash the screen red with no distance text.
+5. **Result**: correct/incorrect, distance score breakdown, map reveal.
+6. **Summary** after 5 rounds: total /500, per-round rows, “Come back tomorrow”.
 
-The countdown is shown in the HUD throughout play. When the page is idle (menu/summary), a
-midnight SGT rollover reloads the page so the new puzzle is fetched automatically. An active
-round is not interrupted.
-
-## Timer and scoring
-- No hard time limit.
-- First 30 seconds are penalty-free (hints still apply).
-- After 30 seconds: −5 points per 30-second block.
-- Attempt multipliers: 1st = 100%, 2nd = 70%, 3rd = 40%.
+## Scoring
+- Each attempt is scored only by distance; there is no timer or speed component.
+- Best of the two attempts is used for the round.
 - Formula:
 
 ```
-base = 100
-hintPenalty = hintsUsed × 12
-timePenalty = elapsed <= 30 ? 0 : 5 × ceil((elapsed − 30) / 30)
-attemptMultiplier = [1.0, 0.7, 0.4][attempt − 1]
-score = clamp(round((base − hintPenalty − timePenalty) × attemptMultiplier), 0, 100)
+distanceScore = 88 × exp(-distance / 2000)    // ~88 at 50 m, 53 at 1 km, 7 at 5 km
+attemptScore  = distanceScore                 // max 88
+hintBonus     = unusedHints × 2
+roundScore    = min(100, bestAttemptScore + hintBonus)
 ```
 
-The HUD shows the live potential score and updates every second and on hint use.
+The HUD shows the live potential score and updates on each attempt and hint use.
 
 ## Hints
 | Hint | Source |
@@ -130,12 +127,13 @@ Missing photos disable those hints (no penalty).
 - Initial view uses the Singapore bounding box; no snapping of misplaced pins.
 - Correct/incorrect/skipped finish reveals the answer with a green marker and info window.
 - Wrong guesses flash the screen red; no distance, toast or result-modal popup is shown.
-- After three wrong guesses **or a skip**, the result card moves to the corner with a
-  transparent overlay so the green answer pin and its info window remain visible.
+- After both guesses **or a skip**, the result card moves to the corner with a transparent
+  overlay so the green answer pin and its info window remain visible.
 - Skipping a round records a 0-point result and is labelled as skipped in the summary.
 
 ## Static puzzle data
-- `public/daily-puzzle.json` is committed by the workflow and served as a static asset.
+- `public/puzzles/YYYY-MM-DD.json` files are committed by the workflow and served as static
+  assets. The workflow keeps today plus the next four days and prunes older files.
 - `public/daily-puzzle-default.json` is a committed fallback generated once with the same
   script (`npm run puzzle:default`).
 - Review text is copied from Google Places into these JSON files. Verify Google's current
@@ -147,7 +145,7 @@ Missing photos disable those hints (no penalty).
 
 ## Deployment
 - `.github/workflows/deploy.yml` builds on push to `main`.
-- `.github/workflows/daily-puzzle.yml` generates and commits the next SGT day's puzzle.
+- `.github/workflows/daily-puzzle.yml` generates and commits the five-day SGT puzzle window.
 - Secrets: `VITE_GOOGLE_MAPS_API_KEY` (browser key, Maps JavaScript only) and `PLACES_API_KEY`
   (generator key, Maps JavaScript + Places API (New)).
 - `VITE_BASE_PATH=/<repo-name>/` for project pages.
@@ -161,5 +159,6 @@ Missing photos disable those hints (no penalty).
   skipped in favour of places that can fill all five slots.
 - The key is visible in the built bundle, so referrer restrictions are essential. Earlier
   commits also embedded it in photo URLs inside the puzzle JSON; rotate that key.
-- If generation fails, the previous dated file becomes stale at midnight SGT and players see
-  the default-puzzle warning until the workflow is fixed and re-run.
+- Because future puzzles are generated ahead of time, a failed or delayed scheduled run does
+  not immediately break the current day. If the window is exhausted, players see the
+  default-puzzle warning until the workflow is fixed and re-run.

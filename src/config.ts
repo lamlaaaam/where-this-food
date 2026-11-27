@@ -1,11 +1,9 @@
 export const CONFIG = {
   totalRounds: 5,
-  maxAttempts: 3,
+  maxAttempts: 2,
   maxRoundScore: 100,
-  maxDistanceScore: 70,
+  maxDistanceScore: 88,
   distanceDecayMeters: 2000,
-  maxSpeedScore: 18,
-  speedWindowSeconds: 60,
   unusedHintBonus: 2,
   perfectDistanceMeters: 50,
   singaporeCenter: { lat: 1.3521, lng: 103.8198 },

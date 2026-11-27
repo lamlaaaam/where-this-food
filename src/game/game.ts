@@ -13,8 +13,8 @@ import { MapInteraction } from '../map/pois'
 import { reviewsForDisplay } from '../places/reviews'
 import { formatDistance, haversineMeters } from '../data/geo'
 import type { DailyPuzzle, Guess, Hint, PlaceData, RoundScore } from '../types'
-import { escapeHtml, formatClock, toast } from '../ui/utils'
-import { formatCountdown, nextSingaporeMidnight, puzzleNumber, singaporeDate } from './time'
+import { escapeHtml, toast } from '../ui/utils'
+import { puzzleNumber, singaporeDate } from './date'
 
 export class Game {
   private readonly root: HTMLElement
@@ -27,8 +27,6 @@ export class Game {
   private puzzleDate = ''
   private usingDefaultPuzzle = false
   private puzzleFailureReason = ''
-  private countdownTimerId: number | null = null
-  private countdownDate = singaporeDate()
 
   private map: google.maps.Map | null = null
   private mapElement: HTMLElement | null = null
@@ -37,9 +35,7 @@ export class Game {
   private currentPlace: PlaceData | null = null
   private hints: Hint[] = []
   private attempts = 1
-  private attemptStartedAt = 0
   private attemptScores: AttemptScore[] = []
-  private timerId: number | null = null
   private attemptScoreTimerId: number | null = null
   private roundOver = false
   private loading = false
@@ -56,9 +52,7 @@ export class Game {
       return
     }
 
-    this.countdownDate = singaporeDate()
     this.renderShell()
-    this.startCountdown()
 
     try {
       await this.loadPuzzleWithFallback()
@@ -96,15 +90,15 @@ export class Game {
   }
 
   private async loadDailyPuzzle(): Promise<void> {
-    const url = `${import.meta.env.BASE_URL}daily-puzzle.json`
+    const today = singaporeDate()
+    const url = `${import.meta.env.BASE_URL}puzzles/${today}.json`
     const puzzle = await this.fetchPuzzle(url)
 
     if (puzzle.source === 'default') {
       throw new Error('The daily puzzle file is a default puzzle.')
     }
-    const today = singaporeDate()
     if (puzzle.date !== today) {
-      throw new Error(`Today's puzzle is not available yet (expected ${today} SGT).`)
+      throw new Error(`Today's puzzle is not available (expected ${today} SGT).`)
     }
     this.applyPuzzle(puzzle)
   }
@@ -113,6 +107,33 @@ export class Game {
     const url = `${import.meta.env.BASE_URL}daily-puzzle-default.json`
     const puzzle = await this.fetchPuzzle(url)
     this.applyPuzzle(puzzle)
+  }
+
+  /**
+   * The page can stay open across midnight SGT. Re-check the date when a game
+   * starts so the player always gets the puzzle for the current day.
+   */
+  private async ensurePuzzleForToday(): Promise<void> {
+    if (this.puzzleDate === singaporeDate()) return
+
+    try {
+      await this.loadDailyPuzzle()
+      this.usingDefaultPuzzle = false
+      this.puzzleFailureReason = ''
+    } catch (error) {
+      const dailyError = this.errorMessage(error)
+      let fallbackLoaded = false
+      try {
+        await this.loadDefaultPuzzle()
+        fallbackLoaded = true
+      } catch {
+        // Keep the previously loaded puzzle if the fallback is unavailable.
+      }
+      this.usingDefaultPuzzle = fallbackLoaded
+      this.puzzleFailureReason = fallbackLoaded ? dailyError : ''
+    }
+
+    this.renderPuzzleWarning()
   }
 
   private async fetchPuzzle(url: string): Promise<DailyPuzzle> {
@@ -144,32 +165,6 @@ export class Game {
 
   private errorMessage(error: unknown): string {
     return error instanceof Error ? error.message : String(error)
-  }
-
-  private startCountdown(): void {
-    if (this.countdownTimerId !== null) return
-    this.updateCountdown()
-    this.countdownTimerId = window.setInterval(() => this.updateCountdown(), 1000)
-  }
-
-  private updateCountdown(): void {
-    const now = Date.now()
-    const remaining = nextSingaporeMidnight(now) - now
-    const label = formatCountdown(remaining)
-
-    document.querySelectorAll<HTMLElement>('[data-countdown]').forEach((element) => {
-      element.textContent = label
-    })
-
-    const today = singaporeDate(now)
-    if (today !== this.countdownDate) {
-      this.countdownDate = today
-      if (!this.isActiveRound()) window.location.reload()
-    }
-  }
-
-  private isActiveRound(): boolean {
-    return Boolean(document.querySelector('.play') && this.currentPlace && !this.roundOver)
   }
 
   private renderPuzzleWarning(): void {
@@ -256,12 +251,10 @@ export class Game {
             <span class="brand-text">Where This Food<small>Singapore edition</small></span>
           </div>
           <div class="hud">
-            <div class="hud-item"><span class="hud-label">Puzzle</span><span class="hud-value" id="hud-puzzle">#${puzzleNumber(this.countdownDate)}</span></div>
+            <div class="hud-item"><span class="hud-label">Puzzle</span><span class="hud-value" id="hud-puzzle">#${puzzleNumber(singaporeDate())}</span></div>
             <div class="hud-item"><span class="hud-label">Round</span><span class="hud-value" id="hud-round">—</span></div>
             <div class="hud-item"><span class="hud-label">Total</span><span class="hud-value" id="hud-total">0</span></div>
-            <div class="hud-item"><span class="hud-label">Time</span><span class="hud-value" id="hud-time">0:00</span></div>
             <div class="hud-item accent"><span class="hud-label"><span class="hud-label-wide">Best attempt</span><span class="hud-label-mobile">Best</span></span><span class="hud-value" id="hud-potential">—</span></div>
-            <div class="hud-item countdown"><span class="hud-label">Next puzzle · SGT</span><span class="hud-value" data-countdown>--:--:--</span></div>
           </div>
         </header>
         <div class="puzzle-warning" id="puzzle-warning" hidden>
@@ -277,7 +270,6 @@ export class Game {
   }
 
   private renderMenu(): void {
-    this.stopTimer()
     this.setPlayingLayout(false)
     const screen = this.screen()
     screen.innerHTML = `
@@ -308,11 +300,11 @@ export class Game {
             </li>
             <li>
               <span class="rule-icon">📍</span>
-              <div><strong>3 attempts</strong><p>Your best attempt is used for the round.</p></div>
+              <div><strong>2 attempts</strong><p>Your best attempt is used for the round.</p></div>
             </li>
             <li>
               <span class="rule-icon">🎯</span>
-              <div><strong>Distance + speed</strong><p>Closer pins and faster answers score more. Up to 88 points per attempt.</p></div>
+              <div><strong>Distance</strong><p>Closer pins score more. Up to 88 points per attempt.</p></div>
             </li>
             <li>
               <span class="rule-icon">💡</span>
@@ -326,11 +318,9 @@ export class Game {
 
     this.setText('hud-round', '—')
     this.setText('hud-total', '0')
-    this.setText('hud-time', '0:00')
     this.setText('hud-potential', '—')
 
     document.getElementById('start-game')?.addEventListener('click', () => this.startGame())
-    this.updateCountdown()
   }
 
   private async startGame(): Promise<void> {
@@ -338,6 +328,8 @@ export class Game {
       this.renderKeyProblem()
       return
     }
+
+    await this.ensurePuzzleForToday()
 
     try {
       await loadGoogleMaps(this.apiKey)
@@ -355,14 +347,12 @@ export class Game {
   }
 
   private async startRound(): Promise<void> {
-    this.stopTimer()
     this.roundOver = false
     this.loading = true
     this.attempts = 1
     this.attemptScores = []
     this.currentPlace = null
     this.hints = []
-    this.attemptStartedAt = 0
 
     this.setPlayingLayout(true)
     const screen = this.screen()
@@ -456,7 +446,6 @@ export class Game {
     this.hints = buildHints(place)
     this.attempts = 1
     this.attemptScores = []
-    this.attemptStartedAt = Date.now()
     this.hideAttemptScore()
     this.loading = false
 
@@ -466,7 +455,6 @@ export class Game {
     this.renderReviews()
     this.renderHints()
     this.interaction?.setEnabled(true)
-    this.startTimer()
     this.updateHud()
   }
 
@@ -580,7 +568,6 @@ export class Game {
     const attempt = scoreAttempt({
       attempt: this.attempts,
       distanceMeters: haversineMeters(guess.location, this.currentPlace.location),
-      elapsedSeconds: this.elapsedSeconds(),
     })
     this.attemptScores.push(attempt)
     this.interaction.commitAttempt(this.attempts)
@@ -590,7 +577,6 @@ export class Game {
 
     if (this.attempts < CONFIG.maxAttempts) {
       this.attempts += 1
-      this.attemptStartedAt = Date.now()
       return
     }
 
@@ -601,7 +587,7 @@ export class Game {
     return (
       `<span class="attempt-score-kicker">Attempt ${attempt.attempt}</span>` +
       `<strong>${attempt.score} pts</strong>` +
-      `<span>${formatDistance(attempt.distanceMeters)} · ${attempt.distanceScore} distance + ${attempt.speedScore} speed</span>`
+      `<span>${formatDistance(attempt.distanceMeters)} · ${attempt.distanceScore} distance</span>`
     )
   }
 
@@ -653,7 +639,6 @@ export class Game {
       : computeRoundBreakdown(this.attemptScores, unusedHints)
     const score = breakdown?.score ?? 0
 
-    this.stopTimer()
     this.roundOver = true
     this.loading = false
     this.interaction?.setEnabled(false)
@@ -667,7 +652,6 @@ export class Game {
     this.totalScore += score
     this.setText('hud-total', String(this.totalScore))
     this.setText('hud-potential', String(breakdown?.best.score ?? 0))
-    this.setText('hud-time', formatClock(this.elapsedSeconds()))
 
     this.roundScores.push({
       round: this.roundIndex + 1,
@@ -678,9 +662,7 @@ export class Game {
       hintsUsed,
       unusedHints,
       bestDistanceMeters: breakdown?.best.distanceMeters ?? null,
-      bestAttemptSeconds: Math.round(breakdown?.best.elapsedSeconds ?? 0),
       distanceScore: breakdown?.best.distanceScore ?? 0,
-      speedScore: breakdown?.best.speedScore ?? 0,
       hintBonus: breakdown?.hintBonus ?? 0,
     })
 
@@ -724,7 +706,6 @@ export class Game {
                 <div class="breakdown">
                   <div><span>Best attempt</span><span>${breakdown.best.attempt} of ${this.attemptScores.length}</span></div>
                   <div><span>Distance</span><span>${formatDistance(breakdown.best.distanceMeters)} · ${breakdown.best.distanceScore} pts</span></div>
-                  <div><span>Speed</span><span>${formatClock(breakdown.best.elapsedSeconds)} · ${breakdown.best.speedScore} pts</span></div>
                   <div><span>Unused hints</span><span>${breakdown.unusedHints} × ${CONFIG.unusedHintBonus} = +${breakdown.hintBonus}</span></div>
                   <div class="total"><span>Round score</span><span>${breakdown.score} / ${CONFIG.maxRoundScore}</span></div>
                 </div>
@@ -751,7 +732,6 @@ export class Game {
   }
 
   private renderSummary(): void {
-    this.stopTimer()
     this.setPlayingLayout(false)
     const screen = this.screen()
     const maxTotal = CONFIG.totalRounds * CONFIG.maxRoundScore
@@ -789,7 +769,6 @@ export class Game {
               .join('')}
           </div>
           <button class="btn primary large" type="button" disabled>Come back tomorrow</button>
-          <p class="fineprint">Next puzzle in <span data-countdown>--:--:--</span> (SGT)</p>
         </div>
       </section>
     `
@@ -797,7 +776,6 @@ export class Game {
     this.setText('hud-round', `${CONFIG.totalRounds} / ${CONFIG.totalRounds}`)
     this.setText('hud-total', String(this.totalScore))
     this.setText('hud-potential', '—')
-    this.updateCountdown()
   }
 
   private updateAttempts(): void {
@@ -830,11 +808,8 @@ export class Game {
   }
 
   private updateHud(): void {
-    const elapsed = this.elapsedSeconds()
-
     this.setText('hud-round', `${Math.min(this.roundIndex + 1, CONFIG.totalRounds)} / ${CONFIG.totalRounds}`)
     this.setText('hud-total', String(this.totalScore))
-    this.setText('hud-time', formatClock(elapsed))
 
     if (this.roundOver) return
 
@@ -843,23 +818,6 @@ export class Game {
     } else {
       this.setText('hud-potential', '—')
     }
-  }
-
-  private startTimer(): void {
-    this.stopTimer()
-    this.timerId = window.setInterval(() => this.updateHud(), 1000)
-  }
-
-  private stopTimer(): void {
-    if (this.timerId !== null) {
-      window.clearInterval(this.timerId)
-      this.timerId = null
-    }
-  }
-
-  private elapsedSeconds(): number {
-    if (this.attemptStartedAt === 0) return 0
-    return (Date.now() - this.attemptStartedAt) / 1000
   }
 
   private hintsUsed(): number {

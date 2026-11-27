@@ -3,15 +3,12 @@ import { CONFIG } from '../config'
 export interface AttemptInput {
   attempt: number
   distanceMeters: number
-  elapsedSeconds: number
 }
 
 export interface AttemptScore {
   attempt: number
   distanceMeters: number
-  elapsedSeconds: number
   distanceScore: number
-  speedScore: number
   score: number
 }
 
@@ -24,24 +21,19 @@ export interface RoundBreakdown {
 
 /**
  * Distance uses a smooth exponential decay, similar to GeoGuessr. A pin within
- * ~100 m is worth almost the full 70 points; 1 km is about 42; 5 km is about 6.
+ * ~100 m is worth almost the full 88 points; 1 km is about 53; 5 km is about 7.
  */
 export function scoreAttempt(input: AttemptInput): AttemptScore {
   const distanceMeters = Math.max(0, input.distanceMeters)
-  const elapsedSeconds = Math.max(0, input.elapsedSeconds)
   const distanceScore = Math.round(
     CONFIG.maxDistanceScore * Math.exp(-distanceMeters / CONFIG.distanceDecayMeters),
   )
-  const speedRatio = Math.max(0, 1 - elapsedSeconds / CONFIG.speedWindowSeconds)
-  const speedScore = Math.round(CONFIG.maxSpeedScore * speedRatio)
 
   return {
     attempt: input.attempt,
     distanceMeters,
-    elapsedSeconds,
     distanceScore,
-    speedScore,
-    score: Math.min(CONFIG.maxRoundScore, distanceScore + speedScore),
+    score: Math.min(CONFIG.maxRoundScore, distanceScore),
   }
 }
 

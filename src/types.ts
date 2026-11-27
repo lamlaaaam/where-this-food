@@ -51,8 +51,6 @@ export interface RoundScore {
   hintsUsed: number
   unusedHints: number
   bestDistanceMeters: number | null
-  bestAttemptSeconds: number
   distanceScore: number
-  speedScore: number
   hintBonus: number
 }
