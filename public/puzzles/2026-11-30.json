@@ -1,0 +1,320 @@
+{
+  "source": "daily",
+  "date": "2026-11-30",
+  "seed": "2026-11-30",
+  "places": [
+    {
+      "placeId": "ChIJw1mOPAAR2jERE96vT-wN81w",
+      "name": "Isaac@Nazt Comfort Western Food",
+      "address": "134 Jurong Gateway Rd, #01-309, Singapore 600134",
+      "location": {
+        "lat": 1.3340725,
+        "lng": 103.73874320000002
+      },
+      "rating": 5,
+      "userRatingsTotal": 66,
+      "countryCode": "SG",
+      "types": [
+        "western_restaurant",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-30-01-01.jpg",
+        "photos/2026-11-30-01-02.jpg",
+        "photos/2026-11-30-01-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Rach",
+          "rating": 5,
+          "text": "Was searching for good western food stalls in the west and came across this stall with impeccably good reviews, so I had to drop by to try! Ordered the chicken chop (added pasta😊) and fish & chips— both were really delicious and sides were good too!🔥😋 Portion sizes are decent for the prices and most importantly, I really enjoyed the taste😍 Chef owner was quite friendly and approachable too. Will def be back again👍🏻🤤\n\nLove finding good (and affordable) food places!!!",
+          "relativeTime": "3 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLCyLjaBJ2Krp5ZkBJFmd9P94xLudV3Bl_Ov-uPfVITnnQG53M=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "G Wijaya",
+          "rating": 5,
+          "text": "Found this hidden gem a few weeks back and can’t stop coming back. The boss is super welcoming, and every meat dish he puts out hits the spot.\nThe fish & chips is phenomenal: ultra-crispy batter, flaky and meaty fish, and perfectly seasoned fries. Don’t sleep on the shredded turnips either—the subtle orange-yuzu note makes it so refreshing!",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocIHPpns0X9zglZkJbjZdrTxmUa6-n_58uBRCQwSwiiXDi8e_Q=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "Sebastian Lee",
+          "rating": 5,
+          "text": "Happy to find this western food shop again after it moved from its previous location. Food is tasty and of generous portion. Would recommend the fish n chips!",
+          "relativeTime": "3 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocIWQRiQLvKcwAvtS-wDNQhHxZT5uIdZxHFzUX0fU_MUdCv_pw=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "Gabrielle Teng",
+          "rating": 5,
+          "text": "very nice western food with generous portion, my favourite is aglio olio & fish & chips ~ uncle is very friendly! ❤️",
+          "relativeTime": "2 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocI3Fz7Z_iAr3iS2c_skqbhCg88GlxBCbhFINCxDZWiPWuVTLw=s128-c0x00000000-cc-rp-mo-ba3"
+        },
+        {
+          "author": "Yu Wei Sho",
+          "rating": 5,
+          "text": "I never usually leave reviews, but the food was soooo good that I felt like I had to! Tried their chicken chop for takeaway. It came well packaged, nicely dressed with crispy fries (must try, the first bite hit different) and fresh mesclun, and the chicken was tender and perfectly grilled. I could taste the chef’s craftsmanship in every bite of this dish. Decent price, generous portion, restaurant standard food, it’s really a rare gem especially at neighbourhood kopitiam. I wish I had tried this out earlier, it was definitely a 6 stars out of 5! (I was enjoying the food so much that I forgot to take a picture!)",
+          "relativeTime": "3 weeks ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLut286F3_kkbtedrQ-y7eVQS0dV5V17RUSvDYECel8mqqriQ=s128-c0x00000000-cc-rp-mo"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJXS9GSw8b2jERkkGIAJylb1Q",
+      "name": "CU Mr Bull",
+      "address": "1 Fusionopolis Walk, #01-12, Singapore 138628",
+      "location": {
+        "lat": 1.2985004,
+        "lng": 103.790181
+      },
+      "rating": 4.4,
+      "userRatingsTotal": 201,
+      "countryCode": "SG",
+      "types": [
+        "korean_restaurant",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-30-02-01.jpg",
+        "photos/2026-11-30-02-02.jpg",
+        "photos/2026-11-30-02-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Wu Chunhui",
+          "rating": 5,
+          "text": "The staff really patient with me and even helped me with the food. I just wanted to try my fav Korea street snacks. They were nicely price and great tasting.\n\nWent back, and their selection of street food is excellent. Taste also good. And can get free drink.",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocLMAbZ4cJYLFu52nhxhbM4N9X5OYemgP1YriI6FYo1AJmoFsw=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "Genia Wee",
+          "rating": 5,
+          "text": "They served real authentic Korean cuisine, even local Korean residents agreed with regular patrons. Especially, their specialties braised beef ribs and 8hour simmer seollangtang, beef brisket soup, fried chicken wings, cold buckwheat noodle and kimchi ramen... are all so yummy!",
+          "relativeTime": "a year ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWHQRWdVmB4XCeuj9QpiP3-udUx7-SD6fv-_TYfJU7P1YrCrg9IxQ=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "JOLIN LEE",
+          "rating": 5,
+          "text": "My second try, consistent standard. Absolutely love the beef broth after my fasting. Less of seasoning can really taste the real beef bone soup which is exactly what I love.\n\nIn addition I like to add on my protein with Spicy braised chicken, the addictive mala rice cake with fish cake, and the small serving of fried chicken wing.\n\nI can’t seem to find similar menu else where! The owner is adventurous on menu, and I must say he gain us loyal customers. Will definitely be back again to get my protein and broth fixed.",
+          "relativeTime": "a year ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocI3Bf06cYta5RzDFBiwXd3DVV6YWQjgQdfi6LGA-KmPSRVTSg=s128-c0x00000000-cc-rp-mo-ba3"
+        },
+        {
+          "author": "H26",
+          "rating": 4,
+          "text": "Food portion and pricing are okay. Self service drinks. But it’s quite hot and stuffy to eat indoor. Perhaps can consider using solar film to block UV and reduce the temperature.",
+          "relativeTime": "2 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjX3aEQfEtJfvIfwxEFwi0yvVS7t-C7Q7WsQAu0WfaRoBU0Yhbs=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "Seah Esther",
+          "rating": 5,
+          "text": "Delicious foods and nice dining ambience!\n-Fried chicken fried to perfection, super crispy even with the sauce.\n- Mala Tteokbokki with fish cake and melted cheese definitely will satisfy your stomach craving\n\nOverall worth to come back again",
+          "relativeTime": "2 years ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjVjX6EyyoGr1WjCCzvFm5r7zNl2gem0N_vlh37vGqiJVvzMbZVo=s128-c0x00000000-cc-rp-mo-ba3"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJaXosalYb2jERrgEO-MJtRwA",
+      "name": "LerrMak @ 440 Pasir Panjang",
+      "address": "440A Pasir Panjang Rd, Singapore 118782",
+      "location": {
+        "lat": 1.2923786,
+        "lng": 103.7683733
+      },
+      "rating": 4.8,
+      "userRatingsTotal": 25,
+      "countryCode": "SG",
+      "types": [
+        "halal_restaurant",
+        "brunch_restaurant",
+        "fast_food_restaurant",
+        "catering_service",
+        "meal_takeaway",
+        "indonesian_restaurant",
+        "food_delivery",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "service",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-30-03-01.jpg",
+        "photos/2026-11-30-03-02.jpg",
+        "photos/2026-11-30-03-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Raymond Lim",
+          "rating": 5,
+          "text": "Had a wonderful dinner at Lerrmak / Pham Quyen Halal Vietnamese Cuisine and was pleasantly surprised by the quality of the food.\n\nWe ordered the Beef Pho, Bánh Mì, and two versions of the Nasi Lemak (Vietnamese Chicken Wings and Ayam Bakar). Every dish was delicious, generously portioned and reasonably priced.\n\nThe Beef Pho came with a rich, comforting broth and tender slices of beef. The Bánh Mì was crispy on the outside, soft inside and packed with flavour. Both versions of the Nasi Lemak were excellent, and the sambal deserves a special mention - it had a great balance of spice and flavour that complemented the fragrant rice perfectly.\n\nThe drinks were equally enjoyable. The Vietnamese Iced Coffee was rich and aromatic, while the Thai Iced Milk Tea was smooth, refreshing and not overly sweet.\n\nThe restaurant is clean, comfortable and suitable for families or gatherings with friends. Prices are very reasonable for the quality and portions served.\n\nA nice bonus is that NUS students enjoy special discounts, making it even better value.\n\nOverall, a highly recommended place for anyone craving good halal Vietnamese food. I’ll definitely be back to try more dishes!",
+          "relativeTime": "4 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocK-vIMZZyrZTkCiAb_4KlNhurZPkpjOWmcVu273GLBiIiYOlw=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Hanseong Choi",
+          "rating": 5,
+          "text": "Really amazing nasi lemak! One of the best I had in Singapore so far. Chicken is perfectly crispy, the sweet and spicy kick of sambal, as well as the ikan bilis… everything just hit the spot nicely!\n\nThe seats are not very comfortable, but understandable because we’re not meant to sit there for an entire afternoon.\n\nService was great, the staffs are all very nice.",
+          "relativeTime": "7 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocI5bkwLE6VVVoQWoZOjCzie5gZac7f2PG9ovpiRKys_d70xxA=s128-c0x00000000-cc-rp-mo-ba3"
+        },
+        {
+          "author": "Naresh Subramaniam",
+          "rating": 3,
+          "text": "Ordered takeaway from the restaurant thus I have given a 5 for atmosphere since I am not in a position to comment on that. The nasi lemak is extremely average. It's not bad though, don't get me wrong. I am thankful that more ikan bilis was given as requested. The chilli was watery, a little oilier than I would have liked it to be. However it did have a sweetness that works decently well with the rice.\n\nSomething that strongly affected my experience was the strong lingering smell of fish sauce. I understand that Lerrmak shares the space with a Vietnamese restaurant thus I am sure if this issue was avoidable or not.\n\nThe overall value of the dish was maybe $9/$10 max but it was priced at $15/$16 which means that it is not of accurate value.\n\nHope the relevant improvements can be made. Thanks.",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWbRMa8lJ0Blb_KIIMnfeQJ6bhCPGG-_ZHTeFIK7uQvi56lVQjsFQ=s128-c0x00000000-cc-rp-mo-ba3"
+        },
+        {
+          "author": "CK C",
+          "rating": 2,
+          "text": "The Nasi Lemak rice was fragrant but was lukewarm; the chicken leg was huge but was extremely dry, almost like breast meat; the green chilli tasted only of saltiness; the egg was overcooked. This is in contrast to their Vietnamese food, which was amazingly good.",
+          "relativeTime": "7 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUJngakiAyXfuUPzsbeKdkVxjM8nPSXTlt1gt0po1I-NptHHTNE4g=s128-c0x00000000-cc-rp-mo-ba8"
+        },
+        {
+          "author": "Hong khanh Pham",
+          "rating": 5,
+          "text": "Enjoyed the traditional Nasi Lemak. The sambal is on point and the basmati rice is perfectly fragrant",
+          "relativeTime": "a year ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocK3Q1hKJ9LPS89rLDp7v4VKWyrVGNVviDBooyxD6bR_2eqUNA=s128-c0x00000000-cc-rp-mo"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJ9-LvLMc92jEROE9atx0KsEM",
+      "name": "georges @ The Cove",
+      "address": "133 Pasir Ris Rd, Singapore 519149",
+      "location": {
+        "lat": 1.3849957,
+        "lng": 103.94483849999999
+      },
+      "rating": 4.3,
+      "userRatingsTotal": 1712,
+      "countryCode": "SG",
+      "types": [
+        "bar_and_grill",
+        "bar",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-30-04-01.jpg",
+        "photos/2026-11-30-04-02.jpg",
+        "photos/2026-11-30-04-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "Jane",
+          "rating": 5,
+          "text": "We recently held our academy’s anniversary event at Georges, and we’re really happy with how everything turned out.\n\nFrom the planning until the actual event day, everything was easy and smooth. The team was very accommodating and made the whole experience feel relaxed and less stressful for us.\n\nA special thank you the owner and to their team at the Cove- Mae, Red, Andrew, Raymond, and Calix for taking such good care of us and our guests. They were all very helpful, friendly, and always ready to assist whenever we needed something. Having such a supportive team really made the event much easier and less of a hassle for us.\n\nThe food catering was also excellent 100% satisfied. Our guests enjoyed it, and everything was well prepared.\n\nThe location was perfect for the kind of event we wanted. We had families, adults, and many kids with us, so the outdoor space worked really well. The beach right in front was a big plus, especially for the children who could enjoy the surroundings and play outside.\n\nOverall, our anniversary celebration was a success, and Georges played a big part in making the day feel easy, enjoyable, and memorable.\n\nWe truly appreciate all your help and hospitality. We would definitely recommend Georges for family gatherings, celebrations, and outdoor events.",
+          "relativeTime": "2 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjX5uiaip9N5FOpRdZ-jLx90LQD2ek9jYj1_T-h-ArMLQXOTWR4=s128-c0x00000000-cc-rp-mo"
+        },
+        {
+          "author": "Jeffrey Yeo",
+          "rating": 4,
+          "text": "Wonderful food options and drinks at affordable price. Good service in a dog friendly seaside facing setting. Good for family with children or alone relaxing and enjoying..",
+          "relativeTime": "in the last week",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUC8YvHo4ZmEcJw9wTVqbrHSwWPuSy5-WtWJO3JKqN_4bawtu9E=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Crystal Goh",
+          "rating": 5,
+          "text": "A really chill casual dining experience right by the waves. Very popular with the local residents and can get busy on the weekends, so always make a reservation in advance and be aware that there are likely to be surcharges on special occasions like NYE etc. The staff are friendly and it is also a pet friendly place - and I love that they always bring a bowl of water out for my pup. If you are afraid of dogs, be aware of this as there's always many doggos around. Food is decent, and I would recommend the fish and chips, fish fingers and clams in wine. They also have decent happy hour deals.",
+          "relativeTime": "3 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocINWZj1dXh9i-HK3Y5CriCyKB_doMElWft9qzqRRTSb1uB8h0s=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "chang Andy",
+          "rating": 4,
+          "text": "Overall experience 8/10\nWe ordered the grilled beef: 9/10 meat is tender and juicy well prepared. The sauce came with it blend well to it.\nFish & Chip: 7/10 the meat of the fish is sweet and fresh. Portion is big\nPork chop:9/10 meat is very tender and tasty.\nTop shell: 8/10 side dish appetizing\nIkan billis:8/10 nice\nHor fun: 9/10 taste good have the wok taste\nOverall food is good. Recommended to try",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjWrrWV3hUGfKivIMUCj3FO7rD2aADiVMmRrYQsexVyUMYsrnN4s9Q=s128-c0x00000000-cc-rp-mo-ba5"
+        },
+        {
+          "author": "hoongji",
+          "rating": 5,
+          "text": "Great place to chill by the beach. The food is tasty. Come early if no reservation as the place gets filled up fast by 6pm on weekend.",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJLf0rmYdlrSYzTi10Tqb8VXcMXyFCgeY4c__a3AFKvr7_ZsBMM=s128-c0x00000000-cc-rp-mo-ba4"
+        }
+      ]
+    },
+    {
+      "placeId": "ChIJBcVP76MZ2jEROyOCv2NE8v4",
+      "name": "Smith Marine Floating Restaurant",
+      "address": "9XW6+VJP, Singapore 000000",
+      "location": {
+        "lat": 1.3972415999999999,
+        "lng": 103.9615845
+      },
+      "rating": 4.1,
+      "userRatingsTotal": 87,
+      "countryCode": "SG",
+      "types": [
+        "seafood_restaurant",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "photos": [
+        "photos/2026-11-30-05-01.jpg",
+        "photos/2026-11-30-05-02.jpg",
+        "photos/2026-11-30-05-03.jpg"
+      ],
+      "reviews": [
+        {
+          "author": "KH C",
+          "rating": 5,
+          "text": "food is very delicious.I recommend you to go with your family to this place. Anybody can get to feed the fish , but you need to pay though ($ 2.50 for a box of round fish pellets). The staff are very polite and the surroundings are very clean. The sunset looks beautiful and if you order a promfret or red snapper, you can see the person catch the fish using a hand line (hook and prawn as bait).",
+          "relativeTime": "a month ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJf21VPbjag1pcEvMmYnol5ShqfmWKpRzLL8WWNqMQMsWQEZw=s128-c0x00000000-cc-rp-mo"
+        },
+        {
+          "author": "Elden Teo",
+          "rating": 5,
+          "text": "Incredible dining experience, I highly recommend experiencing dining here at least once. The food here is fresh, although for its portion, the price can be a bit steep. Overall, the indoor seating area is well ventilated with a relaxing view overseeing the water. Just make sure you made a reservation beforehand as the place is limited to about 60 diners. Staff here were friendly. However, their service speed could use a slight improvement. Side note, they have a foosball, air hockey and pool table for customers.",
+          "relativeTime": "a year ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocJo7Eo9yk-AzR0lSuZT8xh3m0voP-ySBnJlNPL8vMTDib79AA=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Eddy Muhamad",
+          "rating": 4,
+          "text": "Our first visit. We come with 10 person. Place was clean. Foods served fast as there are only 2 tables occupied. Food was delicious. Portion was generous. We can walk around the kelong while they prepare the foods.",
+          "relativeTime": "11 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUSjGd2K41rQ5dPklsClC9dg2mxqK7hEfg-BIuSbCMI4c6ooWdmCA=s128-c0x00000000-cc-rp-mo-ba6"
+        },
+        {
+          "author": "Thomas Koh",
+          "rating": 5,
+          "text": "Bring my wife here for a new experience. The staff here is very friendly and the food is very fresh for the seafood. Really have a great time here.",
+          "relativeTime": "5 months ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a-/ALV-UjUdayh59OfK4YRPBqcSsOdnWqE6b4FaE1tKAQUmc7igcPK4z9k=s128-c0x00000000-cc-rp-mo-ba4"
+        },
+        {
+          "author": "LN A",
+          "rating": 5,
+          "text": "We had the 7 course set. Food was fresh, good, and sufficient.\n\nStaff is friendly, helpful and ambience is no frills. They have well-used pool, foots-all, air hockey and Jena jenga. It may be too rustic for some but my aged parents loved it.\n\nIt’s nice and relaxing to walk around the Kelong, and the old folks love lazing at the open covered deck.\n\nThey arranged ferry transport from Changi ferry terminal.\n\nPayment by cash, PayLah or PayNow only.",
+          "relativeTime": "a year ago",
+          "profilePhoto": "https://lh3.googleusercontent.com/a/ACg8ocImy3hY8tWriZM7l0ekFS0d6sJ3cZChvThXCW0jBtsV66vDMD4G=s128-c0x00000000-cc-rp-mo-ba4"
+        }
+      ]
+    }
+  ]
+}
